@@ -66,7 +66,12 @@ class Tokenizer:
                   'EQUAL',
                   'LBRACKET',
                   'RBRACKET',
-                  'ID'
+                  'ID',
+                  'MODULO',
+                  'AND',
+                  'OR',
+                  'NOTEQ',
+                  'NOT'
              ] + list(reserved.values())
 
     t_PLUS    = r'\+'
@@ -87,10 +92,15 @@ class Tokenizer:
     t_LESS    = r'<'
     t_GREATER = r'>'
     t_EQUAL   = r'='
-
+    t_MODULO  = r'%'
+    t_AND     = r'&&'
+    t_OR      = r'||'
+    t_NOT     = r'!'
+    t_NOTEQ   = r'!='
 
     # Build the lexer
-    def build(self,**kwargs):
+ 
+   def build(self,**kwargs):
         self.lexer = lex.lex(module=self, **kwargs)
 
     def t_ID(self, t):
@@ -115,6 +125,7 @@ class Tokenizer:
 
 
     # c and c++ comment style
+
     def t_COMMENT(self, t):
         r'(/\*(.|\n)*?\*/)|(//.*)'
         pass
@@ -125,15 +136,16 @@ class Tokenizer:
         return t
 
     # C string "string"
+
     def t_SCONST(self, t):
         r'\"(\\.|[^"])*\"'
         return t
 
     # C character literal 'char'
+
     def t_CCONST(self, t):
         r'\'(\\.|[^\'])*\''
         return t
-
 
 
     def t_error_unclosed_string(self, t):
@@ -152,3 +164,4 @@ class Tokenizer:
         r'\\.*'
         print("%d: Bad string escape code '\%s'" % (t.lexer.lineno, t.value[1]))
         t.lexer.skip(1)
+
