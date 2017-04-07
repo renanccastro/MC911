@@ -1,0 +1,5 @@
+06 de Abril
+===========
+Wendrey: Adicionando funções no Parser. Ainda não entendi direito como deveria funcionar a AST. Provavelmente serão necessárias mudanças no Parser pra integrar com a AST, mas a estruturação dos argumentos deve estar correta.
+
+
