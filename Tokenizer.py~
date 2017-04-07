@@ -93,7 +93,7 @@ class Tokenizer:
     t_GTEQUAL = r'>='
     t_LESS    = r'<'
     t_GREATER = r'>'
-    t_EQUAL   = r'=='
+    t_EQUAL   = r'='
     t_MODULO  = r'%'
     t_AND     = r'&&'
     t_OR      = r'\|\|'
