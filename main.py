@@ -1,4 +1,5 @@
 from Tokenizer import Tokenizer
+from Parser import Parser
 import sys
 
 
@@ -6,7 +7,23 @@ import sys
 if __name__ == "__main__":
     filename = sys.argv[-1]
     tokenizer = Tokenizer()
+    parser = Parser()
 
-    with open(filename, 'r') as content_file:
-        content = content_file.read()
-        tokenizer.tokenize(content)
+
+
+    # TODO: TROCAR PARA LER DE UM ARQUIVO, POR ENQUANTO TÁ PEGANDO DO CONSOLE PRA TESTES
+    # with open(filename, 'r') as content_file:
+    #     content = content_file.read()
+    #     tokenizer.tokenize(content)
+    #     parser.parse(content, lexer=tokenizer)
+
+    while True:
+        try:
+            s = raw_input('calc > ')
+        except EOFError:
+            break
+        if not s: continue
+        tokenizer.tokenize(s)
+        parser.build()
+        result = parser.parser.parse(s)
+        print(result)

@@ -2,4 +2,18 @@
 ===========
 Wendrey: Adicionando funções no Parser. Ainda não entendi direito como deveria funcionar a AST. Provavelmente serão necessárias mudanças no Parser pra integrar com a AST, mas a estruturação dos argumentos deve estar correta.
 
+08 de Abril
+===========
+Renan: Mudando o parser. Criando alguns nós da AST e organizando em um package.
+Falta MUITA coisa pra fazer o parser, a linguagem é bem grande, mas por hora ela já intepreta coisas como
+
+dcl x,y int;
+dcl a,x char;
+
+Ainda falta inicialização, outros tipos de declaração e outros tipos de statement.
+
+O esquema é ir pegando o BNF e meio que fazendo a tradução pra a linguagem que a gente fazia na sala mesmo, e aí ir
+tentando entender mais ou menos como funcionam as coisas na linguagem.
+
+
 
