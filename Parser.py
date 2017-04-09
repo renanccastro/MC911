@@ -68,14 +68,6 @@ class Parser:
             p[0] = p[3]
             p[0].append(Identifier(p[1]))
 
-    # def p_identifier_append(self,p):
-    #     '''identifier_append : COMMA ID
-    #                          | identifier_append COMMA ID
-    #                          | empty'''
-    #     if len(p) > 1:
-    #         p[0] = Identifier(p[2])
-    #     else:
-    #         pass
 
     def p_mode(self,p):
         '''mode : discrete_mode'''
