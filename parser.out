@@ -66,26 +66,25 @@ Unused terminals:
 Grammar
 
 Rule 0     S' -> program
-Rule 1     program -> statement statement_nullable
-Rule 2     statement -> declaration_statement
-Rule 3     statement_nullable -> statement_nullable statement
+Rule 1     program -> statement_list
+Rule 2     statement_list -> statement statement_nullable
+Rule 3     statement_nullable -> statement statement_nullable
 Rule 4     statement_nullable -> empty
-Rule 5     declaration_statement -> DCL declaration_list SEMI
-Rule 6     declaration_list -> declaration declaration_append
-Rule 7     declaration_append -> COMMA declaration
-Rule 8     declaration_append -> empty
+Rule 5     statement -> declaration_statement
+Rule 6     declaration_statement -> DCL declaration_list SEMI
+Rule 7     declaration_list -> declaration
+Rule 8     declaration_list -> declaration COMMA declaration
 Rule 9     declaration -> identifier_list mode
-Rule 10    identifier_list -> ID identifier_append
-Rule 11    identifier_append -> COMMA ID
-Rule 12    identifier_append -> empty
-Rule 13    mode -> discrete_mode
-Rule 14    discrete_mode -> integer_mode
-Rule 15    discrete_mode -> boolean_mode
-Rule 16    discrete_mode -> character_mode
-Rule 17    integer_mode -> INT
-Rule 18    boolean_mode -> BOOL
-Rule 19    character_mode -> CHAR
-Rule 20    empty -> <empty>
+Rule 10    identifier_list -> ID
+Rule 11    identifier_list -> ID COMMA identifier_list
+Rule 12    mode -> discrete_mode
+Rule 13    discrete_mode -> integer_mode
+Rule 14    discrete_mode -> boolean_mode
+Rule 15    discrete_mode -> character_mode
+Rule 16    integer_mode -> INT
+Rule 17    boolean_mode -> BOOL
+Rule 18    character_mode -> CHAR
+Rule 19    empty -> <empty>
 
 Terminals, with rules where they appear
 
@@ -95,14 +94,14 @@ ARRAY                :
 ARROW                : 
 ASC                  : 
 ASSIGN               : 
-BOOL                 : 18
+BOOL                 : 17
 BY                   : 
 CCONST               : 
-CHAR                 : 19
+CHAR                 : 18
 CHARS                : 
 COLON                : 
-COMMA                : 7 11
-DCL                  : 5
+COMMA                : 8 11
+DCL                  : 6
 DIVIDE               : 
 DO                   : 
 DOWN                 : 
@@ -120,7 +119,7 @@ ICONST               :
 ID                   : 10 11
 IF                   : 
 IN                   : 
-INT                  : 17
+INT                  : 16
 LBRACKET             : 
 LENGTH               : 
 LESS                 : 
@@ -147,7 +146,7 @@ RETURN               :
 RETURNS              : 
 RPAREN               : 
 SCONST               : 
-SEMI                 : 5
+SEMI                 : 6
 SYN                  : 
 THEN                 : 
 TIMES                : 
@@ -160,49 +159,52 @@ error                :
 
 Nonterminals, with rules where they appear
 
-boolean_mode         : 15
-character_mode       : 16
-declaration          : 6 7
-declaration_append   : 6
-declaration_list     : 5
-declaration_statement : 2
-discrete_mode        : 13
-empty                : 4 8 12
-identifier_append    : 10
-identifier_list      : 9
-integer_mode         : 14
+boolean_mode         : 14
+character_mode       : 15
+declaration          : 7 8 8
+declaration_list     : 6
+declaration_statement : 5
+discrete_mode        : 12
+empty                : 4
+identifier_list      : 9 11
+integer_mode         : 13
 mode                 : 9
 program              : 0
-statement            : 1 3
-statement_nullable   : 1 3
+statement            : 2 3
+statement_list       : 1
+statement_nullable   : 2 3
 
 Parsing method: LALR
 
 state 0
 
     (0) S' -> . program
-    (1) program -> . statement statement_nullable
-    (2) statement -> . declaration_statement
-    (5) declaration_statement -> . DCL declaration_list SEMI
+    (1) program -> . statement_list
+    (2) statement_list -> . statement statement_nullable
+    (5) statement -> . declaration_statement
+    (6) declaration_statement -> . DCL declaration_list SEMI
 
     DCL             shift and go to state 1
 
     program                        shift and go to state 2
     statement                      shift and go to state 3
     declaration_statement          shift and go to state 4
+    statement_list                 shift and go to state 5
 
 state 1
 
-    (5) declaration_statement -> DCL . declaration_list SEMI
-    (6) declaration_list -> . declaration declaration_append
+    (6) declaration_statement -> DCL . declaration_list SEMI
+    (7) declaration_list -> . declaration
+    (8) declaration_list -> . declaration COMMA declaration
     (9) declaration -> . identifier_list mode
-    (10) identifier_list -> . ID identifier_append
+    (10) identifier_list -> . ID
+    (11) identifier_list -> . ID COMMA identifier_list
 
-    ID              shift and go to state 8
+    ID              shift and go to state 9
 
-    declaration_list               shift and go to state 5
-    declaration                    shift and go to state 6
-    identifier_list                shift and go to state 7
+    declaration                    shift and go to state 7
+    identifier_list                shift and go to state 8
+    declaration_list               shift and go to state 6
 
 state 2
 
@@ -212,55 +214,62 @@ state 2
 
 state 3
 
-    (1) program -> statement . statement_nullable
-    (3) statement_nullable -> . statement_nullable statement
+    (2) statement_list -> statement . statement_nullable
+    (3) statement_nullable -> . statement statement_nullable
     (4) statement_nullable -> . empty
-    (20) empty -> .
+    (5) statement -> . declaration_statement
+    (19) empty -> .
+    (6) declaration_statement -> . DCL declaration_list SEMI
 
-    DCL             reduce using rule 20 (empty -> .)
-    $end            reduce using rule 20 (empty -> .)
+    $end            reduce using rule 19 (empty -> .)
+    DCL             shift and go to state 1
 
-    statement_nullable             shift and go to state 9
-    empty                          shift and go to state 10
+    statement_nullable             shift and go to state 10
+    empty                          shift and go to state 12
+    statement                      shift and go to state 11
+    declaration_statement          shift and go to state 4
 
 state 4
 
-    (2) statement -> declaration_statement .
+    (5) statement -> declaration_statement .
 
-    DCL             reduce using rule 2 (statement -> declaration_statement .)
-    $end            reduce using rule 2 (statement -> declaration_statement .)
+    DCL             reduce using rule 5 (statement -> declaration_statement .)
+    $end            reduce using rule 5 (statement -> declaration_statement .)
 
 
 state 5
 
-    (5) declaration_statement -> DCL declaration_list . SEMI
+    (1) program -> statement_list .
 
-    SEMI            shift and go to state 11
+    $end            reduce using rule 1 (program -> statement_list .)
 
 
 state 6
 
-    (6) declaration_list -> declaration . declaration_append
-    (7) declaration_append -> . COMMA declaration
-    (8) declaration_append -> . empty
-    (20) empty -> .
+    (6) declaration_statement -> DCL declaration_list . SEMI
 
-    COMMA           shift and go to state 12
-    SEMI            reduce using rule 20 (empty -> .)
+    SEMI            shift and go to state 13
 
-    declaration_append             shift and go to state 13
-    empty                          shift and go to state 14
 
 state 7
 
+    (7) declaration_list -> declaration .
+    (8) declaration_list -> declaration . COMMA declaration
+
+    SEMI            reduce using rule 7 (declaration_list -> declaration .)
+    COMMA           shift and go to state 14
+
+
+state 8
+
     (9) declaration -> identifier_list . mode
-    (13) mode -> . discrete_mode
-    (14) discrete_mode -> . integer_mode
-    (15) discrete_mode -> . boolean_mode
-    (16) discrete_mode -> . character_mode
-    (17) integer_mode -> . INT
-    (18) boolean_mode -> . BOOL
-    (19) character_mode -> . CHAR
+    (12) mode -> . discrete_mode
+    (13) discrete_mode -> . integer_mode
+    (14) discrete_mode -> . boolean_mode
+    (15) discrete_mode -> . character_mode
+    (16) integer_mode -> . INT
+    (17) boolean_mode -> . BOOL
+    (18) character_mode -> . CHAR
 
     INT             shift and go to state 15
     BOOL            shift and go to state 22
@@ -272,113 +281,106 @@ state 7
     mode                           shift and go to state 20
     discrete_mode                  shift and go to state 21
 
-state 8
-
-    (10) identifier_list -> ID . identifier_append
-    (11) identifier_append -> . COMMA ID
-    (12) identifier_append -> . empty
-    (20) empty -> .
-
-    COMMA           shift and go to state 23
-    INT             reduce using rule 20 (empty -> .)
-    BOOL            reduce using rule 20 (empty -> .)
-    CHAR            reduce using rule 20 (empty -> .)
-
-    identifier_append              shift and go to state 25
-    empty                          shift and go to state 24
-
 state 9
 
-    (1) program -> statement statement_nullable .
-    (3) statement_nullable -> statement_nullable . statement
-    (2) statement -> . declaration_statement
-    (5) declaration_statement -> . DCL declaration_list SEMI
+    (10) identifier_list -> ID .
+    (11) identifier_list -> ID . COMMA identifier_list
 
-    $end            reduce using rule 1 (program -> statement statement_nullable .)
-    DCL             shift and go to state 1
+    INT             reduce using rule 10 (identifier_list -> ID .)
+    BOOL            reduce using rule 10 (identifier_list -> ID .)
+    CHAR            reduce using rule 10 (identifier_list -> ID .)
+    COMMA           shift and go to state 23
 
-    statement                      shift and go to state 26
-    declaration_statement          shift and go to state 4
 
 state 10
 
-    (4) statement_nullable -> empty .
+    (2) statement_list -> statement statement_nullable .
 
-    DCL             reduce using rule 4 (statement_nullable -> empty .)
-    $end            reduce using rule 4 (statement_nullable -> empty .)
+    $end            reduce using rule 2 (statement_list -> statement statement_nullable .)
 
 
 state 11
 
-    (5) declaration_statement -> DCL declaration_list SEMI .
+    (3) statement_nullable -> statement . statement_nullable
+    (3) statement_nullable -> . statement statement_nullable
+    (4) statement_nullable -> . empty
+    (5) statement -> . declaration_statement
+    (19) empty -> .
+    (6) declaration_statement -> . DCL declaration_list SEMI
 
-    DCL             reduce using rule 5 (declaration_statement -> DCL declaration_list SEMI .)
-    $end            reduce using rule 5 (declaration_statement -> DCL declaration_list SEMI .)
+    $end            reduce using rule 19 (empty -> .)
+    DCL             shift and go to state 1
 
+    statement_nullable             shift and go to state 24
+    empty                          shift and go to state 12
+    statement                      shift and go to state 11
+    declaration_statement          shift and go to state 4
 
 state 12
 
-    (7) declaration_append -> COMMA . declaration
-    (9) declaration -> . identifier_list mode
-    (10) identifier_list -> . ID identifier_append
+    (4) statement_nullable -> empty .
 
-    ID              shift and go to state 8
+    $end            reduce using rule 4 (statement_nullable -> empty .)
 
-    identifier_list                shift and go to state 7
-    declaration                    shift and go to state 27
 
 state 13
 
-    (6) declaration_list -> declaration declaration_append .
+    (6) declaration_statement -> DCL declaration_list SEMI .
 
-    SEMI            reduce using rule 6 (declaration_list -> declaration declaration_append .)
+    DCL             reduce using rule 6 (declaration_statement -> DCL declaration_list SEMI .)
+    $end            reduce using rule 6 (declaration_statement -> DCL declaration_list SEMI .)
 
 
 state 14
 
-    (8) declaration_append -> empty .
+    (8) declaration_list -> declaration COMMA . declaration
+    (9) declaration -> . identifier_list mode
+    (10) identifier_list -> . ID
+    (11) identifier_list -> . ID COMMA identifier_list
 
-    SEMI            reduce using rule 8 (declaration_append -> empty .)
+    ID              shift and go to state 9
 
+    identifier_list                shift and go to state 8
+    declaration                    shift and go to state 25
 
 state 15
 
-    (17) integer_mode -> INT .
+    (16) integer_mode -> INT .
 
-    COMMA           reduce using rule 17 (integer_mode -> INT .)
-    SEMI            reduce using rule 17 (integer_mode -> INT .)
+    COMMA           reduce using rule 16 (integer_mode -> INT .)
+    SEMI            reduce using rule 16 (integer_mode -> INT .)
 
 
 state 16
 
-    (15) discrete_mode -> boolean_mode .
+    (14) discrete_mode -> boolean_mode .
 
-    COMMA           reduce using rule 15 (discrete_mode -> boolean_mode .)
-    SEMI            reduce using rule 15 (discrete_mode -> boolean_mode .)
+    COMMA           reduce using rule 14 (discrete_mode -> boolean_mode .)
+    SEMI            reduce using rule 14 (discrete_mode -> boolean_mode .)
 
 
 state 17
 
-    (16) discrete_mode -> character_mode .
+    (15) discrete_mode -> character_mode .
 
-    COMMA           reduce using rule 16 (discrete_mode -> character_mode .)
-    SEMI            reduce using rule 16 (discrete_mode -> character_mode .)
+    COMMA           reduce using rule 15 (discrete_mode -> character_mode .)
+    SEMI            reduce using rule 15 (discrete_mode -> character_mode .)
 
 
 state 18
 
-    (19) character_mode -> CHAR .
+    (18) character_mode -> CHAR .
 
-    COMMA           reduce using rule 19 (character_mode -> CHAR .)
-    SEMI            reduce using rule 19 (character_mode -> CHAR .)
+    COMMA           reduce using rule 18 (character_mode -> CHAR .)
+    SEMI            reduce using rule 18 (character_mode -> CHAR .)
 
 
 state 19
 
-    (14) discrete_mode -> integer_mode .
+    (13) discrete_mode -> integer_mode .
 
-    COMMA           reduce using rule 14 (discrete_mode -> integer_mode .)
-    SEMI            reduce using rule 14 (discrete_mode -> integer_mode .)
+    COMMA           reduce using rule 13 (discrete_mode -> integer_mode .)
+    SEMI            reduce using rule 13 (discrete_mode -> integer_mode .)
 
 
 state 20
@@ -391,65 +393,49 @@ state 20
 
 state 21
 
-    (13) mode -> discrete_mode .
+    (12) mode -> discrete_mode .
 
-    COMMA           reduce using rule 13 (mode -> discrete_mode .)
-    SEMI            reduce using rule 13 (mode -> discrete_mode .)
+    COMMA           reduce using rule 12 (mode -> discrete_mode .)
+    SEMI            reduce using rule 12 (mode -> discrete_mode .)
 
 
 state 22
 
-    (18) boolean_mode -> BOOL .
+    (17) boolean_mode -> BOOL .
 
-    COMMA           reduce using rule 18 (boolean_mode -> BOOL .)
-    SEMI            reduce using rule 18 (boolean_mode -> BOOL .)
+    COMMA           reduce using rule 17 (boolean_mode -> BOOL .)
+    SEMI            reduce using rule 17 (boolean_mode -> BOOL .)
 
 
 state 23
 
-    (11) identifier_append -> COMMA . ID
+    (11) identifier_list -> ID COMMA . identifier_list
+    (10) identifier_list -> . ID
+    (11) identifier_list -> . ID COMMA identifier_list
 
-    ID              shift and go to state 28
+    ID              shift and go to state 9
 
+    identifier_list                shift and go to state 26
 
 state 24
 
-    (12) identifier_append -> empty .
+    (3) statement_nullable -> statement statement_nullable .
 
-    INT             reduce using rule 12 (identifier_append -> empty .)
-    BOOL            reduce using rule 12 (identifier_append -> empty .)
-    CHAR            reduce using rule 12 (identifier_append -> empty .)
+    $end            reduce using rule 3 (statement_nullable -> statement statement_nullable .)
 
 
 state 25
 
-    (10) identifier_list -> ID identifier_append .
+    (8) declaration_list -> declaration COMMA declaration .
 
-    INT             reduce using rule 10 (identifier_list -> ID identifier_append .)
-    BOOL            reduce using rule 10 (identifier_list -> ID identifier_append .)
-    CHAR            reduce using rule 10 (identifier_list -> ID identifier_append .)
+    SEMI            reduce using rule 8 (declaration_list -> declaration COMMA declaration .)
 
 
 state 26
 
-    (3) statement_nullable -> statement_nullable statement .
+    (11) identifier_list -> ID COMMA identifier_list .
 
-    DCL             reduce using rule 3 (statement_nullable -> statement_nullable statement .)
-    $end            reduce using rule 3 (statement_nullable -> statement_nullable statement .)
-
-
-state 27
-
-    (7) declaration_append -> COMMA declaration .
-
-    SEMI            reduce using rule 7 (declaration_append -> COMMA declaration .)
-
-
-state 28
-
-    (11) identifier_append -> COMMA ID .
-
-    INT             reduce using rule 11 (identifier_append -> COMMA ID .)
-    BOOL            reduce using rule 11 (identifier_append -> COMMA ID .)
-    CHAR            reduce using rule 11 (identifier_append -> COMMA ID .)
+    INT             reduce using rule 11 (identifier_list -> ID COMMA identifier_list .)
+    BOOL            reduce using rule 11 (identifier_list -> ID COMMA identifier_list .)
+    CHAR            reduce using rule 11 (identifier_list -> ID COMMA identifier_list .)
 
