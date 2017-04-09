@@ -5,9 +5,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'ICONST CCONST SCONST COMMA PLUS MINUS TIMES DIVIDE COLON LPAREN RPAREN ASSIGN SEMI ARROW LTEQUAL LESS GREATER GTEQUAL EQUAL LBRACKET RBRACKET ID MODULO AND OR NOTEQ NOT DO DCL RETURN THEN INT FALSE CHARS SYN ELSE DOWN NUM RESULT IN FI ARRAY NULL LENGTH BY LOWER IF LOC CHAR REF END FOR READ PROC OD WHILE UPPER ASC TO RETURNS ABS EXIT ELSIF PRINT BOOL TYPE TRUEprogram : statement statement_nullablestatement_nullable : statement\n                              | emptystatement : declaration_statementdeclaration_statement : DCL declaration_list SEMIdeclaration_list : declaration declaration_appenddeclaration_append : COMMA declaration\n                              | emptydeclaration : identifier_list modeidentifier_list : ID identifier_appendidentifier_append : COMMA ID\n                             | emptymode : discrete_modediscrete_mode : integer_mode\n                         | boolean_mode\n                         | character_modeinteger_mode : INTboolean_mode : BOOLcharacter_mode : CHARempty :'
+_lr_signature = 'ICONST CCONST SCONST COMMA PLUS MINUS TIMES DIVIDE COLON LPAREN RPAREN ASSIGN SEMI ARROW LTEQUAL LESS GREATER GTEQUAL EQUAL LBRACKET RBRACKET ID MODULO AND OR NOTEQ NOT DO DCL RETURN THEN INT FALSE CHARS SYN ELSE DOWN NUM RESULT IN FI ARRAY NULL LENGTH BY LOWER IF LOC CHAR REF END FOR READ PROC OD WHILE UPPER ASC TO RETURNS ABS EXIT ELSIF PRINT BOOL TYPE TRUEprogram : statement statement_nullablestatement : declaration_statementstatement_nullable : statement_nullable statement\n                              | emptydeclaration_statement : DCL declaration_list SEMIdeclaration_list : declaration declaration_appenddeclaration_append : COMMA declaration\n                              | emptydeclaration : identifier_list modeidentifier_list : ID identifier_appendidentifier_append : COMMA ID\n                             | emptymode : discrete_modediscrete_mode : integer_mode\n                         | boolean_mode\n                         | character_modeinteger_mode : INTboolean_mode : BOOLcharacter_mode : CHARempty :'
     
-_lr_action_items = {'DCL':([0,3,4,12,],[1,1,-4,-5,]),'SEMI':([5,6,14,15,16,17,18,19,20,21,22,23,27,],[12,-20,-6,-8,-17,-15,-16,-19,-14,-9,-13,-18,-7,]),'INT':([7,8,25,26,28,],[16,-20,-12,-10,-11,]),'CHAR':([7,8,25,26,28,],[19,-20,-12,-10,-11,]),'COMMA':([6,8,16,17,18,19,20,21,22,23,],[13,24,-17,-15,-16,-19,-14,-9,-13,-18,]),'BOOL':([7,8,25,26,28,],[23,-20,-12,-10,-11,]),'ID':([1,13,24,],[8,8,28,]),'$end':([2,3,4,9,10,11,12,],[0,-20,-4,-1,-2,-3,-5,]),}
+_lr_action_items = {'DCL':([0,3,4,9,10,11,26,],[1,-20,-2,1,-4,-5,-3,]),'SEMI':([5,6,13,14,15,16,17,18,19,20,21,22,27,],[11,-20,-6,-8,-17,-15,-16,-19,-14,-9,-13,-18,-7,]),'INT':([7,8,24,25,28,],[15,-20,-12,-10,-11,]),'CHAR':([7,8,24,25,28,],[18,-20,-12,-10,-11,]),'COMMA':([6,8,15,16,17,18,19,20,21,22,],[12,23,-17,-15,-16,-19,-14,-9,-13,-18,]),'BOOL':([7,8,24,25,28,],[22,-20,-12,-10,-11,]),'ID':([1,12,23,],[8,8,28,]),'$end':([2,3,4,9,10,11,26,],[0,-20,-2,-1,-4,-5,-3,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -16,7 +16,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'statement_nullable':([3,],[9,]),'character_mode':([7,],[18,]),'identifier_append':([8,],[26,]),'boolean_mode':([7,],[17,]),'declaration_list':([1,],[5,]),'program':([0,],[2,]),'integer_mode':([7,],[20,]),'empty':([3,6,8,],[11,15,25,]),'statement':([0,3,],[3,10,]),'declaration':([1,13,],[6,27,]),'discrete_mode':([7,],[22,]),'mode':([7,],[21,]),'identifier_list':([1,13,],[7,7,]),'declaration_statement':([0,3,],[4,4,]),'declaration_append':([6,],[14,]),}
+_lr_goto_items = {'statement_nullable':([3,],[9,]),'character_mode':([7,],[17,]),'identifier_append':([8,],[25,]),'boolean_mode':([7,],[16,]),'declaration_list':([1,],[5,]),'program':([0,],[2,]),'integer_mode':([7,],[19,]),'empty':([3,6,8,],[10,14,24,]),'statement':([0,9,],[3,26,]),'declaration':([1,12,],[6,27,]),'discrete_mode':([7,],[21,]),'mode':([7,],[20,]),'identifier_list':([1,12,],[7,7,]),'declaration_statement':([0,9,],[4,4,]),'declaration_append':([6,],[13,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -26,24 +26,24 @@ for _k, _v in _lr_goto_items.items():
 del _lr_goto_items
 _lr_productions = [
   ("S' -> program","S'",1,None,None,None),
-  ('program -> statement statement_nullable','program',2,'p_program','Parser.py',18),
-  ('statement_nullable -> statement','statement_nullable',1,'p_statement_nullable','Parser.py',22),
-  ('statement_nullable -> empty','statement_nullable',1,'p_statement_nullable','Parser.py',23),
-  ('statement -> declaration_statement','statement',1,'p_statement','Parser.py',31),
-  ('declaration_statement -> DCL declaration_list SEMI','declaration_statement',3,'p_declaration_statement','Parser.py',35),
-  ('declaration_list -> declaration declaration_append','declaration_list',2,'p_declaration_list','Parser.py',38),
-  ('declaration_append -> COMMA declaration','declaration_append',2,'p_declaration_append','Parser.py',42),
-  ('declaration_append -> empty','declaration_append',1,'p_declaration_append','Parser.py',43),
-  ('declaration -> identifier_list mode','declaration',2,'p_declaration','Parser.py',52),
-  ('identifier_list -> ID identifier_append','identifier_list',2,'p_identifier_list','Parser.py',56),
-  ('identifier_append -> COMMA ID','identifier_append',2,'p_identifier_append','Parser.py',60),
-  ('identifier_append -> empty','identifier_append',1,'p_identifier_append','Parser.py',61),
-  ('mode -> discrete_mode','mode',1,'p_mode','Parser.py',68),
-  ('discrete_mode -> integer_mode','discrete_mode',1,'p_discrete_mode','Parser.py',71),
-  ('discrete_mode -> boolean_mode','discrete_mode',1,'p_discrete_mode','Parser.py',72),
-  ('discrete_mode -> character_mode','discrete_mode',1,'p_discrete_mode','Parser.py',73),
-  ('integer_mode -> INT','integer_mode',1,'p_integer_mode','Parser.py',77),
-  ('boolean_mode -> BOOL','boolean_mode',1,'p_boolean_mode','Parser.py',80),
-  ('character_mode -> CHAR','character_mode',1,'p_character_mode','Parser.py',83),
-  ('empty -> <empty>','empty',0,'p_empty','Parser.py',88),
+  ('program -> statement statement_nullable','program',2,'p_program','Parser.py',12),
+  ('statement -> declaration_statement','statement',1,'p_statement','Parser.py',17),
+  ('statement_nullable -> statement_nullable statement','statement_nullable',2,'p_statement_nullable','Parser.py',21),
+  ('statement_nullable -> empty','statement_nullable',1,'p_statement_nullable','Parser.py',22),
+  ('declaration_statement -> DCL declaration_list SEMI','declaration_statement',3,'p_declaration_statement','Parser.py',30),
+  ('declaration_list -> declaration declaration_append','declaration_list',2,'p_declaration_list','Parser.py',34),
+  ('declaration_append -> COMMA declaration','declaration_append',2,'p_declaration_append','Parser.py',38),
+  ('declaration_append -> empty','declaration_append',1,'p_declaration_append','Parser.py',39),
+  ('declaration -> identifier_list mode','declaration',2,'p_declaration','Parser.py',48),
+  ('identifier_list -> ID identifier_append','identifier_list',2,'p_identifier_list','Parser.py',52),
+  ('identifier_append -> COMMA ID','identifier_append',2,'p_identifier_append','Parser.py',56),
+  ('identifier_append -> empty','identifier_append',1,'p_identifier_append','Parser.py',57),
+  ('mode -> discrete_mode','mode',1,'p_mode','Parser.py',64),
+  ('discrete_mode -> integer_mode','discrete_mode',1,'p_discrete_mode','Parser.py',67),
+  ('discrete_mode -> boolean_mode','discrete_mode',1,'p_discrete_mode','Parser.py',68),
+  ('discrete_mode -> character_mode','discrete_mode',1,'p_discrete_mode','Parser.py',69),
+  ('integer_mode -> INT','integer_mode',1,'p_integer_mode','Parser.py',73),
+  ('boolean_mode -> BOOL','boolean_mode',1,'p_boolean_mode','Parser.py',76),
+  ('character_mode -> CHAR','character_mode',1,'p_character_mode','Parser.py',79),
+  ('empty -> <empty>','empty',0,'p_empty','Parser.py',84),
 ]

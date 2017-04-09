@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
 
 
-    # TODO: TROCAR PARA LER DE UM ARQUIVO, POR ENQUANTO TÁ PEGANDO DO CONSOLE PRA TESTES
+    # TODO: TROCAR PARA LER DE UM ARQUIVO, POR ENQUANTO TA PEGANDO DO CONSOLE PRA TESTES
     # with open(filename, 'r') as content_file:
     #     content = content_file.read()
     #     tokenizer.tokenize(content)

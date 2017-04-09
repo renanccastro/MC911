@@ -3,23 +3,22 @@ import ply.yacc as yacc
 from Tokenizer import Tokenizer
 from nodes.AST import AST
 from nodes.Program import Program
+from nodes.Identifier import Identifier
 
 class Parser:
-    class Expr:
-        pass
-    class Program(Expr):
-        def __init__(self, value):
-            self.type = "number"
-            self.value = value
-
     tokens = Tokenizer.tokens
     # Program and Statement
     def p_program(self, p):
         'program : statement statement_nullable'
         p[0] = Program(p[1])
 
+
+    def p_statement(self, p):
+        '''statement : declaration_statement'''
+        p[0] = p[1]
+
     def p_statement_nullable(self, p):
-        '''statement_nullable : statement
+        '''statement_nullable : statement_nullable statement
                               | empty'''
         if len(p) > 2:
             p[0] = p[1]
@@ -27,13 +26,10 @@ class Parser:
             pass
 
 
-    def p_statement(self, p):
-        'statement : declaration_statement'
-        p[0] = p[1]
-
     def p_declaration_statement(self, p):
         'declaration_statement : DCL declaration_list SEMI'
         p[0] = p[1]
+
     def p_declaration_list(self, p):
         '''declaration_list : declaration declaration_append'''
         p[0] = [p[1], p[2]]
@@ -54,13 +50,13 @@ class Parser:
 
     def p_identifier_list(self,p):
         '''identifier_list : ID identifier_append'''
-        p[0] = [p[1], p[2]]
+        p[0] = [Identifier(p[1]), p[2]]
 
     def p_identifier_append(self,p):
         '''identifier_append : COMMA ID
                              | empty'''
         if len(p) > 1:
-            p[0] = p[2]
+            p[0] = Identifier(p[2])
         else:
             pass
 
