@@ -5,21 +5,17 @@ Unused terminals:
     DO
     LOWER
     RETURN
-    LPAREN
     LESS
     NOTEQ
     THEN
     EQUAL
     LBRACKET
     WHILE
-    COLON
     TO
     PRINT
     FI
     NULL
-    REF
     MINUS
-    RPAREN
     TRUE
     SCONST
     BY
@@ -41,7 +37,6 @@ Unused terminals:
     LOC
     RETURNS
     ABS
-    ICONST
     RESULT
     ARROW
     IN
@@ -77,14 +72,25 @@ Rule 8     declaration_list -> declaration COMMA declaration
 Rule 9     declaration -> identifier_list mode
 Rule 10    identifier_list -> ID
 Rule 11    identifier_list -> ID COMMA identifier_list
-Rule 12    mode -> discrete_mode
-Rule 13    discrete_mode -> integer_mode
-Rule 14    discrete_mode -> boolean_mode
-Rule 15    discrete_mode -> character_mode
-Rule 16    integer_mode -> INT
-Rule 17    boolean_mode -> BOOL
-Rule 18    character_mode -> CHAR
-Rule 19    empty -> <empty>
+Rule 12    mode -> mode_name
+Rule 13    mode -> discrete_mode
+Rule 14    mode -> reference_mode
+Rule 15    mode_name -> ID
+Rule 16    discrete_mode -> integer_mode
+Rule 17    discrete_mode -> boolean_mode
+Rule 18    discrete_mode -> character_mode
+Rule 19    discrete_mode -> discrete_range_mode
+Rule 20    integer_mode -> INT
+Rule 21    boolean_mode -> BOOL
+Rule 22    character_mode -> CHAR
+Rule 23    discrete_range_mode -> discrete_mode_name LPAREN literal_range RPAREN
+Rule 24    discrete_range_mode -> discrete_mode LPAREN literal_range RPAREN
+Rule 25    literal_range -> lower_bound COLON upper_bound
+Rule 26    lower_bound -> ICONST
+Rule 27    upper_bound -> ICONST
+Rule 28    discrete_mode_name -> ID
+Rule 29    reference_mode -> REF mode
+Rule 30    empty -> <empty>
 
 Terminals, with rules where they appear
 
@@ -94,12 +100,12 @@ ARRAY                :
 ARROW                : 
 ASC                  : 
 ASSIGN               : 
-BOOL                 : 17
+BOOL                 : 21
 BY                   : 
 CCONST               : 
-CHAR                 : 18
+CHAR                 : 22
 CHARS                : 
-COLON                : 
+COLON                : 25
 COMMA                : 8 11
 DCL                  : 6
 DIVIDE               : 
@@ -115,17 +121,17 @@ FI                   :
 FOR                  : 
 GREATER              : 
 GTEQUAL              : 
-ICONST               : 
-ID                   : 10 11
+ICONST               : 26 27
+ID                   : 10 11 15 28
 IF                   : 
 IN                   : 
-INT                  : 16
+INT                  : 20
 LBRACKET             : 
 LENGTH               : 
 LESS                 : 
 LOC                  : 
 LOWER                : 
-LPAREN               : 
+LPAREN               : 23 24
 LTEQUAL              : 
 MINUS                : 
 MODULO               : 
@@ -140,11 +146,11 @@ PRINT                :
 PROC                 : 
 RBRACKET             : 
 READ                 : 
-REF                  : 
+REF                  : 29
 RESULT               : 
 RETURN               : 
 RETURNS              : 
-RPAREN               : 
+RPAREN               : 23 24
 SCONST               : 
 SEMI                 : 6
 SYN                  : 
@@ -159,20 +165,27 @@ error                :
 
 Nonterminals, with rules where they appear
 
-boolean_mode         : 14
-character_mode       : 15
+boolean_mode         : 17
+character_mode       : 18
 declaration          : 7 8 8
 declaration_list     : 6
 declaration_statement : 5
-discrete_mode        : 12
+discrete_mode        : 13 24
+discrete_mode_name   : 23
+discrete_range_mode  : 19
 empty                : 4
 identifier_list      : 9 11
-integer_mode         : 13
-mode                 : 9
+integer_mode         : 16
+literal_range        : 23 24
+lower_bound          : 25
+mode                 : 9 29
+mode_name            : 12
 program              : 0
+reference_mode       : 14
 statement            : 2 3
 statement_list       : 1
 statement_nullable   : 2 3
+upper_bound          : 25
 
 Parsing method: LALR
 
@@ -218,10 +231,10 @@ state 3
     (3) statement_nullable -> . statement statement_nullable
     (4) statement_nullable -> . empty
     (5) statement -> . declaration_statement
-    (19) empty -> .
+    (30) empty -> .
     (6) declaration_statement -> . DCL declaration_list SEMI
 
-    $end            reduce using rule 19 (empty -> .)
+    $end            reduce using rule 30 (empty -> .)
     DCL             shift and go to state 1
 
     statement_nullable             shift and go to state 10
@@ -263,33 +276,49 @@ state 7
 state 8
 
     (9) declaration -> identifier_list . mode
-    (12) mode -> . discrete_mode
-    (13) discrete_mode -> . integer_mode
-    (14) discrete_mode -> . boolean_mode
-    (15) discrete_mode -> . character_mode
-    (16) integer_mode -> . INT
-    (17) boolean_mode -> . BOOL
-    (18) character_mode -> . CHAR
+    (12) mode -> . mode_name
+    (13) mode -> . discrete_mode
+    (14) mode -> . reference_mode
+    (15) mode_name -> . ID
+    (16) discrete_mode -> . integer_mode
+    (17) discrete_mode -> . boolean_mode
+    (18) discrete_mode -> . character_mode
+    (19) discrete_mode -> . discrete_range_mode
+    (29) reference_mode -> . REF mode
+    (20) integer_mode -> . INT
+    (21) boolean_mode -> . BOOL
+    (22) character_mode -> . CHAR
+    (23) discrete_range_mode -> . discrete_mode_name LPAREN literal_range RPAREN
+    (24) discrete_range_mode -> . discrete_mode LPAREN literal_range RPAREN
+    (28) discrete_mode_name -> . ID
 
-    INT             shift and go to state 15
-    BOOL            shift and go to state 22
-    CHAR            shift and go to state 18
+    ID              shift and go to state 28
+    REF             shift and go to state 16
+    INT             shift and go to state 17
+    BOOL            shift and go to state 26
+    CHAR            shift and go to state 20
 
-    boolean_mode                   shift and go to state 16
-    character_mode                 shift and go to state 17
-    integer_mode                   shift and go to state 19
-    mode                           shift and go to state 20
-    discrete_mode                  shift and go to state 21
+    discrete_range_mode            shift and go to state 15
+    boolean_mode                   shift and go to state 18
+    character_mode                 shift and go to state 19
+    reference_mode                 shift and go to state 21
+    discrete_mode_name             shift and go to state 22
+    integer_mode                   shift and go to state 23
+    mode                           shift and go to state 24
+    discrete_mode                  shift and go to state 25
+    mode_name                      shift and go to state 27
 
 state 9
 
     (10) identifier_list -> ID .
     (11) identifier_list -> ID . COMMA identifier_list
 
+    ID              reduce using rule 10 (identifier_list -> ID .)
+    REF             reduce using rule 10 (identifier_list -> ID .)
     INT             reduce using rule 10 (identifier_list -> ID .)
     BOOL            reduce using rule 10 (identifier_list -> ID .)
     CHAR            reduce using rule 10 (identifier_list -> ID .)
-    COMMA           shift and go to state 23
+    COMMA           shift and go to state 29
 
 
 state 10
@@ -305,13 +334,13 @@ state 11
     (3) statement_nullable -> . statement statement_nullable
     (4) statement_nullable -> . empty
     (5) statement -> . declaration_statement
-    (19) empty -> .
+    (30) empty -> .
     (6) declaration_statement -> . DCL declaration_list SEMI
 
-    $end            reduce using rule 19 (empty -> .)
+    $end            reduce using rule 30 (empty -> .)
     DCL             shift and go to state 1
 
-    statement_nullable             shift and go to state 24
+    statement_nullable             shift and go to state 30
     empty                          shift and go to state 12
     statement                      shift and go to state 11
     declaration_statement          shift and go to state 4
@@ -341,49 +370,113 @@ state 14
     ID              shift and go to state 9
 
     identifier_list                shift and go to state 8
-    declaration                    shift and go to state 25
+    declaration                    shift and go to state 31
 
 state 15
 
-    (16) integer_mode -> INT .
+    (19) discrete_mode -> discrete_range_mode .
 
-    COMMA           reduce using rule 16 (integer_mode -> INT .)
-    SEMI            reduce using rule 16 (integer_mode -> INT .)
+    LPAREN          reduce using rule 19 (discrete_mode -> discrete_range_mode .)
+    COMMA           reduce using rule 19 (discrete_mode -> discrete_range_mode .)
+    SEMI            reduce using rule 19 (discrete_mode -> discrete_range_mode .)
 
 
 state 16
 
-    (14) discrete_mode -> boolean_mode .
+    (29) reference_mode -> REF . mode
+    (12) mode -> . mode_name
+    (13) mode -> . discrete_mode
+    (14) mode -> . reference_mode
+    (15) mode_name -> . ID
+    (16) discrete_mode -> . integer_mode
+    (17) discrete_mode -> . boolean_mode
+    (18) discrete_mode -> . character_mode
+    (19) discrete_mode -> . discrete_range_mode
+    (29) reference_mode -> . REF mode
+    (20) integer_mode -> . INT
+    (21) boolean_mode -> . BOOL
+    (22) character_mode -> . CHAR
+    (23) discrete_range_mode -> . discrete_mode_name LPAREN literal_range RPAREN
+    (24) discrete_range_mode -> . discrete_mode LPAREN literal_range RPAREN
+    (28) discrete_mode_name -> . ID
 
-    COMMA           reduce using rule 14 (discrete_mode -> boolean_mode .)
-    SEMI            reduce using rule 14 (discrete_mode -> boolean_mode .)
+    ID              shift and go to state 28
+    REF             shift and go to state 16
+    INT             shift and go to state 17
+    BOOL            shift and go to state 26
+    CHAR            shift and go to state 20
 
+    discrete_range_mode            shift and go to state 15
+    boolean_mode                   shift and go to state 18
+    character_mode                 shift and go to state 19
+    reference_mode                 shift and go to state 21
+    discrete_mode_name             shift and go to state 22
+    integer_mode                   shift and go to state 23
+    mode                           shift and go to state 32
+    discrete_mode                  shift and go to state 25
+    mode_name                      shift and go to state 27
 
 state 17
 
-    (15) discrete_mode -> character_mode .
+    (20) integer_mode -> INT .
 
-    COMMA           reduce using rule 15 (discrete_mode -> character_mode .)
-    SEMI            reduce using rule 15 (discrete_mode -> character_mode .)
+    LPAREN          reduce using rule 20 (integer_mode -> INT .)
+    COMMA           reduce using rule 20 (integer_mode -> INT .)
+    SEMI            reduce using rule 20 (integer_mode -> INT .)
 
 
 state 18
 
-    (18) character_mode -> CHAR .
+    (17) discrete_mode -> boolean_mode .
 
-    COMMA           reduce using rule 18 (character_mode -> CHAR .)
-    SEMI            reduce using rule 18 (character_mode -> CHAR .)
+    LPAREN          reduce using rule 17 (discrete_mode -> boolean_mode .)
+    COMMA           reduce using rule 17 (discrete_mode -> boolean_mode .)
+    SEMI            reduce using rule 17 (discrete_mode -> boolean_mode .)
 
 
 state 19
 
-    (13) discrete_mode -> integer_mode .
+    (18) discrete_mode -> character_mode .
 
-    COMMA           reduce using rule 13 (discrete_mode -> integer_mode .)
-    SEMI            reduce using rule 13 (discrete_mode -> integer_mode .)
+    LPAREN          reduce using rule 18 (discrete_mode -> character_mode .)
+    COMMA           reduce using rule 18 (discrete_mode -> character_mode .)
+    SEMI            reduce using rule 18 (discrete_mode -> character_mode .)
 
 
 state 20
+
+    (22) character_mode -> CHAR .
+
+    LPAREN          reduce using rule 22 (character_mode -> CHAR .)
+    COMMA           reduce using rule 22 (character_mode -> CHAR .)
+    SEMI            reduce using rule 22 (character_mode -> CHAR .)
+
+
+state 21
+
+    (14) mode -> reference_mode .
+
+    COMMA           reduce using rule 14 (mode -> reference_mode .)
+    SEMI            reduce using rule 14 (mode -> reference_mode .)
+
+
+state 22
+
+    (23) discrete_range_mode -> discrete_mode_name . LPAREN literal_range RPAREN
+
+    LPAREN          shift and go to state 33
+
+
+state 23
+
+    (16) discrete_mode -> integer_mode .
+
+    LPAREN          reduce using rule 16 (discrete_mode -> integer_mode .)
+    COMMA           reduce using rule 16 (discrete_mode -> integer_mode .)
+    SEMI            reduce using rule 16 (discrete_mode -> integer_mode .)
+
+
+state 24
 
     (9) declaration -> identifier_list mode .
 
@@ -391,23 +484,44 @@ state 20
     SEMI            reduce using rule 9 (declaration -> identifier_list mode .)
 
 
-state 21
+state 25
 
-    (12) mode -> discrete_mode .
+    (13) mode -> discrete_mode .
+    (24) discrete_range_mode -> discrete_mode . LPAREN literal_range RPAREN
 
-    COMMA           reduce using rule 12 (mode -> discrete_mode .)
-    SEMI            reduce using rule 12 (mode -> discrete_mode .)
-
-
-state 22
-
-    (17) boolean_mode -> BOOL .
-
-    COMMA           reduce using rule 17 (boolean_mode -> BOOL .)
-    SEMI            reduce using rule 17 (boolean_mode -> BOOL .)
+    COMMA           reduce using rule 13 (mode -> discrete_mode .)
+    SEMI            reduce using rule 13 (mode -> discrete_mode .)
+    LPAREN          shift and go to state 34
 
 
-state 23
+state 26
+
+    (21) boolean_mode -> BOOL .
+
+    LPAREN          reduce using rule 21 (boolean_mode -> BOOL .)
+    COMMA           reduce using rule 21 (boolean_mode -> BOOL .)
+    SEMI            reduce using rule 21 (boolean_mode -> BOOL .)
+
+
+state 27
+
+    (12) mode -> mode_name .
+
+    COMMA           reduce using rule 12 (mode -> mode_name .)
+    SEMI            reduce using rule 12 (mode -> mode_name .)
+
+
+state 28
+
+    (15) mode_name -> ID .
+    (28) discrete_mode_name -> ID .
+
+    COMMA           reduce using rule 15 (mode_name -> ID .)
+    SEMI            reduce using rule 15 (mode_name -> ID .)
+    LPAREN          reduce using rule 28 (discrete_mode_name -> ID .)
+
+
+state 29
 
     (11) identifier_list -> ID COMMA . identifier_list
     (10) identifier_list -> . ID
@@ -415,27 +529,128 @@ state 23
 
     ID              shift and go to state 9
 
-    identifier_list                shift and go to state 26
+    identifier_list                shift and go to state 35
 
-state 24
+state 30
 
     (3) statement_nullable -> statement statement_nullable .
 
     $end            reduce using rule 3 (statement_nullable -> statement statement_nullable .)
 
 
-state 25
+state 31
 
     (8) declaration_list -> declaration COMMA declaration .
 
     SEMI            reduce using rule 8 (declaration_list -> declaration COMMA declaration .)
 
 
-state 26
+state 32
+
+    (29) reference_mode -> REF mode .
+
+    COMMA           reduce using rule 29 (reference_mode -> REF mode .)
+    SEMI            reduce using rule 29 (reference_mode -> REF mode .)
+
+
+state 33
+
+    (23) discrete_range_mode -> discrete_mode_name LPAREN . literal_range RPAREN
+    (25) literal_range -> . lower_bound COLON upper_bound
+    (26) lower_bound -> . ICONST
+
+    ICONST          shift and go to state 37
+
+    lower_bound                    shift and go to state 36
+    literal_range                  shift and go to state 38
+
+state 34
+
+    (24) discrete_range_mode -> discrete_mode LPAREN . literal_range RPAREN
+    (25) literal_range -> . lower_bound COLON upper_bound
+    (26) lower_bound -> . ICONST
+
+    ICONST          shift and go to state 37
+
+    lower_bound                    shift and go to state 36
+    literal_range                  shift and go to state 39
+
+state 35
 
     (11) identifier_list -> ID COMMA identifier_list .
 
+    ID              reduce using rule 11 (identifier_list -> ID COMMA identifier_list .)
+    REF             reduce using rule 11 (identifier_list -> ID COMMA identifier_list .)
     INT             reduce using rule 11 (identifier_list -> ID COMMA identifier_list .)
     BOOL            reduce using rule 11 (identifier_list -> ID COMMA identifier_list .)
     CHAR            reduce using rule 11 (identifier_list -> ID COMMA identifier_list .)
+
+
+state 36
+
+    (25) literal_range -> lower_bound . COLON upper_bound
+
+    COLON           shift and go to state 40
+
+
+state 37
+
+    (26) lower_bound -> ICONST .
+
+    COLON           reduce using rule 26 (lower_bound -> ICONST .)
+
+
+state 38
+
+    (23) discrete_range_mode -> discrete_mode_name LPAREN literal_range . RPAREN
+
+    RPAREN          shift and go to state 41
+
+
+state 39
+
+    (24) discrete_range_mode -> discrete_mode LPAREN literal_range . RPAREN
+
+    RPAREN          shift and go to state 42
+
+
+state 40
+
+    (25) literal_range -> lower_bound COLON . upper_bound
+    (27) upper_bound -> . ICONST
+
+    ICONST          shift and go to state 43
+
+    upper_bound                    shift and go to state 44
+
+state 41
+
+    (23) discrete_range_mode -> discrete_mode_name LPAREN literal_range RPAREN .
+
+    LPAREN          reduce using rule 23 (discrete_range_mode -> discrete_mode_name LPAREN literal_range RPAREN .)
+    COMMA           reduce using rule 23 (discrete_range_mode -> discrete_mode_name LPAREN literal_range RPAREN .)
+    SEMI            reduce using rule 23 (discrete_range_mode -> discrete_mode_name LPAREN literal_range RPAREN .)
+
+
+state 42
+
+    (24) discrete_range_mode -> discrete_mode LPAREN literal_range RPAREN .
+
+    LPAREN          reduce using rule 24 (discrete_range_mode -> discrete_mode LPAREN literal_range RPAREN .)
+    COMMA           reduce using rule 24 (discrete_range_mode -> discrete_mode LPAREN literal_range RPAREN .)
+    SEMI            reduce using rule 24 (discrete_range_mode -> discrete_mode LPAREN literal_range RPAREN .)
+
+
+state 43
+
+    (27) upper_bound -> ICONST .
+
+    RPAREN          reduce using rule 27 (upper_bound -> ICONST .)
+
+
+state 44
+
+    (25) literal_range -> lower_bound COLON upper_bound .
+
+    RPAREN          reduce using rule 25 (literal_range -> lower_bound COLON upper_bound .)
 
