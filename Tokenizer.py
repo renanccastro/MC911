@@ -72,7 +72,8 @@ class Tokenizer:
                  'AND',
                  'OR',
                  'NOTEQ',
-                 'NOT'
+                 'NOT',
+                 'CONCAT'
              ] + list(reserved.values())
 
     t_PLUS = r'\+'
@@ -98,6 +99,8 @@ class Tokenizer:
     t_OR = r'\|\|'
     t_NOT = r'!'
     t_NOTEQ = r'!='
+    t_CONCAT = r'&'
+
 
     # Build the lexer
     def build(self, **kwargs):
@@ -148,7 +151,7 @@ class Tokenizer:
 
 
     # C character literal 'char'
-
+    # TODO: TRATAR LITERAIS DO TIPO "^(12)"
     def t_CCONST(self, t):
         r'\'(\\.|[^\'])*\''
         return t
