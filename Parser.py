@@ -16,6 +16,8 @@ from nodes.Program import Program
 from nodes.Identifier import Identifier
 from nodes.Range import Range
 from nodes.ReferenceMode import ReferenceMode
+from nodes.SynonymDeclaration import SynomymDeclaration
+from nodes.SynonymStatement import SynomymStatement
 
 
 class Parser:
@@ -28,22 +30,24 @@ class Parser:
 
     def p_statement_list(self,p):
         'statement_list : statement statement_nullable'
-        if len(p) == 2:
-            p[0] = [DeclarationStatement(p[1])]
-        elif len(p) == 3:
-            p[0] = p[1]
+        if len(p) == 3:
             if p[2] is not None:
-                p[0] = p[0] + p[2]
+                p[0] = p[2]
+                p[0].append(p[1])
+            else:
+                p[0] = [p[1]]
+        else:
+            pass
 
     def p_statement_nullable(self, p):
         '''statement_nullable : statement statement_nullable
                               | empty'''
-        if len(p) == 2 and p[1] is not None:
-            p[0] = [DeclarationStatement(p[1])]
-        elif len(p) == 3:
-            p[0] = p[1]
+        if len(p) == 3:
             if p[2] is not None:
-                p[0] = p[0] + p[2]
+                p[0] = p[2]
+                p[0].append(p[1])
+            else:
+                p[0] = [p[1]]
         else:
             pass
 
@@ -58,14 +62,16 @@ class Parser:
     # '''
     # SYNONYM STATEMENT
     # '''
-
-    # TODO: AST PARA SYNONYM
     def p_synonym_statement(self,p):
-        '''synonym_statement : SYN synonym_list'''
+        '''synonym_statement : SYN synonym_list SEMI'''
+        p[0] = SynomymStatement(p[2])
 
     def p_synonym_list(self,p):
         '''synonym_list : synonym_definition
                         | synonym_definition COMMA synonym_definition'''
+        p[0] = [p[1]]
+        if(len(p) > 2):
+            p[0].append(p[3])
 
 
     # Aqui, substitui constant_expression por soh expression, jah que eh igual
@@ -74,6 +80,10 @@ class Parser:
     def p_synonym_definition(self,p):
         '''synonym_definition : identifier_list mode ASSIGN expression
                               | identifier_list ASSIGN expression'''
+        p[0] = SynomymDeclaration(p[1],
+                                  p[2] if len(p) >= 5 else None,
+                                  p[4] if len(p) >= 5 else p[3],)
+
 
 
     # '''
@@ -82,7 +92,7 @@ class Parser:
 
     def p_declaration_statement(self, p):
         'declaration_statement : DCL declaration_list SEMI'
-        p[0] = [DeclarationStatement(p[2])]
+        p[0] = DeclarationStatement(p[2])
 
     def p_declaration_list(self, p):
         '''declaration_list : declaration
@@ -90,7 +100,7 @@ class Parser:
         if len(p) == 2:
             p[0] = [p[1]]
         elif len(p) == 4:
-            p[0] = p[1]
+            p[0] = [p[1]]
             p[0].append(p[3])
 
 
@@ -222,7 +232,7 @@ class Parser:
     # TODO:FALTA LOCATION E REFERENCED LOCATION
     def p_operand4(self, p):
         '''operand4 : primitive_value'''
-        p[0] = Operand(p[0])
+        p[0] = Operand(p[1])
 
     # def p_referenced_location(self,p):
     #     '''referenced_location : ARROW location'''
@@ -302,16 +312,16 @@ class Parser:
 
     def p_character_literal(self, p):
         '''character_literal : CCONST'''
-        p[0] = CharLiteral(p[1], self.reserved.CHAR)
+        p[0] = CharLiteral(p[1])
 
 
     def p_empty_literal(self,p):
         '''empty_literal : NULL'''
-        p[0] = NullLiteral(p[1], self.reserved.NULL)
+        p[0] = NullLiteral(p[1])
 
     def p_character_string_literal(self,p):
         '''character_string_literal : SCONST'''
-        p[0] = StringLiteral(p[1], self.reserved.CHARS)
+        p[0] = StringLiteral(p[1])
 
     # empty
     def p_empty(self, p):

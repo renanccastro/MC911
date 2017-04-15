@@ -45,7 +45,7 @@ Rule 3     statement_nullable -> statement statement_nullable
 Rule 4     statement_nullable -> empty
 Rule 5     statement -> declaration_statement
 Rule 6     statement -> synonym_statement
-Rule 7     synonym_statement -> SYN synonym_list
+Rule 7     synonym_statement -> SYN synonym_list SEMI
 Rule 8     synonym_list -> synonym_definition
 Rule 9     synonym_list -> synonym_definition COMMA synonym_definition
 Rule 10    synonym_definition -> identifier_list mode ASSIGN expression
@@ -182,7 +182,7 @@ RETURN               :
 RETURNS              : 
 RPAREN               : 31 32
 SCONST               : 80
-SEMI                 : 12
+SEMI                 : 7 12
 SYN                  : 7
 THEN                 : 
 TIMES                : 48
@@ -252,7 +252,7 @@ state 0
     (5) statement -> . declaration_statement
     (6) statement -> . synonym_statement
     (12) declaration_statement -> . DCL declaration_list SEMI
-    (7) synonym_statement -> . SYN synonym_list
+    (7) synonym_statement -> . SYN synonym_list SEMI
 
     DCL             shift and go to state 1
     SYN             shift and go to state 3
@@ -290,7 +290,7 @@ state 2
 
 state 3
 
-    (7) synonym_statement -> SYN . synonym_list
+    (7) synonym_statement -> SYN . synonym_list SEMI
     (8) synonym_list -> . synonym_definition
     (9) synonym_list -> . synonym_definition COMMA synonym_definition
     (10) synonym_definition -> . identifier_list mode ASSIGN expression
@@ -319,7 +319,7 @@ state 5
     (6) statement -> . synonym_statement
     (81) empty -> .
     (12) declaration_statement -> . DCL declaration_list SEMI
-    (7) synonym_statement -> . SYN synonym_list
+    (7) synonym_statement -> . SYN synonym_list SEMI
 
     $end            reduce using rule 81 (empty -> .)
     DCL             shift and go to state 1
@@ -404,12 +404,12 @@ state 11
     (18) identifier_list -> ID .
     (19) identifier_list -> ID . COMMA identifier_list
 
+    ASSIGN          reduce using rule 18 (identifier_list -> ID .)
     ID              reduce using rule 18 (identifier_list -> ID .)
     REF             reduce using rule 18 (identifier_list -> ID .)
     INT             reduce using rule 18 (identifier_list -> ID .)
     BOOL            reduce using rule 18 (identifier_list -> ID .)
     CHAR            reduce using rule 18 (identifier_list -> ID .)
-    ASSIGN          reduce using rule 18 (identifier_list -> ID .)
     COMMA           shift and go to state 34
 
 
@@ -418,19 +418,15 @@ state 12
     (8) synonym_list -> synonym_definition .
     (9) synonym_list -> synonym_definition . COMMA synonym_definition
 
-    DCL             reduce using rule 8 (synonym_list -> synonym_definition .)
-    SYN             reduce using rule 8 (synonym_list -> synonym_definition .)
-    $end            reduce using rule 8 (synonym_list -> synonym_definition .)
+    SEMI            reduce using rule 8 (synonym_list -> synonym_definition .)
     COMMA           shift and go to state 35
 
 
 state 13
 
-    (7) synonym_statement -> SYN synonym_list .
+    (7) synonym_statement -> SYN synonym_list . SEMI
 
-    DCL             reduce using rule 7 (synonym_statement -> SYN synonym_list .)
-    SYN             reduce using rule 7 (synonym_statement -> SYN synonym_list .)
-    $end            reduce using rule 7 (synonym_statement -> SYN synonym_list .)
+    SEMI            shift and go to state 36
 
 
 state 14
@@ -453,7 +449,7 @@ state 14
     (32) discrete_range_mode -> . discrete_mode LPAREN literal_range RPAREN
     (36) discrete_mode_name -> . ID
 
-    ASSIGN          shift and go to state 37
+    ASSIGN          shift and go to state 38
     ID              shift and go to state 33
     REF             shift and go to state 21
     INT             shift and go to state 22
@@ -466,7 +462,7 @@ state 14
     reference_mode                 shift and go to state 26
     discrete_mode_name             shift and go to state 27
     integer_mode                   shift and go to state 28
-    mode                           shift and go to state 36
+    mode                           shift and go to state 37
     discrete_mode                  shift and go to state 30
     mode_name                      shift and go to state 32
 
@@ -486,13 +482,13 @@ state 16
     (6) statement -> . synonym_statement
     (81) empty -> .
     (12) declaration_statement -> . DCL declaration_list SEMI
-    (7) synonym_statement -> . SYN synonym_list
+    (7) synonym_statement -> . SYN synonym_list SEMI
 
     $end            reduce using rule 81 (empty -> .)
     DCL             shift and go to state 1
     SYN             shift and go to state 3
 
-    statement_nullable             shift and go to state 38
+    statement_nullable             shift and go to state 39
     synonym_statement              shift and go to state 2
     declaration_statement          shift and go to state 6
     statement                      shift and go to state 16
@@ -525,7 +521,7 @@ state 19
     ID              shift and go to state 11
 
     identifier_list                shift and go to state 10
-    declaration                    shift and go to state 39
+    declaration                    shift and go to state 40
 
 state 20
 
@@ -568,7 +564,7 @@ state 21
     reference_mode                 shift and go to state 26
     discrete_mode_name             shift and go to state 27
     integer_mode                   shift and go to state 28
-    mode                           shift and go to state 40
+    mode                           shift and go to state 41
     discrete_mode                  shift and go to state 30
     mode_name                      shift and go to state 32
 
@@ -625,7 +621,7 @@ state 27
 
     (31) discrete_range_mode -> discrete_mode_name . LPAREN literal_range RPAREN
 
-    LPAREN          shift and go to state 41
+    LPAREN          shift and go to state 42
 
 
 state 28
@@ -646,9 +642,9 @@ state 29
 
     SEMI            reduce using rule 16 (declaration -> identifier_list mode .)
     COMMA           reduce using rule 16 (declaration -> identifier_list mode .)
-    ASSIGN          shift and go to state 43
+    ASSIGN          shift and go to state 44
 
-    initialization                 shift and go to state 42
+    initialization                 shift and go to state 43
 
 state 30
 
@@ -658,7 +654,7 @@ state 30
     ASSIGN          reduce using rule 21 (mode -> discrete_mode .)
     COMMA           reduce using rule 21 (mode -> discrete_mode .)
     SEMI            reduce using rule 21 (mode -> discrete_mode .)
-    LPAREN          shift and go to state 44
+    LPAREN          shift and go to state 45
 
 
 state 31
@@ -699,7 +695,7 @@ state 34
 
     ID              shift and go to state 11
 
-    identifier_list                shift and go to state 45
+    identifier_list                shift and go to state 46
 
 state 35
 
@@ -711,17 +707,26 @@ state 35
 
     ID              shift and go to state 11
 
-    synonym_definition             shift and go to state 46
+    synonym_definition             shift and go to state 47
     identifier_list                shift and go to state 14
 
 state 36
 
-    (10) synonym_definition -> identifier_list mode . ASSIGN expression
+    (7) synonym_statement -> SYN synonym_list SEMI .
 
-    ASSIGN          shift and go to state 47
+    DCL             reduce using rule 7 (synonym_statement -> SYN synonym_list SEMI .)
+    SYN             reduce using rule 7 (synonym_statement -> SYN synonym_list SEMI .)
+    $end            reduce using rule 7 (synonym_statement -> SYN synonym_list SEMI .)
 
 
 state 37
+
+    (10) synonym_definition -> identifier_list mode . ASSIGN expression
+
+    ASSIGN          shift and go to state 48
+
+
+state 38
 
     (11) synonym_definition -> identifier_list ASSIGN . expression
     (38) expression -> . operand0
@@ -749,45 +754,45 @@ state 37
     (79) empty_literal -> . NULL
     (80) character_string_literal -> . SCONST
 
-    MINUS           shift and go to state 53
-    NOT             shift and go to state 66
-    ICONST          shift and go to state 62
-    TRUE            shift and go to state 52
-    FALSE           shift and go to state 65
-    CCONST          shift and go to state 61
-    NULL            shift and go to state 51
-    SCONST          shift and go to state 59
+    MINUS           shift and go to state 54
+    NOT             shift and go to state 67
+    ICONST          shift and go to state 63
+    TRUE            shift and go to state 53
+    FALSE           shift and go to state 66
+    CCONST          shift and go to state 62
+    NULL            shift and go to state 52
+    SCONST          shift and go to state 60
 
-    operand4                       shift and go to state 54
-    character_string_literal       shift and go to state 64
-    operand1                       shift and go to state 55
-    operand0                       shift and go to state 56
-    operand3                       shift and go to state 57
-    operand2                       shift and go to state 58
-    empty_literal                  shift and go to state 49
-    boolean_literal                shift and go to state 50
-    literal                        shift and go to state 60
-    character_literal              shift and go to state 67
-    monadic_operator               shift and go to state 48
-    expression                     shift and go to state 68
-    integer_literal                shift and go to state 63
-    primitive_value                shift and go to state 69
+    operand4                       shift and go to state 55
+    character_string_literal       shift and go to state 65
+    operand1                       shift and go to state 56
+    operand0                       shift and go to state 57
+    operand3                       shift and go to state 58
+    operand2                       shift and go to state 59
+    empty_literal                  shift and go to state 50
+    boolean_literal                shift and go to state 51
+    literal                        shift and go to state 61
+    character_literal              shift and go to state 68
+    monadic_operator               shift and go to state 49
+    expression                     shift and go to state 69
+    integer_literal                shift and go to state 64
+    primitive_value                shift and go to state 70
 
-state 38
+state 39
 
     (3) statement_nullable -> statement statement_nullable .
 
     $end            reduce using rule 3 (statement_nullable -> statement statement_nullable .)
 
 
-state 39
+state 40
 
     (14) declaration_list -> declaration COMMA declaration .
 
     SEMI            reduce using rule 14 (declaration_list -> declaration COMMA declaration .)
 
 
-state 40
+state 41
 
     (37) reference_mode -> REF mode .
 
@@ -796,18 +801,18 @@ state 40
     SEMI            reduce using rule 37 (reference_mode -> REF mode .)
 
 
-state 41
+state 42
 
     (31) discrete_range_mode -> discrete_mode_name LPAREN . literal_range RPAREN
     (33) literal_range -> . lower_bound COLON upper_bound
     (34) lower_bound -> . ICONST
 
-    ICONST          shift and go to state 71
+    ICONST          shift and go to state 72
 
-    lower_bound                    shift and go to state 70
-    literal_range                  shift and go to state 72
+    lower_bound                    shift and go to state 71
+    literal_range                  shift and go to state 73
 
-state 42
+state 43
 
     (15) declaration -> identifier_list mode initialization .
 
@@ -815,7 +820,7 @@ state 42
     COMMA           reduce using rule 15 (declaration -> identifier_list mode initialization .)
 
 
-state 43
+state 44
 
     (17) initialization -> ASSIGN . expression
     (38) expression -> . operand0
@@ -843,63 +848,61 @@ state 43
     (79) empty_literal -> . NULL
     (80) character_string_literal -> . SCONST
 
-    MINUS           shift and go to state 53
-    NOT             shift and go to state 66
-    ICONST          shift and go to state 62
-    TRUE            shift and go to state 52
-    FALSE           shift and go to state 65
-    CCONST          shift and go to state 61
-    NULL            shift and go to state 51
-    SCONST          shift and go to state 59
+    MINUS           shift and go to state 54
+    NOT             shift and go to state 67
+    ICONST          shift and go to state 63
+    TRUE            shift and go to state 53
+    FALSE           shift and go to state 66
+    CCONST          shift and go to state 62
+    NULL            shift and go to state 52
+    SCONST          shift and go to state 60
 
-    operand4                       shift and go to state 54
-    character_string_literal       shift and go to state 64
-    operand1                       shift and go to state 55
-    operand0                       shift and go to state 56
-    operand3                       shift and go to state 57
-    operand2                       shift and go to state 58
-    empty_literal                  shift and go to state 49
-    boolean_literal                shift and go to state 50
-    literal                        shift and go to state 60
-    character_literal              shift and go to state 67
-    monadic_operator               shift and go to state 48
-    expression                     shift and go to state 73
-    integer_literal                shift and go to state 63
-    primitive_value                shift and go to state 69
+    operand4                       shift and go to state 55
+    character_string_literal       shift and go to state 65
+    operand1                       shift and go to state 56
+    operand0                       shift and go to state 57
+    operand3                       shift and go to state 58
+    operand2                       shift and go to state 59
+    empty_literal                  shift and go to state 50
+    boolean_literal                shift and go to state 51
+    literal                        shift and go to state 61
+    character_literal              shift and go to state 68
+    monadic_operator               shift and go to state 49
+    expression                     shift and go to state 74
+    integer_literal                shift and go to state 64
+    primitive_value                shift and go to state 70
 
-state 44
+state 45
 
     (32) discrete_range_mode -> discrete_mode LPAREN . literal_range RPAREN
     (33) literal_range -> . lower_bound COLON upper_bound
     (34) lower_bound -> . ICONST
 
-    ICONST          shift and go to state 71
+    ICONST          shift and go to state 72
 
-    lower_bound                    shift and go to state 70
-    literal_range                  shift and go to state 74
+    lower_bound                    shift and go to state 71
+    literal_range                  shift and go to state 75
 
-state 45
+state 46
 
     (19) identifier_list -> ID COMMA identifier_list .
 
+    ASSIGN          reduce using rule 19 (identifier_list -> ID COMMA identifier_list .)
     ID              reduce using rule 19 (identifier_list -> ID COMMA identifier_list .)
     REF             reduce using rule 19 (identifier_list -> ID COMMA identifier_list .)
     INT             reduce using rule 19 (identifier_list -> ID COMMA identifier_list .)
     BOOL            reduce using rule 19 (identifier_list -> ID COMMA identifier_list .)
     CHAR            reduce using rule 19 (identifier_list -> ID COMMA identifier_list .)
-    ASSIGN          reduce using rule 19 (identifier_list -> ID COMMA identifier_list .)
-
-
-state 46
-
-    (9) synonym_list -> synonym_definition COMMA synonym_definition .
-
-    DCL             reduce using rule 9 (synonym_list -> synonym_definition COMMA synonym_definition .)
-    SYN             reduce using rule 9 (synonym_list -> synonym_definition COMMA synonym_definition .)
-    $end            reduce using rule 9 (synonym_list -> synonym_definition COMMA synonym_definition .)
 
 
 state 47
+
+    (9) synonym_list -> synonym_definition COMMA synonym_definition .
+
+    SEMI            reduce using rule 9 (synonym_list -> synonym_definition COMMA synonym_definition .)
+
+
+state 48
 
     (10) synonym_definition -> identifier_list mode ASSIGN . expression
     (38) expression -> . operand0
@@ -927,31 +930,31 @@ state 47
     (79) empty_literal -> . NULL
     (80) character_string_literal -> . SCONST
 
-    MINUS           shift and go to state 53
-    NOT             shift and go to state 66
-    ICONST          shift and go to state 62
-    TRUE            shift and go to state 52
-    FALSE           shift and go to state 65
-    CCONST          shift and go to state 61
-    NULL            shift and go to state 51
-    SCONST          shift and go to state 59
+    MINUS           shift and go to state 54
+    NOT             shift and go to state 67
+    ICONST          shift and go to state 63
+    TRUE            shift and go to state 53
+    FALSE           shift and go to state 66
+    CCONST          shift and go to state 62
+    NULL            shift and go to state 52
+    SCONST          shift and go to state 60
 
-    operand4                       shift and go to state 54
-    character_string_literal       shift and go to state 64
-    operand1                       shift and go to state 55
-    operand0                       shift and go to state 56
-    operand3                       shift and go to state 57
-    operand2                       shift and go to state 58
-    empty_literal                  shift and go to state 49
-    boolean_literal                shift and go to state 50
-    literal                        shift and go to state 60
-    character_literal              shift and go to state 67
-    monadic_operator               shift and go to state 48
-    expression                     shift and go to state 75
-    integer_literal                shift and go to state 63
-    primitive_value                shift and go to state 69
+    operand4                       shift and go to state 55
+    character_string_literal       shift and go to state 65
+    operand1                       shift and go to state 56
+    operand0                       shift and go to state 57
+    operand3                       shift and go to state 58
+    operand2                       shift and go to state 59
+    empty_literal                  shift and go to state 50
+    boolean_literal                shift and go to state 51
+    literal                        shift and go to state 61
+    character_literal              shift and go to state 68
+    monadic_operator               shift and go to state 49
+    expression                     shift and go to state 76
+    integer_literal                shift and go to state 64
+    primitive_value                shift and go to state 70
 
-state 48
+state 49
 
     (45) operand3 -> monadic_operator . operand4
     (47) operand4 -> . primitive_value
@@ -968,23 +971,23 @@ state 48
     (79) empty_literal -> . NULL
     (80) character_string_literal -> . SCONST
 
-    ICONST          shift and go to state 62
-    TRUE            shift and go to state 52
-    FALSE           shift and go to state 65
-    CCONST          shift and go to state 61
-    NULL            shift and go to state 51
-    SCONST          shift and go to state 59
+    ICONST          shift and go to state 63
+    TRUE            shift and go to state 53
+    FALSE           shift and go to state 66
+    CCONST          shift and go to state 62
+    NULL            shift and go to state 52
+    SCONST          shift and go to state 60
 
-    operand4                       shift and go to state 76
-    character_string_literal       shift and go to state 64
-    empty_literal                  shift and go to state 49
-    boolean_literal                shift and go to state 50
-    literal                        shift and go to state 60
-    character_literal              shift and go to state 67
-    integer_literal                shift and go to state 63
-    primitive_value                shift and go to state 69
+    operand4                       shift and go to state 77
+    character_string_literal       shift and go to state 65
+    empty_literal                  shift and go to state 50
+    boolean_literal                shift and go to state 51
+    literal                        shift and go to state 61
+    character_literal              shift and go to state 68
+    integer_literal                shift and go to state 64
+    primitive_value                shift and go to state 70
 
-state 49
+state 50
 
     (73) literal -> empty_literal .
 
@@ -1005,12 +1008,9 @@ state 49
     IN              reduce using rule 73 (literal -> empty_literal .)
     COMMA           reduce using rule 73 (literal -> empty_literal .)
     SEMI            reduce using rule 73 (literal -> empty_literal .)
-    DCL             reduce using rule 73 (literal -> empty_literal .)
-    SYN             reduce using rule 73 (literal -> empty_literal .)
-    $end            reduce using rule 73 (literal -> empty_literal .)
 
 
-state 50
+state 51
 
     (71) literal -> boolean_literal .
 
@@ -1031,12 +1031,9 @@ state 50
     IN              reduce using rule 71 (literal -> boolean_literal .)
     COMMA           reduce using rule 71 (literal -> boolean_literal .)
     SEMI            reduce using rule 71 (literal -> boolean_literal .)
-    DCL             reduce using rule 71 (literal -> boolean_literal .)
-    SYN             reduce using rule 71 (literal -> boolean_literal .)
-    $end            reduce using rule 71 (literal -> boolean_literal .)
 
 
-state 51
+state 52
 
     (79) empty_literal -> NULL .
 
@@ -1056,13 +1053,10 @@ state 51
     LTEQUAL         reduce using rule 79 (empty_literal -> NULL .)
     IN              reduce using rule 79 (empty_literal -> NULL .)
     COMMA           reduce using rule 79 (empty_literal -> NULL .)
-    DCL             reduce using rule 79 (empty_literal -> NULL .)
-    SYN             reduce using rule 79 (empty_literal -> NULL .)
-    $end            reduce using rule 79 (empty_literal -> NULL .)
     SEMI            reduce using rule 79 (empty_literal -> NULL .)
 
 
-state 52
+state 53
 
     (76) boolean_literal -> TRUE .
 
@@ -1082,13 +1076,10 @@ state 52
     LTEQUAL         reduce using rule 76 (boolean_literal -> TRUE .)
     IN              reduce using rule 76 (boolean_literal -> TRUE .)
     COMMA           reduce using rule 76 (boolean_literal -> TRUE .)
-    DCL             reduce using rule 76 (boolean_literal -> TRUE .)
-    SYN             reduce using rule 76 (boolean_literal -> TRUE .)
-    $end            reduce using rule 76 (boolean_literal -> TRUE .)
     SEMI            reduce using rule 76 (boolean_literal -> TRUE .)
 
 
-state 53
+state 54
 
     (51) monadic_operator -> MINUS .
 
@@ -1100,7 +1091,7 @@ state 53
     SCONST          reduce using rule 51 (monadic_operator -> MINUS .)
 
 
-state 54
+state 55
 
     (46) operand3 -> operand4 .
 
@@ -1120,13 +1111,10 @@ state 54
     LTEQUAL         reduce using rule 46 (operand3 -> operand4 .)
     IN              reduce using rule 46 (operand3 -> operand4 .)
     COMMA           reduce using rule 46 (operand3 -> operand4 .)
-    DCL             reduce using rule 46 (operand3 -> operand4 .)
-    SYN             reduce using rule 46 (operand3 -> operand4 .)
-    $end            reduce using rule 46 (operand3 -> operand4 .)
     SEMI            reduce using rule 46 (operand3 -> operand4 .)
 
 
-state 55
+state 56
 
     (39) operand0 -> operand1 .
     (42) operand1 -> operand1 . operator2 operand2
@@ -1147,18 +1135,15 @@ state 55
     IN              reduce using rule 39 (operand0 -> operand1 .)
     COMMA           reduce using rule 39 (operand0 -> operand1 .)
     SEMI            reduce using rule 39 (operand0 -> operand1 .)
-    DCL             reduce using rule 39 (operand0 -> operand1 .)
-    SYN             reduce using rule 39 (operand0 -> operand1 .)
-    $end            reduce using rule 39 (operand0 -> operand1 .)
-    PLUS            shift and go to state 80
-    MINUS           shift and go to state 81
-    CONCAT          shift and go to state 82
+    PLUS            shift and go to state 81
+    MINUS           shift and go to state 82
+    CONCAT          shift and go to state 83
 
-    string_concatenation_operator  shift and go to state 78
-    arithmetic_additive_operator   shift and go to state 77
-    operator2                      shift and go to state 79
+    string_concatenation_operator  shift and go to state 79
+    arithmetic_additive_operator   shift and go to state 78
+    operator2                      shift and go to state 80
 
-state 56
+state 57
 
     (38) expression -> operand0 .
     (40) operand0 -> operand0 . operator1 operand1
@@ -1176,24 +1161,21 @@ state 56
 
     COMMA           reduce using rule 38 (expression -> operand0 .)
     SEMI            reduce using rule 38 (expression -> operand0 .)
-    DCL             reduce using rule 38 (expression -> operand0 .)
-    SYN             reduce using rule 38 (expression -> operand0 .)
-    $end            reduce using rule 38 (expression -> operand0 .)
-    AND             shift and go to state 83
-    OR              shift and go to state 93
-    EQUAL           shift and go to state 88
-    NOTEQ           shift and go to state 89
-    GREATER         shift and go to state 91
-    GTEQUAL         shift and go to state 90
-    LESS            shift and go to state 84
-    LTEQUAL         shift and go to state 92
-    IN              shift and go to state 86
+    AND             shift and go to state 84
+    OR              shift and go to state 94
+    EQUAL           shift and go to state 89
+    NOTEQ           shift and go to state 90
+    GREATER         shift and go to state 92
+    GTEQUAL         shift and go to state 91
+    LESS            shift and go to state 85
+    LTEQUAL         shift and go to state 93
+    IN              shift and go to state 87
 
-    operator1                      shift and go to state 85
-    membership_operator            shift and go to state 87
-    relational_operator            shift and go to state 94
+    operator1                      shift and go to state 86
+    membership_operator            shift and go to state 88
+    relational_operator            shift and go to state 95
 
-state 57
+state 58
 
     (43) operand2 -> operand3 .
 
@@ -1213,13 +1195,10 @@ state 57
     LTEQUAL         reduce using rule 43 (operand2 -> operand3 .)
     IN              reduce using rule 43 (operand2 -> operand3 .)
     COMMA           reduce using rule 43 (operand2 -> operand3 .)
-    DCL             reduce using rule 43 (operand2 -> operand3 .)
-    SYN             reduce using rule 43 (operand2 -> operand3 .)
-    $end            reduce using rule 43 (operand2 -> operand3 .)
     SEMI            reduce using rule 43 (operand2 -> operand3 .)
 
 
-state 58
+state 59
 
     (41) operand1 -> operand2 .
     (44) operand2 -> operand2 . arithmetic_multiplicative_operator operand3
@@ -1241,16 +1220,13 @@ state 58
     IN              reduce using rule 41 (operand1 -> operand2 .)
     COMMA           reduce using rule 41 (operand1 -> operand2 .)
     SEMI            reduce using rule 41 (operand1 -> operand2 .)
-    DCL             reduce using rule 41 (operand1 -> operand2 .)
-    SYN             reduce using rule 41 (operand1 -> operand2 .)
-    $end            reduce using rule 41 (operand1 -> operand2 .)
-    TIMES           shift and go to state 98
-    DIVIDE          shift and go to state 96
-    MODULO          shift and go to state 95
+    TIMES           shift and go to state 99
+    DIVIDE          shift and go to state 97
+    MODULO          shift and go to state 96
 
-    arithmetic_multiplicative_operator shift and go to state 97
+    arithmetic_multiplicative_operator shift and go to state 98
 
-state 59
+state 60
 
     (80) character_string_literal -> SCONST .
 
@@ -1270,13 +1246,10 @@ state 59
     LTEQUAL         reduce using rule 80 (character_string_literal -> SCONST .)
     IN              reduce using rule 80 (character_string_literal -> SCONST .)
     COMMA           reduce using rule 80 (character_string_literal -> SCONST .)
-    DCL             reduce using rule 80 (character_string_literal -> SCONST .)
-    SYN             reduce using rule 80 (character_string_literal -> SCONST .)
-    $end            reduce using rule 80 (character_string_literal -> SCONST .)
     SEMI            reduce using rule 80 (character_string_literal -> SCONST .)
 
 
-state 60
+state 61
 
     (69) primitive_value -> literal .
 
@@ -1296,13 +1269,10 @@ state 60
     LTEQUAL         reduce using rule 69 (primitive_value -> literal .)
     IN              reduce using rule 69 (primitive_value -> literal .)
     COMMA           reduce using rule 69 (primitive_value -> literal .)
-    DCL             reduce using rule 69 (primitive_value -> literal .)
-    SYN             reduce using rule 69 (primitive_value -> literal .)
-    $end            reduce using rule 69 (primitive_value -> literal .)
     SEMI            reduce using rule 69 (primitive_value -> literal .)
 
 
-state 61
+state 62
 
     (78) character_literal -> CCONST .
 
@@ -1322,13 +1292,10 @@ state 61
     LTEQUAL         reduce using rule 78 (character_literal -> CCONST .)
     IN              reduce using rule 78 (character_literal -> CCONST .)
     COMMA           reduce using rule 78 (character_literal -> CCONST .)
-    DCL             reduce using rule 78 (character_literal -> CCONST .)
-    SYN             reduce using rule 78 (character_literal -> CCONST .)
-    $end            reduce using rule 78 (character_literal -> CCONST .)
     SEMI            reduce using rule 78 (character_literal -> CCONST .)
 
 
-state 62
+state 63
 
     (75) integer_literal -> ICONST .
 
@@ -1349,12 +1316,9 @@ state 62
     IN              reduce using rule 75 (integer_literal -> ICONST .)
     COMMA           reduce using rule 75 (integer_literal -> ICONST .)
     SEMI            reduce using rule 75 (integer_literal -> ICONST .)
-    DCL             reduce using rule 75 (integer_literal -> ICONST .)
-    SYN             reduce using rule 75 (integer_literal -> ICONST .)
-    $end            reduce using rule 75 (integer_literal -> ICONST .)
 
 
-state 63
+state 64
 
     (70) literal -> integer_literal .
 
@@ -1375,12 +1339,9 @@ state 63
     IN              reduce using rule 70 (literal -> integer_literal .)
     COMMA           reduce using rule 70 (literal -> integer_literal .)
     SEMI            reduce using rule 70 (literal -> integer_literal .)
-    DCL             reduce using rule 70 (literal -> integer_literal .)
-    SYN             reduce using rule 70 (literal -> integer_literal .)
-    $end            reduce using rule 70 (literal -> integer_literal .)
 
 
-state 64
+state 65
 
     (74) literal -> character_string_literal .
 
@@ -1401,12 +1362,9 @@ state 64
     IN              reduce using rule 74 (literal -> character_string_literal .)
     COMMA           reduce using rule 74 (literal -> character_string_literal .)
     SEMI            reduce using rule 74 (literal -> character_string_literal .)
-    DCL             reduce using rule 74 (literal -> character_string_literal .)
-    SYN             reduce using rule 74 (literal -> character_string_literal .)
-    $end            reduce using rule 74 (literal -> character_string_literal .)
 
 
-state 65
+state 66
 
     (77) boolean_literal -> FALSE .
 
@@ -1426,13 +1384,10 @@ state 65
     LTEQUAL         reduce using rule 77 (boolean_literal -> FALSE .)
     IN              reduce using rule 77 (boolean_literal -> FALSE .)
     COMMA           reduce using rule 77 (boolean_literal -> FALSE .)
-    DCL             reduce using rule 77 (boolean_literal -> FALSE .)
-    SYN             reduce using rule 77 (boolean_literal -> FALSE .)
-    $end            reduce using rule 77 (boolean_literal -> FALSE .)
     SEMI            reduce using rule 77 (boolean_literal -> FALSE .)
 
 
-state 66
+state 67
 
     (52) monadic_operator -> NOT .
 
@@ -1444,7 +1399,7 @@ state 66
     SCONST          reduce using rule 52 (monadic_operator -> NOT .)
 
 
-state 67
+state 68
 
     (72) literal -> character_literal .
 
@@ -1465,22 +1420,17 @@ state 67
     IN              reduce using rule 72 (literal -> character_literal .)
     COMMA           reduce using rule 72 (literal -> character_literal .)
     SEMI            reduce using rule 72 (literal -> character_literal .)
-    DCL             reduce using rule 72 (literal -> character_literal .)
-    SYN             reduce using rule 72 (literal -> character_literal .)
-    $end            reduce using rule 72 (literal -> character_literal .)
-
-
-state 68
-
-    (11) synonym_definition -> identifier_list ASSIGN expression .
-
-    DCL             reduce using rule 11 (synonym_definition -> identifier_list ASSIGN expression .)
-    SYN             reduce using rule 11 (synonym_definition -> identifier_list ASSIGN expression .)
-    $end            reduce using rule 11 (synonym_definition -> identifier_list ASSIGN expression .)
-    COMMA           reduce using rule 11 (synonym_definition -> identifier_list ASSIGN expression .)
 
 
 state 69
+
+    (11) synonym_definition -> identifier_list ASSIGN expression .
+
+    SEMI            reduce using rule 11 (synonym_definition -> identifier_list ASSIGN expression .)
+    COMMA           reduce using rule 11 (synonym_definition -> identifier_list ASSIGN expression .)
+
+
+state 70
 
     (47) operand4 -> primitive_value .
 
@@ -1500,34 +1450,31 @@ state 69
     LTEQUAL         reduce using rule 47 (operand4 -> primitive_value .)
     IN              reduce using rule 47 (operand4 -> primitive_value .)
     COMMA           reduce using rule 47 (operand4 -> primitive_value .)
-    DCL             reduce using rule 47 (operand4 -> primitive_value .)
-    SYN             reduce using rule 47 (operand4 -> primitive_value .)
-    $end            reduce using rule 47 (operand4 -> primitive_value .)
     SEMI            reduce using rule 47 (operand4 -> primitive_value .)
 
 
-state 70
+state 71
 
     (33) literal_range -> lower_bound . COLON upper_bound
 
-    COLON           shift and go to state 99
+    COLON           shift and go to state 100
 
 
-state 71
+state 72
 
     (34) lower_bound -> ICONST .
 
     COLON           reduce using rule 34 (lower_bound -> ICONST .)
 
 
-state 72
+state 73
 
     (31) discrete_range_mode -> discrete_mode_name LPAREN literal_range . RPAREN
 
-    RPAREN          shift and go to state 100
+    RPAREN          shift and go to state 101
 
 
-state 73
+state 74
 
     (17) initialization -> ASSIGN expression .
 
@@ -1535,24 +1482,22 @@ state 73
     SEMI            reduce using rule 17 (initialization -> ASSIGN expression .)
 
 
-state 74
+state 75
 
     (32) discrete_range_mode -> discrete_mode LPAREN literal_range . RPAREN
 
-    RPAREN          shift and go to state 101
-
-
-state 75
-
-    (10) synonym_definition -> identifier_list mode ASSIGN expression .
-
-    DCL             reduce using rule 10 (synonym_definition -> identifier_list mode ASSIGN expression .)
-    SYN             reduce using rule 10 (synonym_definition -> identifier_list mode ASSIGN expression .)
-    $end            reduce using rule 10 (synonym_definition -> identifier_list mode ASSIGN expression .)
-    COMMA           reduce using rule 10 (synonym_definition -> identifier_list mode ASSIGN expression .)
+    RPAREN          shift and go to state 102
 
 
 state 76
+
+    (10) synonym_definition -> identifier_list mode ASSIGN expression .
+
+    SEMI            reduce using rule 10 (synonym_definition -> identifier_list mode ASSIGN expression .)
+    COMMA           reduce using rule 10 (synonym_definition -> identifier_list mode ASSIGN expression .)
+
+
+state 77
 
     (45) operand3 -> monadic_operator operand4 .
 
@@ -1572,13 +1517,10 @@ state 76
     LTEQUAL         reduce using rule 45 (operand3 -> monadic_operator operand4 .)
     IN              reduce using rule 45 (operand3 -> monadic_operator operand4 .)
     COMMA           reduce using rule 45 (operand3 -> monadic_operator operand4 .)
-    DCL             reduce using rule 45 (operand3 -> monadic_operator operand4 .)
-    SYN             reduce using rule 45 (operand3 -> monadic_operator operand4 .)
-    $end            reduce using rule 45 (operand3 -> monadic_operator operand4 .)
     SEMI            reduce using rule 45 (operand3 -> monadic_operator operand4 .)
 
 
-state 77
+state 78
 
     (55) operator2 -> arithmetic_additive_operator .
 
@@ -1592,7 +1534,7 @@ state 77
     SCONST          reduce using rule 55 (operator2 -> arithmetic_additive_operator .)
 
 
-state 78
+state 79
 
     (56) operator2 -> string_concatenation_operator .
 
@@ -1606,7 +1548,7 @@ state 78
     SCONST          reduce using rule 56 (operator2 -> string_concatenation_operator .)
 
 
-state 79
+state 80
 
     (42) operand1 -> operand1 operator2 . operand2
     (43) operand2 -> . operand3
@@ -1629,28 +1571,28 @@ state 79
     (79) empty_literal -> . NULL
     (80) character_string_literal -> . SCONST
 
-    MINUS           shift and go to state 53
-    NOT             shift and go to state 66
-    ICONST          shift and go to state 62
-    TRUE            shift and go to state 52
-    FALSE           shift and go to state 65
-    CCONST          shift and go to state 61
-    NULL            shift and go to state 51
-    SCONST          shift and go to state 59
+    MINUS           shift and go to state 54
+    NOT             shift and go to state 67
+    ICONST          shift and go to state 63
+    TRUE            shift and go to state 53
+    FALSE           shift and go to state 66
+    CCONST          shift and go to state 62
+    NULL            shift and go to state 52
+    SCONST          shift and go to state 60
 
-    operand4                       shift and go to state 54
-    character_string_literal       shift and go to state 64
-    monadic_operator               shift and go to state 48
-    operand3                       shift and go to state 57
-    operand2                       shift and go to state 102
-    empty_literal                  shift and go to state 49
-    boolean_literal                shift and go to state 50
-    literal                        shift and go to state 60
-    character_literal              shift and go to state 67
-    integer_literal                shift and go to state 63
-    primitive_value                shift and go to state 69
+    operand4                       shift and go to state 55
+    character_string_literal       shift and go to state 65
+    monadic_operator               shift and go to state 49
+    operand3                       shift and go to state 58
+    operand2                       shift and go to state 103
+    empty_literal                  shift and go to state 50
+    boolean_literal                shift and go to state 51
+    literal                        shift and go to state 61
+    character_literal              shift and go to state 68
+    integer_literal                shift and go to state 64
+    primitive_value                shift and go to state 70
 
-state 80
+state 81
 
     (57) arithmetic_additive_operator -> PLUS .
 
@@ -1664,7 +1606,7 @@ state 80
     SCONST          reduce using rule 57 (arithmetic_additive_operator -> PLUS .)
 
 
-state 81
+state 82
 
     (58) arithmetic_additive_operator -> MINUS .
 
@@ -1678,7 +1620,7 @@ state 81
     SCONST          reduce using rule 58 (arithmetic_additive_operator -> MINUS .)
 
 
-state 82
+state 83
 
     (59) string_concatenation_operator -> CONCAT .
 
@@ -1692,7 +1634,7 @@ state 82
     SCONST          reduce using rule 59 (string_concatenation_operator -> CONCAT .)
 
 
-state 83
+state 84
 
     (60) relational_operator -> AND .
 
@@ -1706,7 +1648,7 @@ state 83
     SCONST          reduce using rule 60 (relational_operator -> AND .)
 
 
-state 84
+state 85
 
     (66) relational_operator -> LESS .
 
@@ -1720,7 +1662,7 @@ state 84
     SCONST          reduce using rule 66 (relational_operator -> LESS .)
 
 
-state 85
+state 86
 
     (40) operand0 -> operand0 operator1 . operand1
     (41) operand1 -> . operand2
@@ -1745,29 +1687,29 @@ state 85
     (79) empty_literal -> . NULL
     (80) character_string_literal -> . SCONST
 
-    MINUS           shift and go to state 53
-    NOT             shift and go to state 66
-    ICONST          shift and go to state 62
-    TRUE            shift and go to state 52
-    FALSE           shift and go to state 65
-    CCONST          shift and go to state 61
-    NULL            shift and go to state 51
-    SCONST          shift and go to state 59
+    MINUS           shift and go to state 54
+    NOT             shift and go to state 67
+    ICONST          shift and go to state 63
+    TRUE            shift and go to state 53
+    FALSE           shift and go to state 66
+    CCONST          shift and go to state 62
+    NULL            shift and go to state 52
+    SCONST          shift and go to state 60
 
-    operand4                       shift and go to state 54
-    character_string_literal       shift and go to state 64
-    operand1                       shift and go to state 103
-    operand3                       shift and go to state 57
-    operand2                       shift and go to state 58
-    empty_literal                  shift and go to state 49
-    boolean_literal                shift and go to state 50
-    literal                        shift and go to state 60
-    character_literal              shift and go to state 67
-    monadic_operator               shift and go to state 48
-    integer_literal                shift and go to state 63
-    primitive_value                shift and go to state 69
+    operand4                       shift and go to state 55
+    character_string_literal       shift and go to state 65
+    operand1                       shift and go to state 104
+    operand3                       shift and go to state 58
+    operand2                       shift and go to state 59
+    empty_literal                  shift and go to state 50
+    boolean_literal                shift and go to state 51
+    literal                        shift and go to state 61
+    character_literal              shift and go to state 68
+    monadic_operator               shift and go to state 49
+    integer_literal                shift and go to state 64
+    primitive_value                shift and go to state 70
 
-state 86
+state 87
 
     (68) membership_operator -> IN .
 
@@ -1781,7 +1723,7 @@ state 86
     SCONST          reduce using rule 68 (membership_operator -> IN .)
 
 
-state 87
+state 88
 
     (54) operator1 -> membership_operator .
 
@@ -1795,7 +1737,7 @@ state 87
     SCONST          reduce using rule 54 (operator1 -> membership_operator .)
 
 
-state 88
+state 89
 
     (62) relational_operator -> EQUAL .
 
@@ -1809,7 +1751,7 @@ state 88
     SCONST          reduce using rule 62 (relational_operator -> EQUAL .)
 
 
-state 89
+state 90
 
     (63) relational_operator -> NOTEQ .
 
@@ -1823,7 +1765,7 @@ state 89
     SCONST          reduce using rule 63 (relational_operator -> NOTEQ .)
 
 
-state 90
+state 91
 
     (65) relational_operator -> GTEQUAL .
 
@@ -1837,7 +1779,7 @@ state 90
     SCONST          reduce using rule 65 (relational_operator -> GTEQUAL .)
 
 
-state 91
+state 92
 
     (64) relational_operator -> GREATER .
 
@@ -1851,7 +1793,7 @@ state 91
     SCONST          reduce using rule 64 (relational_operator -> GREATER .)
 
 
-state 92
+state 93
 
     (67) relational_operator -> LTEQUAL .
 
@@ -1865,7 +1807,7 @@ state 92
     SCONST          reduce using rule 67 (relational_operator -> LTEQUAL .)
 
 
-state 93
+state 94
 
     (61) relational_operator -> OR .
 
@@ -1879,7 +1821,7 @@ state 93
     SCONST          reduce using rule 61 (relational_operator -> OR .)
 
 
-state 94
+state 95
 
     (53) operator1 -> relational_operator .
 
@@ -1893,7 +1835,7 @@ state 94
     SCONST          reduce using rule 53 (operator1 -> relational_operator .)
 
 
-state 95
+state 96
 
     (50) arithmetic_multiplicative_operator -> MODULO .
 
@@ -1907,7 +1849,7 @@ state 95
     SCONST          reduce using rule 50 (arithmetic_multiplicative_operator -> MODULO .)
 
 
-state 96
+state 97
 
     (49) arithmetic_multiplicative_operator -> DIVIDE .
 
@@ -1921,7 +1863,7 @@ state 96
     SCONST          reduce using rule 49 (arithmetic_multiplicative_operator -> DIVIDE .)
 
 
-state 97
+state 98
 
     (44) operand2 -> operand2 arithmetic_multiplicative_operator . operand3
     (45) operand3 -> . monadic_operator operand4
@@ -1942,27 +1884,27 @@ state 97
     (79) empty_literal -> . NULL
     (80) character_string_literal -> . SCONST
 
-    MINUS           shift and go to state 53
-    NOT             shift and go to state 66
-    ICONST          shift and go to state 62
-    TRUE            shift and go to state 52
-    FALSE           shift and go to state 65
-    CCONST          shift and go to state 61
-    NULL            shift and go to state 51
-    SCONST          shift and go to state 59
+    MINUS           shift and go to state 54
+    NOT             shift and go to state 67
+    ICONST          shift and go to state 63
+    TRUE            shift and go to state 53
+    FALSE           shift and go to state 66
+    CCONST          shift and go to state 62
+    NULL            shift and go to state 52
+    SCONST          shift and go to state 60
 
-    operand4                       shift and go to state 54
-    character_string_literal       shift and go to state 64
-    monadic_operator               shift and go to state 48
-    operand3                       shift and go to state 104
-    empty_literal                  shift and go to state 49
-    boolean_literal                shift and go to state 50
-    literal                        shift and go to state 60
-    character_literal              shift and go to state 67
-    integer_literal                shift and go to state 63
-    primitive_value                shift and go to state 69
+    operand4                       shift and go to state 55
+    character_string_literal       shift and go to state 65
+    monadic_operator               shift and go to state 49
+    operand3                       shift and go to state 105
+    empty_literal                  shift and go to state 50
+    boolean_literal                shift and go to state 51
+    literal                        shift and go to state 61
+    character_literal              shift and go to state 68
+    integer_literal                shift and go to state 64
+    primitive_value                shift and go to state 70
 
-state 98
+state 99
 
     (48) arithmetic_multiplicative_operator -> TIMES .
 
@@ -1976,16 +1918,16 @@ state 98
     SCONST          reduce using rule 48 (arithmetic_multiplicative_operator -> TIMES .)
 
 
-state 99
+state 100
 
     (33) literal_range -> lower_bound COLON . upper_bound
     (35) upper_bound -> . ICONST
 
-    ICONST          shift and go to state 105
+    ICONST          shift and go to state 106
 
-    upper_bound                    shift and go to state 106
+    upper_bound                    shift and go to state 107
 
-state 100
+state 101
 
     (31) discrete_range_mode -> discrete_mode_name LPAREN literal_range RPAREN .
 
@@ -1995,7 +1937,7 @@ state 100
     SEMI            reduce using rule 31 (discrete_range_mode -> discrete_mode_name LPAREN literal_range RPAREN .)
 
 
-state 101
+state 102
 
     (32) discrete_range_mode -> discrete_mode LPAREN literal_range RPAREN .
 
@@ -2005,7 +1947,7 @@ state 101
     SEMI            reduce using rule 32 (discrete_range_mode -> discrete_mode LPAREN literal_range RPAREN .)
 
 
-state 102
+state 103
 
     (42) operand1 -> operand1 operator2 operand2 .
     (44) operand2 -> operand2 . arithmetic_multiplicative_operator operand3
@@ -2027,16 +1969,13 @@ state 102
     IN              reduce using rule 42 (operand1 -> operand1 operator2 operand2 .)
     COMMA           reduce using rule 42 (operand1 -> operand1 operator2 operand2 .)
     SEMI            reduce using rule 42 (operand1 -> operand1 operator2 operand2 .)
-    DCL             reduce using rule 42 (operand1 -> operand1 operator2 operand2 .)
-    SYN             reduce using rule 42 (operand1 -> operand1 operator2 operand2 .)
-    $end            reduce using rule 42 (operand1 -> operand1 operator2 operand2 .)
-    TIMES           shift and go to state 98
-    DIVIDE          shift and go to state 96
-    MODULO          shift and go to state 95
+    TIMES           shift and go to state 99
+    DIVIDE          shift and go to state 97
+    MODULO          shift and go to state 96
 
-    arithmetic_multiplicative_operator shift and go to state 97
+    arithmetic_multiplicative_operator shift and go to state 98
 
-state 103
+state 104
 
     (40) operand0 -> operand0 operator1 operand1 .
     (42) operand1 -> operand1 . operator2 operand2
@@ -2057,18 +1996,15 @@ state 103
     IN              reduce using rule 40 (operand0 -> operand0 operator1 operand1 .)
     COMMA           reduce using rule 40 (operand0 -> operand0 operator1 operand1 .)
     SEMI            reduce using rule 40 (operand0 -> operand0 operator1 operand1 .)
-    DCL             reduce using rule 40 (operand0 -> operand0 operator1 operand1 .)
-    SYN             reduce using rule 40 (operand0 -> operand0 operator1 operand1 .)
-    $end            reduce using rule 40 (operand0 -> operand0 operator1 operand1 .)
-    PLUS            shift and go to state 80
-    MINUS           shift and go to state 81
-    CONCAT          shift and go to state 82
+    PLUS            shift and go to state 81
+    MINUS           shift and go to state 82
+    CONCAT          shift and go to state 83
 
-    arithmetic_additive_operator   shift and go to state 77
-    operator2                      shift and go to state 79
-    string_concatenation_operator  shift and go to state 78
+    arithmetic_additive_operator   shift and go to state 78
+    operator2                      shift and go to state 80
+    string_concatenation_operator  shift and go to state 79
 
-state 104
+state 105
 
     (44) operand2 -> operand2 arithmetic_multiplicative_operator operand3 .
 
@@ -2088,20 +2024,17 @@ state 104
     LTEQUAL         reduce using rule 44 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
     IN              reduce using rule 44 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
     COMMA           reduce using rule 44 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
-    DCL             reduce using rule 44 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
-    SYN             reduce using rule 44 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
-    $end            reduce using rule 44 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
     SEMI            reduce using rule 44 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
 
 
-state 105
+state 106
 
     (35) upper_bound -> ICONST .
 
     RPAREN          reduce using rule 35 (upper_bound -> ICONST .)
 
 
-state 106
+state 107
 
     (33) literal_range -> lower_bound COLON upper_bound .
 
