@@ -22,3 +22,10 @@ tentando entender mais ou menos como funcionam as coisas na linguagem.
 Renan: Adicionando inicialização nas declarações e também expressions, adicionando mais nodes
 
 
+15 de Abril
+===========
+Possibilitando definições de tipo como:
+type stack = array [1:3] int;
+Como ainda expressões não suportam operações com identifiers, expressões do tipo"
+type stack = array [1:top+1] int;
+ainda não funcionam

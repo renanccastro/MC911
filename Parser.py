@@ -1,6 +1,7 @@
 import ply.yacc as yacc
 
 from Tokenizer import Tokenizer
+from nodes.NewModeStatement import NewModeStatement
 from nodes.AST import AST
 from nodes.DeclarationStatement import DeclarationStatement
 from nodes.Declaration import Declaration
@@ -8,7 +9,9 @@ from nodes.DiscreteMode import IntegerMode, BooleanMode, CharMode, DiscreteModeN
 from nodes.DiscreteRangeMode import DiscreteRangeMode
 from nodes.Expression import Expression
 from nodes.Literal import IntegerLiteral, BoolLiteral, CharLiteral, NullLiteral, StringLiteral
+from nodes.ModeDefinition import ModeDefinition
 from nodes.ModeName import ModeName
+from nodes.Modes.CompositeMode import CompositeMode, StringMode, ArrayMode
 from nodes.MonadicOperation import MonadicOperation
 from nodes.Operand import Operand
 from nodes.Operation import Operation
@@ -53,7 +56,8 @@ class Parser:
 
     def p_statement(self, p):
         '''statement : declaration_statement
-                     | synonym_statement'''
+                     | synonym_statement
+                     | newmode_statement'''
         p[0] = p[1]
 
 
@@ -68,7 +72,7 @@ class Parser:
 
     def p_synonym_list(self,p):
         '''synonym_list : synonym_definition
-                        | synonym_definition COMMA synonym_definition'''
+                        | synonym_definition COMMA synonym_list'''
         p[0] = [p[1]]
         if(len(p) > 2):
             p[0].append(p[3])
@@ -84,10 +88,29 @@ class Parser:
                                   p[2] if len(p) >= 5 else None,
                                   p[4] if len(p) >= 5 else p[3],)
 
+    # '''
+    # NEWMODE STATEMENT(aka type)
+    # '''
+    def p_newmode_statement(self,p):
+        '''newmode_statement : TYPE newmode_list SEMI'''
+        p[0] = NewModeStatement(p[2])
+
+    def p_newmode_list(self,p):
+        '''newmode_list : mode_definition
+                        | mode_definition COMMA newmode_list'''
+        if len(p) == 2:
+            p[0] = [p[1]]
+        elif len(p) == 4:
+            p[0] = [p[1]]
+            p[0].append(p[3])
+
+    def p_mode_definition(self,p):
+        '''mode_definition : identifier_list ASSIGN mode'''
+        p[0] = ModeDefinition(p[1],p[3])
 
 
     # '''
-    # DECLARATION STATEMENT
+    # DECLARATION STATEMENT(aka dcl)
     # '''
 
     def p_declaration_statement(self, p):
@@ -96,7 +119,7 @@ class Parser:
 
     def p_declaration_list(self, p):
         '''declaration_list : declaration
-                            | declaration COMMA declaration'''
+                            | declaration COMMA declaration_list'''
         if len(p) == 2:
             p[0] = [p[1]]
         elif len(p) == 4:
@@ -131,16 +154,21 @@ class Parser:
     def p_mode(self,p):
         '''mode : mode_name
                 | discrete_mode
-                | reference_mode'''
+                | reference_mode
+                | composite_mode'''
         p[0] = p[1]
 
-
-    # TODO: Ver se eh necessario criar uma AST para o modo
+    #
+    # Mode Name
+    #
     def p_mode_name(self,p):
         '''mode_name : ID'''
         p[0] = ModeName(p[1])
 
 
+    #
+    # Discrete Mode
+    #
     def p_discrete_mode(self,p):
         '''discrete_mode : integer_mode
                          | boolean_mode
@@ -158,6 +186,9 @@ class Parser:
         'character_mode : CHAR'
         p[0] = CharMode()
 
+    #
+    # Discrete Range Mode
+    #
     def p_discrete_range_mode(self,p):
         '''discrete_range_mode : discrete_mode_name  LPAREN literal_range RPAREN
                                | discrete_mode LPAREN literal_range RPAREN'''
@@ -167,27 +198,64 @@ class Parser:
         '''literal_range : lower_bound COLON upper_bound'''
         p[0] = Range(p[1],p[3])
 
-    # TODO: AQUI DEVE SER UMA EXPRESSION, MAS AINDA TEM QUE FAZER
     def p_lower_bound(self,p):
-        '''lower_bound : ICONST'''
+        '''lower_bound : expression'''
         p[0] = p[1]
     def p_upper_bound(self, p):
-        '''upper_bound : ICONST'''
+        '''upper_bound : expression'''
         p[0] = p[1]
 
     def p_discrete_mode_name(self,p):
         '''discrete_mode_name : ID'''
         p[0] = DiscreteModeName(p[1])
 
+    #
+    # Reference Mode
+    #
     def p_reference_mode(self,p):
         '''reference_mode : REF mode'''
         p[0] = ReferenceMode(p[2])
+
+    #
+    # Composite Mode
+    #
+    # TODO: AST
+    def p_composite_mode(self,p):
+        '''composite_mode : string_mode
+                          | array_mode'''
+        p[0] = CompositeMode(p[1])
+    def p_string_mode(self,p):
+        '''string_mode : CHARS LBRACKET string_length RBRACKET'''
+        p[0] = StringMode(p[3])
+    def p_string_length(self,p):
+        '''string_length : integer_literal'''
+        p[0] = p[1]
+    def p_array_mode(self,p):
+        '''array_mode : ARRAY LBRACKET index_mode_list RBRACKET element_mode'''
+        p[0] = ArrayMode(p[3],p[5])
+
+    def p_index_mode_list(self,p):
+        '''index_mode_list : index_mode
+                           | index_mode COMMA index_mode_list'''
+        p[0] = [p[1]]
+        if(len(p) > 2):
+            p[0].append(p[3])
+
+
+
+    def p_index_mode(self,p):
+        '''index_mode : discrete_mode
+                      | literal_range'''
+        p[0] = p[1]
+
+    def p_element_mode(self,p):
+        '''element_mode : mode'''
+        p[0] = p[1]
 
 
     # '''
     # EXPRESSION
     # '''
-
 
     # FALTA CONDITIONAL EXPRESSION
     def p_expression(self,p):
