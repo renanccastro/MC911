@@ -1,4 +1,4 @@
-from AST import AST
+from .AST import AST
 
 
 class SynomymDeclaration(AST):

@@ -24,9 +24,12 @@ from nodes.SynonymStatement import SynomymStatement
 
 
 class Parser:
+
     tokens = Tokenizer.tokens
     reserved = Tokenizer.reserved
+
     # Program and Statement
+
     def p_program(self, p):
         'program : statement_list'
         p[0] = Program(p[1])
@@ -61,11 +64,10 @@ class Parser:
         p[0] = p[1]
 
 
-
-
     # '''
     # SYNONYM STATEMENT
     # '''
+
     def p_synonym_statement(self,p):
         '''synonym_statement : SYN synonym_list SEMI'''
         p[0] = SynomymStatement(p[2])
@@ -78,9 +80,9 @@ class Parser:
             p[0].append(p[3])
 
 
-    # Aqui, substitui constant_expression por soh expression, jah que eh igual
-    # Assign -> '='
-    # equal -> '=='
+    # Substituido constant_expression por expression, jah que eh igual
+	# 'constante_expression : expression'
+
     def p_synonym_definition(self,p):
         '''synonym_definition : identifier_list mode ASSIGN expression
                               | identifier_list ASSIGN expression'''
@@ -88,9 +90,11 @@ class Parser:
                                   p[2] if len(p) >= 5 else None,
                                   p[4] if len(p) >= 5 else p[3],)
 
+
     # '''
     # NEWMODE STATEMENT(aka type)
     # '''
+
     def p_newmode_statement(self,p):
         '''newmode_statement : TYPE newmode_list SEMI'''
         p[0] = NewModeStatement(p[2])
@@ -161,6 +165,7 @@ class Parser:
     #
     # Mode Name
     #
+
     def p_mode_name(self,p):
         '''mode_name : ID'''
         p[0] = ModeName(p[1])
@@ -169,6 +174,7 @@ class Parser:
     #
     # Discrete Mode
     #
+
     def p_discrete_mode(self,p):
         '''discrete_mode : integer_mode
                          | boolean_mode
@@ -189,6 +195,7 @@ class Parser:
     #
     # Discrete Range Mode
     #
+
     def p_discrete_range_mode(self,p):
         '''discrete_range_mode : discrete_mode_name  LPAREN literal_range RPAREN
                                | discrete_mode LPAREN literal_range RPAREN'''
@@ -212,6 +219,7 @@ class Parser:
     #
     # Reference Mode
     #
+
     def p_reference_mode(self,p):
         '''reference_mode : REF mode'''
         p[0] = ReferenceMode(p[2])
@@ -220,6 +228,7 @@ class Parser:
     # Composite Mode
     #
     # TODO: AST
+
     def p_composite_mode(self,p):
         '''composite_mode : string_mode
                           | array_mode'''
@@ -395,6 +404,7 @@ class Parser:
     def p_empty(self, p):
         'empty :'
         pass
+
     # Error rule for syntax errors
     def p_error(self, error):
         print("Syntax error in input!")

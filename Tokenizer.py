@@ -1,7 +1,7 @@
 import ply.lex as lex
 
-
 class Tokenizer:
+
     reserved = {
         "array": "ARRAY",
         "by": "BY",
@@ -18,7 +18,6 @@ class Tokenizer:
         "if": "IF",
         "in": "IN",
         "loc": "LOC",
-        "type": "TYPE",
         "od": "OD",
         "proc": "PROC",
         "ref": "REF",
@@ -27,6 +26,7 @@ class Tokenizer:
         "returns": "RETURNS",
         "syn": "SYN",
         "then": "THEN",
+        "type": "TYPE",
         "to": "TO",
         "while": "WHILE",
         "abs": "ABS",
@@ -103,15 +103,14 @@ class Tokenizer:
 
 
     # Build the lexer
+    
     def build(self, **kwargs):
         self.lexer = lex.lex(module=self, **kwargs)
-
 
     def t_ID(self, t):
         r'[a-zA-Z_][a-zA-Z_0-9]*'
         t.type = self.reserved.get(t.value, 'ID')  # Check for reserved words
         return t
-
 
     def tokenize(self, input):
         self.build()
@@ -119,29 +118,27 @@ class Tokenizer:
         self.lexer.open_quote = 0
         self.lexer.open_comment = 0
         for tok in iter(lex.token, None):
-            print repr(tok.type), repr(tok.value)
+            print (repr(tok.type), repr(tok.value))
 
-            # Line, Tab, Spaces
-
+    # Line, Tab, Spaces
 
     def t_newline(self, t):
         r'\n+'
         t.lexer.lineno += len(t.value)
 
 
-    t_ignore = ' \t'  # C and C++ comment style
-
+    t_ignore = ' \t'  
+    
+    # C and C++ comment style
 
     def t_COMMENT(self, t):
         r'(/\*(.|\n)*?\*/)|(//.*)'
         pass
 
-
     def t_ICONST(self, t):
         r'\d+'
         t.value = int(t.value)
         return t
-
 
     # C string "string"
 
@@ -149,13 +146,11 @@ class Tokenizer:
         r'\"(\\.|[^"])*\"'
         return t
 
-
     # C character literal 'char'
     # TODO: TRATAR LITERAIS DO TIPO "^(12)"
     def t_CCONST(self, t):
         r'\'(\\.|[^\'])*\''
         return t
-
 
     # Errors
 
@@ -175,3 +170,4 @@ class Tokenizer:
         r'\\.*'
         print("%d: Bad string escape code '\%s'" % (t.lexer.lineno, t.value[1]))
         t.lexer.skip(1)
+        
