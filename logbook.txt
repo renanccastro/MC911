@@ -2,7 +2,8 @@ Histórico desde 06 de Abril
 
 06 de Abril
 ===========
-Wendrey: Adicionando funções no Parser. Ainda não entendi direito como deveria funcionar a AST. Provavelmente serão necessárias mudanças no Parser pra integrar com a AST, mas a estruturação dos argumentos deve estar correta.
+Wendrey: Adicionando funções no Parser. Ainda não entendi direito como deveria funcionar a AST.
+Provavelmente serão necessárias mudanças no Parser pra integrar com a AST, mas a estruturação dos argumentos deve estar correta.
 
 08 de Abril
 ===========
@@ -29,3 +30,7 @@ type stack = array [1:3] int;
 Como ainda expressões não suportam operações com identifiers, expressões do tipo"
 type stack = array [1:top+1] int;
 ainda não funcionam
+
+16 de Abril
+===========
+Wendrey: Adicionando regras de Location no Parser. Tenho que resolver conflitos

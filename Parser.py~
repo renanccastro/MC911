@@ -22,6 +22,11 @@ from nodes.ReferenceMode import ReferenceMode
 from nodes.SynonymDeclaration import SynonymDeclaration
 from nodes.SynonymStatement import SynonymStatement
 from nodes.Location import Location
+from nodes.DereferencedLocation import DereferencedLocation
+from nodes.StringElement import StringElement
+from nodes.StringSlice import StringSlice
+from nodes.ArrayElement import ArrayElement
+from nodes.ArraySlice import ArraySlice
 
 class Parser:
 
@@ -245,65 +250,65 @@ class Parser:
 
 	# '''
 	# LOCATION
-	# '''
-	
-	def p_location(self, p):
-		'''location : ID
+	# '''	
+
+    #TODO call_action
+    def p_location(self,p):
+        '''location : ID
 				    | dereferenced_reference
 				    | string_element
 				    | string_slice
 				    | array_element
-				    | array_slice
-				    | call_action'''
-		p[0] = Location(p[1])
+				    | array_slice'''
+        p[0] = Location(p[1])
 	
-	def p_dereferenced_reference(self,p):
-		'''dereferenced_reference : location ARROW'''
-		p[0] = DereferencedLocation(p[1])
+    def p_dereferenced_reference(self,p):
+        '''dereferenced_reference : location ARROW'''
+        p[0] = DereferencedLocation(p[1])
 	
-	def p_string_element(self,p):
-		'''string_element : string_location LBRACKET start_element LBRACKET'''
-		p[0] = StringElement(p[1],p[3])
+    def p_string_element(self,p):
+        '''string_element : string_location LBRACKET start_element LBRACKET'''
+        p[0] = StringElement(p[1],p[3])
 		
-	def p_start_element(self,p):
-		'''start_element : integer_expression'''
-		p[0] = p[1]
+    def p_start_element(self,p):
+        '''start_element : expression'''
+        p[0] = p[1]
 	
-	def p_string_slice(self,p):
-		'''string_slice : string_location LBRACKET left_element COLON right_element RBRACKET'''
-		p[0] = StringSlice(p[1],p[3],p[5])
+    def p_string_slice(self,p):
+        '''string_slice : string_location LBRACKET left_element COLON right_element RBRACKET'''
+        p[0] = StringSlice(p[1],p[3],p[5])
 		
-	def p_string_location(self,p):
-		'''string_location : ID'''
-		p[0] = p[1]
+    def p_string_location(self,p):
+        '''string_location : ID'''
+        p[0] = p[1]
 		
-	def p_left_element(self,p):
-		'''left_element : integer_expression'''
-		p[0] = p[1]
+    def p_left_element(self,p):
+        '''left_element : expression'''
+        p[0] = p[1]
 		
-	def p_right_element(self,p):
-		'''right_element : integer_expression'''
-		p[0] = p[1]
+    def p_right_element(self,p):
+        '''right_element : expression'''
+        p[0] = p[1]
 
-	def p_array_element(self,p):
-		'''array_element : array_location LBRACKET expression_list RBRACKET'''
-		p[0] = ArrayElement(p[1],p[3])
+    def p_array_element(self,p):
+        '''array_element : array_location LBRACKET expression_list RBRACKET'''
+        p[0] = ArrayElement(p[1],p[3])
 		
-	def p_expression_list(self,p):
-		'''expression_list : expression
-						   | expression COMMA expression_list'''
-		if len(p) == 2:
-			p[0] = p[1]
-		else:
-			p[0] = p[1] + [p[3]]
+    def p_expression_list(self,p):
+        '''expression_list : expression
+    					   | expression COMMA expression_list'''
+        if len(p) == 2:
+            p[0] = p[1]
+        else:
+           p[0] = p[1] + [p[3]]
 
-	def p_array_slice(self,p):
-		'''array_slice : array_location LBRACKET lower_bound COLON upper_bound RBRACKET'''
-		p[0] = ArraySlice(p[1],p[3],p[5])	
+    def p_array_slice(self,p):
+        '''array_slice : array_location LBRACKET lower_bound COLON upper_bound RBRACKET'''
+        p[0] = ArraySlice(p[1],p[3],p[5])	
 	
-	def p_array_location(self,p):
-		'''array_location : location'''
-		p[0] = p[1]
+    def p_array_location(self,p):
+        '''array_location : location'''
+        p[0] = p[1]
 
     # '''
     # EXPRESSION
@@ -350,7 +355,8 @@ class Parser:
 
 
     def p_operand4(self, p):
-        '''operand4 : primitive_value'''
+        '''operand4 : primitive_value
+                    | location'''
         p[0] = Operand(p[1])
 
     def p_arithmetic_multiplicative_operator(self,p):
