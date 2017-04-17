@@ -1,3 +1,4 @@
+
 class AST(object):
     """
     Base class example for the AST nodes.  Each node is expected to
@@ -14,3 +15,4 @@ class AST(object):
         # Assign additional keyword arguments if supplied
         for name,value in kwargs.items():
             setattr(self,name,value)
+            
