@@ -27,6 +27,7 @@ from nodes.StringElement import StringElement
 from nodes.StringSlice import StringSlice
 from nodes.ArrayElement import ArrayElement
 from nodes.ArraySlice import ArraySlice
+from nodes.ReferencedLocation import ReferencedLocation
 
 class Parser:
 
@@ -123,14 +124,17 @@ class Parser:
         p[0] = p[2]
 
     def p_identifier_list(self,p):
-        '''identifier_list : ID
-                           | ID COMMA identifier_list'''
+        '''identifier_list : identifier
+                           | identifier COMMA identifier_list'''
         if len(p) == 2:
             p[0] = [Identifier(p[1])]
         elif len(p) > 3:
             p[0] = p[3]
             p[0].append(Identifier(p[1]))
 
+    def p_identifier(self,p):
+        '''identifier : ID'''
+        p[0] = p[1]
 
     # '''
     # NEWMODE STATEMENT (aka type)
@@ -161,7 +165,7 @@ class Parser:
         p[0] = p[1]
 
     def p_mode_name(self,p):
-        '''mode_name : ID'''
+        '''mode_name : identifier'''
         p[0] = ModeName(p[1])
 
 	# Discrete Mode
@@ -174,7 +178,7 @@ class Parser:
         p[0] = p[1]
 
     def p_discrete_mode_name(self,p):
-        '''discrete_mode_name : ID'''
+        '''discrete_mode_name : identifier'''
         p[0] = DiscreteModeName(p[1])
 
     def p_integer_mode(self,p):
@@ -254,7 +258,7 @@ class Parser:
 
     #TODO call_action
     def p_location(self,p):
-        '''location : ID
+        '''location : identifier
 				    | dereferenced_reference
 				    | string_element
 				    | string_slice
@@ -263,11 +267,11 @@ class Parser:
         p[0] = Location(p[1])
 	
     def p_dereferenced_reference(self,p):
-        '''dereferenced_reference : location ARROW'''
+        '''dereferenced_reference : array_location ARROW'''
         p[0] = DereferencedLocation(p[1])
 	
     def p_string_element(self,p):
-        '''string_element : string_location LBRACKET start_element LBRACKET'''
+        '''string_element : identifier LBRACKET start_element LBRACKET'''
         p[0] = StringElement(p[1],p[3])
 		
     def p_start_element(self,p):
@@ -275,13 +279,9 @@ class Parser:
         p[0] = p[1]
 	
     def p_string_slice(self,p):
-        '''string_slice : string_location LBRACKET left_element COLON right_element RBRACKET'''
+        '''string_slice : identifier LBRACKET left_element COLON right_element RBRACKET'''
         p[0] = StringSlice(p[1],p[3],p[5])
-		
-    def p_string_location(self,p):
-        '''string_location : ID'''
-        p[0] = p[1]
-		
+				
     def p_left_element(self,p):
         '''left_element : expression'''
         p[0] = p[1]
@@ -319,7 +319,10 @@ class Parser:
         '''expression : operand0'''
         p[0] = Expression(p[1])
 
+    # '''
     # OPERAND
+    # '''
+
     def p_operand0(self,p):
         '''operand0 : operand1
                     | operand0 operator1 operand1'''
@@ -327,6 +330,7 @@ class Parser:
             p[0] = Operation(p[1], p[2], p[3])
         else:
             p[0] = p[1]
+            
     def p_operand1(self,p):
         '''operand1 : operand2
                     | operand1 operator2 operand2'''
@@ -343,8 +347,7 @@ class Parser:
         else:
             p[0] = p[1]
 
-
-    # operand3 : integer_literal, regra desnecessaria e causa reduce/reduce conflict
+    # 'operand3 : integer_literal' - regra desnecessaria e causa reduce/reduce conflict
     def p_operand3(self,p):
         '''operand3 : monadic_operator operand4
                     | operand4'''
@@ -353,10 +356,10 @@ class Parser:
         else:
             p[0] = p[1]
 
-
     def p_operand4(self, p):
-        '''operand4 : primitive_value
-                    | location'''
+        '''operand4 : array_location
+                    | referenced_location
+                    | primitive_value'''
         p[0] = Operand(p[1])
 
     def p_arithmetic_multiplicative_operator(self,p):
@@ -370,10 +373,17 @@ class Parser:
                             | NOT'''
         p[0] = p[1]
 
+    def p_referenced_location(self,p):
+        '''referenced_location : ARROW array_location'''
+        p[0] = ReferencedLocation(p[1])
+
+    # '''
     # OPERATOR
+    # '''
+
     def p_operator1(self,p):
         '''operator1 : relational_operator
-                    | membership_operator'''
+                     | membership_operator'''
         p[0] = p[1]
 
     def p_operator2(self,p):

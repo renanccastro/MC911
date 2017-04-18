@@ -1,0 +1,4172 @@
+Created by PLY version 3.8 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    READ
+    FI
+    END
+    RESULT
+    PROC
+    UPPER
+    RETURNS
+    ABS
+    DOWN
+    LOWER
+    THEN
+    PRINT
+    LENGTH
+    DO
+    ELSIF
+    WHILE
+    TO
+    RETURN
+    FOR
+    OD
+    ASC
+    BY
+    IF
+    ELSE
+    EXIT
+    NUM
+    LOC
+
+Grammar
+
+Rule 0     S' -> program
+Rule 1     program -> statement_list
+Rule 2     statement_list -> statement statement_nullable
+Rule 3     statement_nullable -> statement statement_nullable
+Rule 4     statement_nullable -> empty
+Rule 5     statement -> declaration_statement
+Rule 6     statement -> synonym_statement
+Rule 7     statement -> newmode_statement
+Rule 8     synonym_statement -> SYN synonym_list SEMI
+Rule 9     synonym_list -> synonym_definition
+Rule 10    synonym_list -> synonym_definition COMMA synonym_list
+Rule 11    synonym_definition -> identifier_list mode ASSIGN expression
+Rule 12    synonym_definition -> identifier_list ASSIGN expression
+Rule 13    declaration_statement -> DCL declaration_list SEMI
+Rule 14    declaration_list -> declaration
+Rule 15    declaration_list -> declaration COMMA declaration_list
+Rule 16    declaration -> identifier_list mode initialization
+Rule 17    declaration -> identifier_list mode
+Rule 18    initialization -> ASSIGN expression
+Rule 19    identifier_list -> ID
+Rule 20    identifier_list -> ID COMMA identifier_list
+Rule 21    newmode_statement -> TYPE newmode_list SEMI
+Rule 22    newmode_list -> mode_definition
+Rule 23    newmode_list -> mode_definition COMMA newmode_list
+Rule 24    mode_definition -> identifier_list ASSIGN mode
+Rule 25    mode -> mode_name
+Rule 26    mode -> discrete_mode
+Rule 27    mode -> reference_mode
+Rule 28    mode -> composite_mode
+Rule 29    mode_name -> ID
+Rule 30    discrete_mode -> integer_mode
+Rule 31    discrete_mode -> boolean_mode
+Rule 32    discrete_mode -> character_mode
+Rule 33    discrete_mode -> discrete_range_mode
+Rule 34    discrete_mode_name -> ID
+Rule 35    integer_mode -> INT
+Rule 36    boolean_mode -> BOOL
+Rule 37    character_mode -> CHAR
+Rule 38    discrete_range_mode -> discrete_mode_name LPAREN literal_range RPAREN
+Rule 39    discrete_range_mode -> discrete_mode LPAREN literal_range RPAREN
+Rule 40    literal_range -> lower_bound COLON upper_bound
+Rule 41    lower_bound -> expression
+Rule 42    upper_bound -> expression
+Rule 43    reference_mode -> REF mode
+Rule 44    composite_mode -> string_mode
+Rule 45    composite_mode -> array_mode
+Rule 46    string_mode -> CHARS LBRACKET string_length RBRACKET
+Rule 47    string_length -> integer_literal
+Rule 48    array_mode -> ARRAY LBRACKET index_mode_list RBRACKET element_mode
+Rule 49    index_mode_list -> index_mode
+Rule 50    index_mode_list -> index_mode COMMA index_mode_list
+Rule 51    index_mode -> discrete_mode
+Rule 52    index_mode -> literal_range
+Rule 53    element_mode -> mode
+Rule 54    location -> ID
+Rule 55    location -> dereferenced_reference
+Rule 56    location -> string_element
+Rule 57    location -> string_slice
+Rule 58    location -> array_element
+Rule 59    location -> array_slice
+Rule 60    dereferenced_reference -> location ARROW
+Rule 61    string_element -> ID LBRACKET start_element LBRACKET
+Rule 62    start_element -> expression
+Rule 63    string_slice -> ID LBRACKET left_element COLON right_element RBRACKET
+Rule 64    left_element -> expression
+Rule 65    right_element -> expression
+Rule 66    array_element -> array_location LBRACKET expression_list RBRACKET
+Rule 67    expression_list -> expression
+Rule 68    expression_list -> expression COMMA expression_list
+Rule 69    array_slice -> array_location LBRACKET lower_bound COLON upper_bound RBRACKET
+Rule 70    array_location -> location
+Rule 71    expression -> operand0
+Rule 72    operand0 -> operand1
+Rule 73    operand0 -> operand0 operator1 operand1
+Rule 74    operand1 -> operand2
+Rule 75    operand1 -> operand1 operator2 operand2
+Rule 76    operand2 -> operand3
+Rule 77    operand2 -> operand2 arithmetic_multiplicative_operator operand3
+Rule 78    operand3 -> monadic_operator operand4
+Rule 79    operand3 -> operand4
+Rule 80    operand4 -> location
+Rule 81    operand4 -> referenced_location
+Rule 82    operand4 -> primitive_value
+Rule 83    arithmetic_multiplicative_operator -> TIMES
+Rule 84    arithmetic_multiplicative_operator -> DIVIDE
+Rule 85    arithmetic_multiplicative_operator -> MODULO
+Rule 86    monadic_operator -> MINUS
+Rule 87    monadic_operator -> NOT
+Rule 88    referenced_location -> ARROW location
+Rule 89    operator1 -> relational_operator
+Rule 90    operator1 -> membership_operator
+Rule 91    operator2 -> arithmetic_additive_operator
+Rule 92    operator2 -> string_concatenation_operator
+Rule 93    arithmetic_additive_operator -> PLUS
+Rule 94    arithmetic_additive_operator -> MINUS
+Rule 95    string_concatenation_operator -> CONCAT
+Rule 96    relational_operator -> AND
+Rule 97    relational_operator -> OR
+Rule 98    relational_operator -> EQUAL
+Rule 99    relational_operator -> NOTEQ
+Rule 100   relational_operator -> GREATER
+Rule 101   relational_operator -> GTEQUAL
+Rule 102   relational_operator -> LESS
+Rule 103   relational_operator -> LTEQUAL
+Rule 104   membership_operator -> IN
+Rule 105   primitive_value -> literal
+Rule 106   literal -> integer_literal
+Rule 107   literal -> boolean_literal
+Rule 108   literal -> character_literal
+Rule 109   literal -> empty_literal
+Rule 110   literal -> character_string_literal
+Rule 111   integer_literal -> ICONST
+Rule 112   boolean_literal -> TRUE
+Rule 113   boolean_literal -> FALSE
+Rule 114   character_literal -> CCONST
+Rule 115   empty_literal -> NULL
+Rule 116   character_string_literal -> SCONST
+Rule 117   empty -> <empty>
+
+Terminals, with rules where they appear
+
+ABS                  : 
+AND                  : 96
+ARRAY                : 48
+ARROW                : 60 88
+ASC                  : 
+ASSIGN               : 11 12 18 24
+BOOL                 : 36
+BY                   : 
+CCONST               : 114
+CHAR                 : 37
+CHARS                : 46
+COLON                : 40 63 69
+COMMA                : 10 15 20 23 50 68
+CONCAT               : 95
+DCL                  : 13
+DIVIDE               : 84
+DO                   : 
+DOWN                 : 
+ELSE                 : 
+ELSIF                : 
+END                  : 
+EQUAL                : 98
+EXIT                 : 
+FALSE                : 113
+FI                   : 
+FOR                  : 
+GREATER              : 100
+GTEQUAL              : 101
+ICONST               : 111
+ID                   : 19 20 29 34 54 61 63
+IF                   : 
+IN                   : 104
+INT                  : 35
+LBRACKET             : 46 48 61 61 63 66 69
+LENGTH               : 
+LESS                 : 102
+LOC                  : 
+LOWER                : 
+LPAREN               : 38 39
+LTEQUAL              : 103
+MINUS                : 86 94
+MODULO               : 85
+NOT                  : 87
+NOTEQ                : 99
+NULL                 : 115
+NUM                  : 
+OD                   : 
+OR                   : 97
+PLUS                 : 93
+PRINT                : 
+PROC                 : 
+RBRACKET             : 46 48 63 66 69
+READ                 : 
+REF                  : 43
+RESULT               : 
+RETURN               : 
+RETURNS              : 
+RPAREN               : 38 39
+SCONST               : 116
+SEMI                 : 8 13 21
+SYN                  : 8
+THEN                 : 
+TIMES                : 83
+TO                   : 
+TRUE                 : 112
+TYPE                 : 21
+UPPER                : 
+WHILE                : 
+error                : 
+
+Nonterminals, with rules where they appear
+
+arithmetic_additive_operator : 91
+arithmetic_multiplicative_operator : 77
+array_element        : 58
+array_location       : 66 69
+array_mode           : 45
+array_slice          : 59
+boolean_literal      : 107
+boolean_mode         : 31
+character_literal    : 108
+character_mode       : 32
+character_string_literal : 110
+composite_mode       : 28
+declaration          : 14 15
+declaration_list     : 13 15
+declaration_statement : 5
+dereferenced_reference : 55
+discrete_mode        : 26 39 51
+discrete_mode_name   : 38
+discrete_range_mode  : 33
+element_mode         : 48
+empty                : 4
+empty_literal        : 109
+expression           : 11 12 18 41 42 62 64 65 67 68
+expression_list      : 66 68
+identifier_list      : 11 12 16 17 20 24
+index_mode           : 49 50
+index_mode_list      : 48 50
+initialization       : 16
+integer_literal      : 47 106
+integer_mode         : 30
+left_element         : 63
+literal              : 105
+literal_range        : 38 39 52
+location             : 60 70 80 88
+lower_bound          : 40 69
+membership_operator  : 90
+mode                 : 11 16 17 24 43 53
+mode_definition      : 22 23
+mode_name            : 25
+monadic_operator     : 78
+newmode_list         : 21 23
+newmode_statement    : 7
+operand0             : 71 73
+operand1             : 72 73 75
+operand2             : 74 75 77
+operand3             : 76 77
+operand4             : 78 79
+operator1            : 73
+operator2            : 75
+primitive_value      : 82
+program              : 0
+reference_mode       : 27
+referenced_location  : 81
+relational_operator  : 89
+right_element        : 63
+start_element        : 61
+statement            : 2 3
+statement_list       : 1
+statement_nullable   : 2 3
+string_concatenation_operator : 92
+string_element       : 56
+string_length        : 46
+string_mode          : 44
+string_slice         : 57
+synonym_definition   : 9 10
+synonym_list         : 8 10
+synonym_statement    : 6
+upper_bound          : 40 69
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . program
+    (1) program -> . statement_list
+    (2) statement_list -> . statement statement_nullable
+    (5) statement -> . declaration_statement
+    (6) statement -> . synonym_statement
+    (7) statement -> . newmode_statement
+    (13) declaration_statement -> . DCL declaration_list SEMI
+    (8) synonym_statement -> . SYN synonym_list SEMI
+    (21) newmode_statement -> . TYPE newmode_list SEMI
+
+    DCL             shift and go to state 3
+    SYN             shift and go to state 7
+    TYPE            shift and go to state 5
+
+    program                        shift and go to state 8
+    newmode_statement              shift and go to state 4
+    statement_list                 shift and go to state 1
+    synonym_statement              shift and go to state 6
+    statement                      shift and go to state 2
+    declaration_statement          shift and go to state 9
+
+state 1
+
+    (1) program -> statement_list .
+
+    $end            reduce using rule 1 (program -> statement_list .)
+
+
+state 2
+
+    (2) statement_list -> statement . statement_nullable
+    (3) statement_nullable -> . statement statement_nullable
+    (4) statement_nullable -> . empty
+    (5) statement -> . declaration_statement
+    (6) statement -> . synonym_statement
+    (7) statement -> . newmode_statement
+    (117) empty -> .
+    (13) declaration_statement -> . DCL declaration_list SEMI
+    (8) synonym_statement -> . SYN synonym_list SEMI
+    (21) newmode_statement -> . TYPE newmode_list SEMI
+
+    $end            reduce using rule 117 (empty -> .)
+    DCL             shift and go to state 3
+    SYN             shift and go to state 7
+    TYPE            shift and go to state 5
+
+    statement_nullable             shift and go to state 10
+    declaration_statement          shift and go to state 9
+    empty                          shift and go to state 11
+    synonym_statement              shift and go to state 6
+    statement                      shift and go to state 12
+    newmode_statement              shift and go to state 4
+
+state 3
+
+    (13) declaration_statement -> DCL . declaration_list SEMI
+    (14) declaration_list -> . declaration
+    (15) declaration_list -> . declaration COMMA declaration_list
+    (16) declaration -> . identifier_list mode initialization
+    (17) declaration -> . identifier_list mode
+    (19) identifier_list -> . ID
+    (20) identifier_list -> . ID COMMA identifier_list
+
+    ID              shift and go to state 13
+
+    declaration_list               shift and go to state 15
+    declaration                    shift and go to state 14
+    identifier_list                shift and go to state 16
+
+state 4
+
+    (7) statement -> newmode_statement .
+
+    DCL             reduce using rule 7 (statement -> newmode_statement .)
+    SYN             reduce using rule 7 (statement -> newmode_statement .)
+    TYPE            reduce using rule 7 (statement -> newmode_statement .)
+    $end            reduce using rule 7 (statement -> newmode_statement .)
+
+
+state 5
+
+    (21) newmode_statement -> TYPE . newmode_list SEMI
+    (22) newmode_list -> . mode_definition
+    (23) newmode_list -> . mode_definition COMMA newmode_list
+    (24) mode_definition -> . identifier_list ASSIGN mode
+    (19) identifier_list -> . ID
+    (20) identifier_list -> . ID COMMA identifier_list
+
+    ID              shift and go to state 13
+
+    newmode_list                   shift and go to state 17
+    mode_definition                shift and go to state 19
+    identifier_list                shift and go to state 18
+
+state 6
+
+    (6) statement -> synonym_statement .
+
+    DCL             reduce using rule 6 (statement -> synonym_statement .)
+    SYN             reduce using rule 6 (statement -> synonym_statement .)
+    TYPE            reduce using rule 6 (statement -> synonym_statement .)
+    $end            reduce using rule 6 (statement -> synonym_statement .)
+
+
+state 7
+
+    (8) synonym_statement -> SYN . synonym_list SEMI
+    (9) synonym_list -> . synonym_definition
+    (10) synonym_list -> . synonym_definition COMMA synonym_list
+    (11) synonym_definition -> . identifier_list mode ASSIGN expression
+    (12) synonym_definition -> . identifier_list ASSIGN expression
+    (19) identifier_list -> . ID
+    (20) identifier_list -> . ID COMMA identifier_list
+
+    ID              shift and go to state 13
+
+    identifier_list                shift and go to state 20
+    synonym_definition             shift and go to state 22
+    synonym_list                   shift and go to state 21
+
+state 8
+
+    (0) S' -> program .
+
+
+
+state 9
+
+    (5) statement -> declaration_statement .
+
+    DCL             reduce using rule 5 (statement -> declaration_statement .)
+    SYN             reduce using rule 5 (statement -> declaration_statement .)
+    TYPE            reduce using rule 5 (statement -> declaration_statement .)
+    $end            reduce using rule 5 (statement -> declaration_statement .)
+
+
+state 10
+
+    (2) statement_list -> statement statement_nullable .
+
+    $end            reduce using rule 2 (statement_list -> statement statement_nullable .)
+
+
+state 11
+
+    (4) statement_nullable -> empty .
+
+    $end            reduce using rule 4 (statement_nullable -> empty .)
+
+
+state 12
+
+    (3) statement_nullable -> statement . statement_nullable
+    (3) statement_nullable -> . statement statement_nullable
+    (4) statement_nullable -> . empty
+    (5) statement -> . declaration_statement
+    (6) statement -> . synonym_statement
+    (7) statement -> . newmode_statement
+    (117) empty -> .
+    (13) declaration_statement -> . DCL declaration_list SEMI
+    (8) synonym_statement -> . SYN synonym_list SEMI
+    (21) newmode_statement -> . TYPE newmode_list SEMI
+
+    $end            reduce using rule 117 (empty -> .)
+    DCL             shift and go to state 3
+    SYN             shift and go to state 7
+    TYPE            shift and go to state 5
+
+    statement_nullable             shift and go to state 23
+    declaration_statement          shift and go to state 9
+    empty                          shift and go to state 11
+    synonym_statement              shift and go to state 6
+    statement                      shift and go to state 12
+    newmode_statement              shift and go to state 4
+
+state 13
+
+    (19) identifier_list -> ID .
+    (20) identifier_list -> ID . COMMA identifier_list
+
+    ASSIGN          reduce using rule 19 (identifier_list -> ID .)
+    ID              reduce using rule 19 (identifier_list -> ID .)
+    REF             reduce using rule 19 (identifier_list -> ID .)
+    INT             reduce using rule 19 (identifier_list -> ID .)
+    BOOL            reduce using rule 19 (identifier_list -> ID .)
+    CHAR            reduce using rule 19 (identifier_list -> ID .)
+    CHARS           reduce using rule 19 (identifier_list -> ID .)
+    ARRAY           reduce using rule 19 (identifier_list -> ID .)
+    COMMA           shift and go to state 24
+
+
+state 14
+
+    (14) declaration_list -> declaration .
+    (15) declaration_list -> declaration . COMMA declaration_list
+
+    SEMI            reduce using rule 14 (declaration_list -> declaration .)
+    COMMA           shift and go to state 25
+
+
+state 15
+
+    (13) declaration_statement -> DCL declaration_list . SEMI
+
+    SEMI            shift and go to state 26
+
+
+state 16
+
+    (16) declaration -> identifier_list . mode initialization
+    (17) declaration -> identifier_list . mode
+    (25) mode -> . mode_name
+    (26) mode -> . discrete_mode
+    (27) mode -> . reference_mode
+    (28) mode -> . composite_mode
+    (29) mode_name -> . ID
+    (30) discrete_mode -> . integer_mode
+    (31) discrete_mode -> . boolean_mode
+    (32) discrete_mode -> . character_mode
+    (33) discrete_mode -> . discrete_range_mode
+    (43) reference_mode -> . REF mode
+    (44) composite_mode -> . string_mode
+    (45) composite_mode -> . array_mode
+    (35) integer_mode -> . INT
+    (36) boolean_mode -> . BOOL
+    (37) character_mode -> . CHAR
+    (38) discrete_range_mode -> . discrete_mode_name LPAREN literal_range RPAREN
+    (39) discrete_range_mode -> . discrete_mode LPAREN literal_range RPAREN
+    (46) string_mode -> . CHARS LBRACKET string_length RBRACKET
+    (48) array_mode -> . ARRAY LBRACKET index_mode_list RBRACKET element_mode
+    (34) discrete_mode_name -> . ID
+
+    ID              shift and go to state 27
+    REF             shift and go to state 43
+    INT             shift and go to state 36
+    BOOL            shift and go to state 37
+    CHAR            shift and go to state 40
+    CHARS           shift and go to state 33
+    ARRAY           shift and go to state 38
+
+    integer_mode                   shift and go to state 41
+    boolean_mode                   shift and go to state 28
+    composite_mode                 shift and go to state 29
+    discrete_range_mode            shift and go to state 42
+    mode_name                      shift and go to state 30
+    string_mode                    shift and go to state 44
+    character_mode                 shift and go to state 31
+    discrete_mode_name             shift and go to state 32
+    mode                           shift and go to state 34
+    reference_mode                 shift and go to state 39
+    array_mode                     shift and go to state 45
+    discrete_mode                  shift and go to state 35
+
+state 17
+
+    (21) newmode_statement -> TYPE newmode_list . SEMI
+
+    SEMI            shift and go to state 46
+
+
+state 18
+
+    (24) mode_definition -> identifier_list . ASSIGN mode
+
+    ASSIGN          shift and go to state 47
+
+
+state 19
+
+    (22) newmode_list -> mode_definition .
+    (23) newmode_list -> mode_definition . COMMA newmode_list
+
+    SEMI            reduce using rule 22 (newmode_list -> mode_definition .)
+    COMMA           shift and go to state 48
+
+
+state 20
+
+    (11) synonym_definition -> identifier_list . mode ASSIGN expression
+    (12) synonym_definition -> identifier_list . ASSIGN expression
+    (25) mode -> . mode_name
+    (26) mode -> . discrete_mode
+    (27) mode -> . reference_mode
+    (28) mode -> . composite_mode
+    (29) mode_name -> . ID
+    (30) discrete_mode -> . integer_mode
+    (31) discrete_mode -> . boolean_mode
+    (32) discrete_mode -> . character_mode
+    (33) discrete_mode -> . discrete_range_mode
+    (43) reference_mode -> . REF mode
+    (44) composite_mode -> . string_mode
+    (45) composite_mode -> . array_mode
+    (35) integer_mode -> . INT
+    (36) boolean_mode -> . BOOL
+    (37) character_mode -> . CHAR
+    (38) discrete_range_mode -> . discrete_mode_name LPAREN literal_range RPAREN
+    (39) discrete_range_mode -> . discrete_mode LPAREN literal_range RPAREN
+    (46) string_mode -> . CHARS LBRACKET string_length RBRACKET
+    (48) array_mode -> . ARRAY LBRACKET index_mode_list RBRACKET element_mode
+    (34) discrete_mode_name -> . ID
+
+    ASSIGN          shift and go to state 49
+    ID              shift and go to state 27
+    REF             shift and go to state 43
+    INT             shift and go to state 36
+    BOOL            shift and go to state 37
+    CHAR            shift and go to state 40
+    CHARS           shift and go to state 33
+    ARRAY           shift and go to state 38
+
+    integer_mode                   shift and go to state 41
+    boolean_mode                   shift and go to state 28
+    composite_mode                 shift and go to state 29
+    discrete_range_mode            shift and go to state 42
+    mode_name                      shift and go to state 30
+    string_mode                    shift and go to state 44
+    character_mode                 shift and go to state 31
+    discrete_mode_name             shift and go to state 32
+    mode                           shift and go to state 50
+    reference_mode                 shift and go to state 39
+    discrete_mode                  shift and go to state 35
+    array_mode                     shift and go to state 45
+
+state 21
+
+    (8) synonym_statement -> SYN synonym_list . SEMI
+
+    SEMI            shift and go to state 51
+
+
+state 22
+
+    (9) synonym_list -> synonym_definition .
+    (10) synonym_list -> synonym_definition . COMMA synonym_list
+
+    SEMI            reduce using rule 9 (synonym_list -> synonym_definition .)
+    COMMA           shift and go to state 52
+
+
+state 23
+
+    (3) statement_nullable -> statement statement_nullable .
+
+    $end            reduce using rule 3 (statement_nullable -> statement statement_nullable .)
+
+
+state 24
+
+    (20) identifier_list -> ID COMMA . identifier_list
+    (19) identifier_list -> . ID
+    (20) identifier_list -> . ID COMMA identifier_list
+
+    ID              shift and go to state 13
+
+    identifier_list                shift and go to state 53
+
+state 25
+
+    (15) declaration_list -> declaration COMMA . declaration_list
+    (14) declaration_list -> . declaration
+    (15) declaration_list -> . declaration COMMA declaration_list
+    (16) declaration -> . identifier_list mode initialization
+    (17) declaration -> . identifier_list mode
+    (19) identifier_list -> . ID
+    (20) identifier_list -> . ID COMMA identifier_list
+
+    ID              shift and go to state 13
+
+    declaration_list               shift and go to state 54
+    declaration                    shift and go to state 14
+    identifier_list                shift and go to state 16
+
+state 26
+
+    (13) declaration_statement -> DCL declaration_list SEMI .
+
+    DCL             reduce using rule 13 (declaration_statement -> DCL declaration_list SEMI .)
+    SYN             reduce using rule 13 (declaration_statement -> DCL declaration_list SEMI .)
+    TYPE            reduce using rule 13 (declaration_statement -> DCL declaration_list SEMI .)
+    $end            reduce using rule 13 (declaration_statement -> DCL declaration_list SEMI .)
+
+
+state 27
+
+    (29) mode_name -> ID .
+    (34) discrete_mode_name -> ID .
+
+    ASSIGN          reduce using rule 29 (mode_name -> ID .)
+    COMMA           reduce using rule 29 (mode_name -> ID .)
+    SEMI            reduce using rule 29 (mode_name -> ID .)
+    LPAREN          reduce using rule 34 (discrete_mode_name -> ID .)
+
+
+state 28
+
+    (31) discrete_mode -> boolean_mode .
+
+    LPAREN          reduce using rule 31 (discrete_mode -> boolean_mode .)
+    COMMA           reduce using rule 31 (discrete_mode -> boolean_mode .)
+    RBRACKET        reduce using rule 31 (discrete_mode -> boolean_mode .)
+    SEMI            reduce using rule 31 (discrete_mode -> boolean_mode .)
+    ASSIGN          reduce using rule 31 (discrete_mode -> boolean_mode .)
+
+
+state 29
+
+    (28) mode -> composite_mode .
+
+    COMMA           reduce using rule 28 (mode -> composite_mode .)
+    SEMI            reduce using rule 28 (mode -> composite_mode .)
+    ASSIGN          reduce using rule 28 (mode -> composite_mode .)
+
+
+state 30
+
+    (25) mode -> mode_name .
+
+    COMMA           reduce using rule 25 (mode -> mode_name .)
+    SEMI            reduce using rule 25 (mode -> mode_name .)
+    ASSIGN          reduce using rule 25 (mode -> mode_name .)
+
+
+state 31
+
+    (32) discrete_mode -> character_mode .
+
+    LPAREN          reduce using rule 32 (discrete_mode -> character_mode .)
+    COMMA           reduce using rule 32 (discrete_mode -> character_mode .)
+    RBRACKET        reduce using rule 32 (discrete_mode -> character_mode .)
+    SEMI            reduce using rule 32 (discrete_mode -> character_mode .)
+    ASSIGN          reduce using rule 32 (discrete_mode -> character_mode .)
+
+
+state 32
+
+    (38) discrete_range_mode -> discrete_mode_name . LPAREN literal_range RPAREN
+
+    LPAREN          shift and go to state 55
+
+
+state 33
+
+    (46) string_mode -> CHARS . LBRACKET string_length RBRACKET
+
+    LBRACKET        shift and go to state 56
+
+
+state 34
+
+    (16) declaration -> identifier_list mode . initialization
+    (17) declaration -> identifier_list mode .
+    (18) initialization -> . ASSIGN expression
+
+    COMMA           reduce using rule 17 (declaration -> identifier_list mode .)
+    SEMI            reduce using rule 17 (declaration -> identifier_list mode .)
+    ASSIGN          shift and go to state 57
+
+    initialization                 shift and go to state 58
+
+state 35
+
+    (26) mode -> discrete_mode .
+    (39) discrete_range_mode -> discrete_mode . LPAREN literal_range RPAREN
+
+    COMMA           reduce using rule 26 (mode -> discrete_mode .)
+    SEMI            reduce using rule 26 (mode -> discrete_mode .)
+    ASSIGN          reduce using rule 26 (mode -> discrete_mode .)
+    LPAREN          shift and go to state 59
+
+
+state 36
+
+    (35) integer_mode -> INT .
+
+    LPAREN          reduce using rule 35 (integer_mode -> INT .)
+    COMMA           reduce using rule 35 (integer_mode -> INT .)
+    RBRACKET        reduce using rule 35 (integer_mode -> INT .)
+    ASSIGN          reduce using rule 35 (integer_mode -> INT .)
+    SEMI            reduce using rule 35 (integer_mode -> INT .)
+
+
+state 37
+
+    (36) boolean_mode -> BOOL .
+
+    LPAREN          reduce using rule 36 (boolean_mode -> BOOL .)
+    ASSIGN          reduce using rule 36 (boolean_mode -> BOOL .)
+    COMMA           reduce using rule 36 (boolean_mode -> BOOL .)
+    SEMI            reduce using rule 36 (boolean_mode -> BOOL .)
+    RBRACKET        reduce using rule 36 (boolean_mode -> BOOL .)
+
+
+state 38
+
+    (48) array_mode -> ARRAY . LBRACKET index_mode_list RBRACKET element_mode
+
+    LBRACKET        shift and go to state 60
+
+
+state 39
+
+    (27) mode -> reference_mode .
+
+    COMMA           reduce using rule 27 (mode -> reference_mode .)
+    SEMI            reduce using rule 27 (mode -> reference_mode .)
+    ASSIGN          reduce using rule 27 (mode -> reference_mode .)
+
+
+state 40
+
+    (37) character_mode -> CHAR .
+
+    LPAREN          reduce using rule 37 (character_mode -> CHAR .)
+    COMMA           reduce using rule 37 (character_mode -> CHAR .)
+    SEMI            reduce using rule 37 (character_mode -> CHAR .)
+    ASSIGN          reduce using rule 37 (character_mode -> CHAR .)
+    RBRACKET        reduce using rule 37 (character_mode -> CHAR .)
+
+
+state 41
+
+    (30) discrete_mode -> integer_mode .
+
+    LPAREN          reduce using rule 30 (discrete_mode -> integer_mode .)
+    COMMA           reduce using rule 30 (discrete_mode -> integer_mode .)
+    RBRACKET        reduce using rule 30 (discrete_mode -> integer_mode .)
+    SEMI            reduce using rule 30 (discrete_mode -> integer_mode .)
+    ASSIGN          reduce using rule 30 (discrete_mode -> integer_mode .)
+
+
+state 42
+
+    (33) discrete_mode -> discrete_range_mode .
+
+    LPAREN          reduce using rule 33 (discrete_mode -> discrete_range_mode .)
+    COMMA           reduce using rule 33 (discrete_mode -> discrete_range_mode .)
+    RBRACKET        reduce using rule 33 (discrete_mode -> discrete_range_mode .)
+    SEMI            reduce using rule 33 (discrete_mode -> discrete_range_mode .)
+    ASSIGN          reduce using rule 33 (discrete_mode -> discrete_range_mode .)
+
+
+state 43
+
+    (43) reference_mode -> REF . mode
+    (25) mode -> . mode_name
+    (26) mode -> . discrete_mode
+    (27) mode -> . reference_mode
+    (28) mode -> . composite_mode
+    (29) mode_name -> . ID
+    (30) discrete_mode -> . integer_mode
+    (31) discrete_mode -> . boolean_mode
+    (32) discrete_mode -> . character_mode
+    (33) discrete_mode -> . discrete_range_mode
+    (43) reference_mode -> . REF mode
+    (44) composite_mode -> . string_mode
+    (45) composite_mode -> . array_mode
+    (35) integer_mode -> . INT
+    (36) boolean_mode -> . BOOL
+    (37) character_mode -> . CHAR
+    (38) discrete_range_mode -> . discrete_mode_name LPAREN literal_range RPAREN
+    (39) discrete_range_mode -> . discrete_mode LPAREN literal_range RPAREN
+    (46) string_mode -> . CHARS LBRACKET string_length RBRACKET
+    (48) array_mode -> . ARRAY LBRACKET index_mode_list RBRACKET element_mode
+    (34) discrete_mode_name -> . ID
+
+    ID              shift and go to state 27
+    REF             shift and go to state 43
+    INT             shift and go to state 36
+    BOOL            shift and go to state 37
+    CHAR            shift and go to state 40
+    CHARS           shift and go to state 33
+    ARRAY           shift and go to state 38
+
+    integer_mode                   shift and go to state 41
+    boolean_mode                   shift and go to state 28
+    composite_mode                 shift and go to state 29
+    discrete_range_mode            shift and go to state 42
+    mode_name                      shift and go to state 30
+    character_mode                 shift and go to state 31
+    discrete_mode_name             shift and go to state 32
+    mode                           shift and go to state 61
+    discrete_mode                  shift and go to state 35
+    string_mode                    shift and go to state 44
+    array_mode                     shift and go to state 45
+    reference_mode                 shift and go to state 39
+
+state 44
+
+    (44) composite_mode -> string_mode .
+
+    ASSIGN          reduce using rule 44 (composite_mode -> string_mode .)
+    COMMA           reduce using rule 44 (composite_mode -> string_mode .)
+    SEMI            reduce using rule 44 (composite_mode -> string_mode .)
+
+
+state 45
+
+    (45) composite_mode -> array_mode .
+
+    ASSIGN          reduce using rule 45 (composite_mode -> array_mode .)
+    COMMA           reduce using rule 45 (composite_mode -> array_mode .)
+    SEMI            reduce using rule 45 (composite_mode -> array_mode .)
+
+
+state 46
+
+    (21) newmode_statement -> TYPE newmode_list SEMI .
+
+    DCL             reduce using rule 21 (newmode_statement -> TYPE newmode_list SEMI .)
+    SYN             reduce using rule 21 (newmode_statement -> TYPE newmode_list SEMI .)
+    TYPE            reduce using rule 21 (newmode_statement -> TYPE newmode_list SEMI .)
+    $end            reduce using rule 21 (newmode_statement -> TYPE newmode_list SEMI .)
+
+
+state 47
+
+    (24) mode_definition -> identifier_list ASSIGN . mode
+    (25) mode -> . mode_name
+    (26) mode -> . discrete_mode
+    (27) mode -> . reference_mode
+    (28) mode -> . composite_mode
+    (29) mode_name -> . ID
+    (30) discrete_mode -> . integer_mode
+    (31) discrete_mode -> . boolean_mode
+    (32) discrete_mode -> . character_mode
+    (33) discrete_mode -> . discrete_range_mode
+    (43) reference_mode -> . REF mode
+    (44) composite_mode -> . string_mode
+    (45) composite_mode -> . array_mode
+    (35) integer_mode -> . INT
+    (36) boolean_mode -> . BOOL
+    (37) character_mode -> . CHAR
+    (38) discrete_range_mode -> . discrete_mode_name LPAREN literal_range RPAREN
+    (39) discrete_range_mode -> . discrete_mode LPAREN literal_range RPAREN
+    (46) string_mode -> . CHARS LBRACKET string_length RBRACKET
+    (48) array_mode -> . ARRAY LBRACKET index_mode_list RBRACKET element_mode
+    (34) discrete_mode_name -> . ID
+
+    ID              shift and go to state 27
+    REF             shift and go to state 43
+    INT             shift and go to state 36
+    BOOL            shift and go to state 37
+    CHAR            shift and go to state 40
+    CHARS           shift and go to state 33
+    ARRAY           shift and go to state 38
+
+    integer_mode                   shift and go to state 41
+    boolean_mode                   shift and go to state 28
+    composite_mode                 shift and go to state 29
+    discrete_range_mode            shift and go to state 42
+    mode_name                      shift and go to state 30
+    character_mode                 shift and go to state 31
+    discrete_mode_name             shift and go to state 32
+    mode                           shift and go to state 62
+    string_mode                    shift and go to state 44
+    array_mode                     shift and go to state 45
+    discrete_mode                  shift and go to state 35
+    reference_mode                 shift and go to state 39
+
+state 48
+
+    (23) newmode_list -> mode_definition COMMA . newmode_list
+    (22) newmode_list -> . mode_definition
+    (23) newmode_list -> . mode_definition COMMA newmode_list
+    (24) mode_definition -> . identifier_list ASSIGN mode
+    (19) identifier_list -> . ID
+    (20) identifier_list -> . ID COMMA identifier_list
+
+    ID              shift and go to state 13
+
+    newmode_list                   shift and go to state 63
+    mode_definition                shift and go to state 19
+    identifier_list                shift and go to state 18
+
+state 49
+
+    (12) synonym_definition -> identifier_list ASSIGN . expression
+    (71) expression -> . operand0
+    (72) operand0 -> . operand1
+    (73) operand0 -> . operand0 operator1 operand1
+    (74) operand1 -> . operand2
+    (75) operand1 -> . operand1 operator2 operand2
+    (76) operand2 -> . operand3
+    (77) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
+    (78) operand3 -> . monadic_operator operand4
+    (79) operand3 -> . operand4
+    (86) monadic_operator -> . MINUS
+    (87) monadic_operator -> . NOT
+    (80) operand4 -> . location
+    (81) operand4 -> . referenced_location
+    (82) operand4 -> . primitive_value
+    (54) location -> . ID
+    (55) location -> . dereferenced_reference
+    (56) location -> . string_element
+    (57) location -> . string_slice
+    (58) location -> . array_element
+    (59) location -> . array_slice
+    (88) referenced_location -> . ARROW location
+    (105) primitive_value -> . literal
+    (60) dereferenced_reference -> . location ARROW
+    (61) string_element -> . ID LBRACKET start_element LBRACKET
+    (63) string_slice -> . ID LBRACKET left_element COLON right_element RBRACKET
+    (66) array_element -> . array_location LBRACKET expression_list RBRACKET
+    (69) array_slice -> . array_location LBRACKET lower_bound COLON upper_bound RBRACKET
+    (106) literal -> . integer_literal
+    (107) literal -> . boolean_literal
+    (108) literal -> . character_literal
+    (109) literal -> . empty_literal
+    (110) literal -> . character_string_literal
+    (70) array_location -> . location
+    (111) integer_literal -> . ICONST
+    (112) boolean_literal -> . TRUE
+    (113) boolean_literal -> . FALSE
+    (114) character_literal -> . CCONST
+    (115) empty_literal -> . NULL
+    (116) character_string_literal -> . SCONST
+
+    MINUS           shift and go to state 84
+    NOT             shift and go to state 65
+    ID              shift and go to state 82
+    ARROW           shift and go to state 77
+    ICONST          shift and go to state 93
+    TRUE            shift and go to state 90
+    FALSE           shift and go to state 86
+    CCONST          shift and go to state 81
+    NULL            shift and go to state 72
+    SCONST          shift and go to state 91
+
+    boolean_literal                shift and go to state 70
+    array_element                  shift and go to state 78
+    character_string_literal       shift and go to state 66
+    empty_literal                  shift and go to state 83
+    location                       shift and go to state 67
+    string_slice                   shift and go to state 68
+    dereferenced_reference         shift and go to state 85
+    monadic_operator               shift and go to state 69
+    expression                     shift and go to state 71
+    string_element                 shift and go to state 87
+    operand2                       shift and go to state 88
+    referenced_location            shift and go to state 73
+    array_location                 shift and go to state 74
+    literal                        shift and go to state 89
+    array_slice                    shift and go to state 75
+    character_literal              shift and go to state 76
+    operand1                       shift and go to state 64
+    operand4                       shift and go to state 92
+    operand3                       shift and go to state 79
+    integer_literal                shift and go to state 95
+    primitive_value                shift and go to state 94
+    operand0                       shift and go to state 80
+
+state 50
+
+    (11) synonym_definition -> identifier_list mode . ASSIGN expression
+
+    ASSIGN          shift and go to state 96
+
+
+state 51
+
+    (8) synonym_statement -> SYN synonym_list SEMI .
+
+    DCL             reduce using rule 8 (synonym_statement -> SYN synonym_list SEMI .)
+    SYN             reduce using rule 8 (synonym_statement -> SYN synonym_list SEMI .)
+    TYPE            reduce using rule 8 (synonym_statement -> SYN synonym_list SEMI .)
+    $end            reduce using rule 8 (synonym_statement -> SYN synonym_list SEMI .)
+
+
+state 52
+
+    (10) synonym_list -> synonym_definition COMMA . synonym_list
+    (9) synonym_list -> . synonym_definition
+    (10) synonym_list -> . synonym_definition COMMA synonym_list
+    (11) synonym_definition -> . identifier_list mode ASSIGN expression
+    (12) synonym_definition -> . identifier_list ASSIGN expression
+    (19) identifier_list -> . ID
+    (20) identifier_list -> . ID COMMA identifier_list
+
+    ID              shift and go to state 13
+
+    identifier_list                shift and go to state 20
+    synonym_list                   shift and go to state 97
+    synonym_definition             shift and go to state 22
+
+state 53
+
+    (20) identifier_list -> ID COMMA identifier_list .
+
+    ASSIGN          reduce using rule 20 (identifier_list -> ID COMMA identifier_list .)
+    ID              reduce using rule 20 (identifier_list -> ID COMMA identifier_list .)
+    REF             reduce using rule 20 (identifier_list -> ID COMMA identifier_list .)
+    INT             reduce using rule 20 (identifier_list -> ID COMMA identifier_list .)
+    BOOL            reduce using rule 20 (identifier_list -> ID COMMA identifier_list .)
+    CHAR            reduce using rule 20 (identifier_list -> ID COMMA identifier_list .)
+    CHARS           reduce using rule 20 (identifier_list -> ID COMMA identifier_list .)
+    ARRAY           reduce using rule 20 (identifier_list -> ID COMMA identifier_list .)
+
+
+state 54
+
+    (15) declaration_list -> declaration COMMA declaration_list .
+
+    SEMI            reduce using rule 15 (declaration_list -> declaration COMMA declaration_list .)
+
+
+state 55
+
+    (38) discrete_range_mode -> discrete_mode_name LPAREN . literal_range RPAREN
+    (40) literal_range -> . lower_bound COLON upper_bound
+    (41) lower_bound -> . expression
+    (71) expression -> . operand0
+    (72) operand0 -> . operand1
+    (73) operand0 -> . operand0 operator1 operand1
+    (74) operand1 -> . operand2
+    (75) operand1 -> . operand1 operator2 operand2
+    (76) operand2 -> . operand3
+    (77) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
+    (78) operand3 -> . monadic_operator operand4
+    (79) operand3 -> . operand4
+    (86) monadic_operator -> . MINUS
+    (87) monadic_operator -> . NOT
+    (80) operand4 -> . location
+    (81) operand4 -> . referenced_location
+    (82) operand4 -> . primitive_value
+    (54) location -> . ID
+    (55) location -> . dereferenced_reference
+    (56) location -> . string_element
+    (57) location -> . string_slice
+    (58) location -> . array_element
+    (59) location -> . array_slice
+    (88) referenced_location -> . ARROW location
+    (105) primitive_value -> . literal
+    (60) dereferenced_reference -> . location ARROW
+    (61) string_element -> . ID LBRACKET start_element LBRACKET
+    (63) string_slice -> . ID LBRACKET left_element COLON right_element RBRACKET
+    (66) array_element -> . array_location LBRACKET expression_list RBRACKET
+    (69) array_slice -> . array_location LBRACKET lower_bound COLON upper_bound RBRACKET
+    (106) literal -> . integer_literal
+    (107) literal -> . boolean_literal
+    (108) literal -> . character_literal
+    (109) literal -> . empty_literal
+    (110) literal -> . character_string_literal
+    (70) array_location -> . location
+    (111) integer_literal -> . ICONST
+    (112) boolean_literal -> . TRUE
+    (113) boolean_literal -> . FALSE
+    (114) character_literal -> . CCONST
+    (115) empty_literal -> . NULL
+    (116) character_string_literal -> . SCONST
+
+    MINUS           shift and go to state 84
+    NOT             shift and go to state 65
+    ID              shift and go to state 82
+    ARROW           shift and go to state 77
+    ICONST          shift and go to state 93
+    TRUE            shift and go to state 90
+    FALSE           shift and go to state 86
+    CCONST          shift and go to state 81
+    NULL            shift and go to state 72
+    SCONST          shift and go to state 91
+
+    boolean_literal                shift and go to state 70
+    array_element                  shift and go to state 78
+    character_string_literal       shift and go to state 66
+    empty_literal                  shift and go to state 83
+    location                       shift and go to state 67
+    expression                     shift and go to state 98
+    string_slice                   shift and go to state 68
+    dereferenced_reference         shift and go to state 85
+    monadic_operator               shift and go to state 69
+    primitive_value                shift and go to state 94
+    string_element                 shift and go to state 87
+    operand2                       shift and go to state 88
+    lower_bound                    shift and go to state 99
+    array_location                 shift and go to state 74
+    literal                        shift and go to state 89
+    referenced_location            shift and go to state 73
+    array_slice                    shift and go to state 75
+    character_literal              shift and go to state 76
+    operand1                       shift and go to state 64
+    operand4                       shift and go to state 92
+    operand3                       shift and go to state 79
+    integer_literal                shift and go to state 95
+    literal_range                  shift and go to state 100
+    operand0                       shift and go to state 80
+
+state 56
+
+    (46) string_mode -> CHARS LBRACKET . string_length RBRACKET
+    (47) string_length -> . integer_literal
+    (111) integer_literal -> . ICONST
+
+    ICONST          shift and go to state 93
+
+    integer_literal                shift and go to state 102
+    string_length                  shift and go to state 101
+
+state 57
+
+    (18) initialization -> ASSIGN . expression
+    (71) expression -> . operand0
+    (72) operand0 -> . operand1
+    (73) operand0 -> . operand0 operator1 operand1
+    (74) operand1 -> . operand2
+    (75) operand1 -> . operand1 operator2 operand2
+    (76) operand2 -> . operand3
+    (77) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
+    (78) operand3 -> . monadic_operator operand4
+    (79) operand3 -> . operand4
+    (86) monadic_operator -> . MINUS
+    (87) monadic_operator -> . NOT
+    (80) operand4 -> . location
+    (81) operand4 -> . referenced_location
+    (82) operand4 -> . primitive_value
+    (54) location -> . ID
+    (55) location -> . dereferenced_reference
+    (56) location -> . string_element
+    (57) location -> . string_slice
+    (58) location -> . array_element
+    (59) location -> . array_slice
+    (88) referenced_location -> . ARROW location
+    (105) primitive_value -> . literal
+    (60) dereferenced_reference -> . location ARROW
+    (61) string_element -> . ID LBRACKET start_element LBRACKET
+    (63) string_slice -> . ID LBRACKET left_element COLON right_element RBRACKET
+    (66) array_element -> . array_location LBRACKET expression_list RBRACKET
+    (69) array_slice -> . array_location LBRACKET lower_bound COLON upper_bound RBRACKET
+    (106) literal -> . integer_literal
+    (107) literal -> . boolean_literal
+    (108) literal -> . character_literal
+    (109) literal -> . empty_literal
+    (110) literal -> . character_string_literal
+    (70) array_location -> . location
+    (111) integer_literal -> . ICONST
+    (112) boolean_literal -> . TRUE
+    (113) boolean_literal -> . FALSE
+    (114) character_literal -> . CCONST
+    (115) empty_literal -> . NULL
+    (116) character_string_literal -> . SCONST
+
+    MINUS           shift and go to state 84
+    NOT             shift and go to state 65
+    ID              shift and go to state 82
+    ARROW           shift and go to state 77
+    ICONST          shift and go to state 93
+    TRUE            shift and go to state 90
+    FALSE           shift and go to state 86
+    CCONST          shift and go to state 81
+    NULL            shift and go to state 72
+    SCONST          shift and go to state 91
+
+    array_element                  shift and go to state 78
+    character_string_literal       shift and go to state 66
+    empty_literal                  shift and go to state 83
+    location                       shift and go to state 67
+    string_slice                   shift and go to state 68
+    boolean_literal                shift and go to state 70
+    dereferenced_reference         shift and go to state 85
+    monadic_operator               shift and go to state 69
+    expression                     shift and go to state 103
+    string_element                 shift and go to state 87
+    operand2                       shift and go to state 88
+    referenced_location            shift and go to state 73
+    array_location                 shift and go to state 74
+    literal                        shift and go to state 89
+    array_slice                    shift and go to state 75
+    character_literal              shift and go to state 76
+    operand1                       shift and go to state 64
+    operand4                       shift and go to state 92
+    operand3                       shift and go to state 79
+    integer_literal                shift and go to state 95
+    primitive_value                shift and go to state 94
+    operand0                       shift and go to state 80
+
+state 58
+
+    (16) declaration -> identifier_list mode initialization .
+
+    COMMA           reduce using rule 16 (declaration -> identifier_list mode initialization .)
+    SEMI            reduce using rule 16 (declaration -> identifier_list mode initialization .)
+
+
+state 59
+
+    (39) discrete_range_mode -> discrete_mode LPAREN . literal_range RPAREN
+    (40) literal_range -> . lower_bound COLON upper_bound
+    (41) lower_bound -> . expression
+    (71) expression -> . operand0
+    (72) operand0 -> . operand1
+    (73) operand0 -> . operand0 operator1 operand1
+    (74) operand1 -> . operand2
+    (75) operand1 -> . operand1 operator2 operand2
+    (76) operand2 -> . operand3
+    (77) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
+    (78) operand3 -> . monadic_operator operand4
+    (79) operand3 -> . operand4
+    (86) monadic_operator -> . MINUS
+    (87) monadic_operator -> . NOT
+    (80) operand4 -> . location
+    (81) operand4 -> . referenced_location
+    (82) operand4 -> . primitive_value
+    (54) location -> . ID
+    (55) location -> . dereferenced_reference
+    (56) location -> . string_element
+    (57) location -> . string_slice
+    (58) location -> . array_element
+    (59) location -> . array_slice
+    (88) referenced_location -> . ARROW location
+    (105) primitive_value -> . literal
+    (60) dereferenced_reference -> . location ARROW
+    (61) string_element -> . ID LBRACKET start_element LBRACKET
+    (63) string_slice -> . ID LBRACKET left_element COLON right_element RBRACKET
+    (66) array_element -> . array_location LBRACKET expression_list RBRACKET
+    (69) array_slice -> . array_location LBRACKET lower_bound COLON upper_bound RBRACKET
+    (106) literal -> . integer_literal
+    (107) literal -> . boolean_literal
+    (108) literal -> . character_literal
+    (109) literal -> . empty_literal
+    (110) literal -> . character_string_literal
+    (70) array_location -> . location
+    (111) integer_literal -> . ICONST
+    (112) boolean_literal -> . TRUE
+    (113) boolean_literal -> . FALSE
+    (114) character_literal -> . CCONST
+    (115) empty_literal -> . NULL
+    (116) character_string_literal -> . SCONST
+
+    MINUS           shift and go to state 84
+    NOT             shift and go to state 65
+    ID              shift and go to state 82
+    ARROW           shift and go to state 77
+    ICONST          shift and go to state 93
+    TRUE            shift and go to state 90
+    FALSE           shift and go to state 86
+    CCONST          shift and go to state 81
+    NULL            shift and go to state 72
+    SCONST          shift and go to state 91
+
+    literal_range                  shift and go to state 104
+    array_element                  shift and go to state 78
+    character_string_literal       shift and go to state 66
+    empty_literal                  shift and go to state 83
+    location                       shift and go to state 67
+    expression                     shift and go to state 98
+    string_slice                   shift and go to state 68
+    boolean_literal                shift and go to state 70
+    dereferenced_reference         shift and go to state 85
+    monadic_operator               shift and go to state 69
+    string_element                 shift and go to state 87
+    operand2                       shift and go to state 88
+    lower_bound                    shift and go to state 99
+    array_location                 shift and go to state 74
+    literal                        shift and go to state 89
+    referenced_location            shift and go to state 73
+    array_slice                    shift and go to state 75
+    primitive_value                shift and go to state 94
+    character_literal              shift and go to state 76
+    operand1                       shift and go to state 64
+    operand4                       shift and go to state 92
+    operand3                       shift and go to state 79
+    integer_literal                shift and go to state 95
+    operand0                       shift and go to state 80
+
+state 60
+
+    (48) array_mode -> ARRAY LBRACKET . index_mode_list RBRACKET element_mode
+    (49) index_mode_list -> . index_mode
+    (50) index_mode_list -> . index_mode COMMA index_mode_list
+    (51) index_mode -> . discrete_mode
+    (52) index_mode -> . literal_range
+    (30) discrete_mode -> . integer_mode
+    (31) discrete_mode -> . boolean_mode
+    (32) discrete_mode -> . character_mode
+    (33) discrete_mode -> . discrete_range_mode
+    (40) literal_range -> . lower_bound COLON upper_bound
+    (35) integer_mode -> . INT
+    (36) boolean_mode -> . BOOL
+    (37) character_mode -> . CHAR
+    (38) discrete_range_mode -> . discrete_mode_name LPAREN literal_range RPAREN
+    (39) discrete_range_mode -> . discrete_mode LPAREN literal_range RPAREN
+    (41) lower_bound -> . expression
+    (34) discrete_mode_name -> . ID
+    (71) expression -> . operand0
+    (72) operand0 -> . operand1
+    (73) operand0 -> . operand0 operator1 operand1
+    (74) operand1 -> . operand2
+    (75) operand1 -> . operand1 operator2 operand2
+    (76) operand2 -> . operand3
+    (77) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
+    (78) operand3 -> . monadic_operator operand4
+    (79) operand3 -> . operand4
+    (86) monadic_operator -> . MINUS
+    (87) monadic_operator -> . NOT
+    (80) operand4 -> . location
+    (81) operand4 -> . referenced_location
+    (82) operand4 -> . primitive_value
+    (54) location -> . ID
+    (55) location -> . dereferenced_reference
+    (56) location -> . string_element
+    (57) location -> . string_slice
+    (58) location -> . array_element
+    (59) location -> . array_slice
+    (88) referenced_location -> . ARROW location
+    (105) primitive_value -> . literal
+    (60) dereferenced_reference -> . location ARROW
+    (61) string_element -> . ID LBRACKET start_element LBRACKET
+    (63) string_slice -> . ID LBRACKET left_element COLON right_element RBRACKET
+    (66) array_element -> . array_location LBRACKET expression_list RBRACKET
+    (69) array_slice -> . array_location LBRACKET lower_bound COLON upper_bound RBRACKET
+    (106) literal -> . integer_literal
+    (107) literal -> . boolean_literal
+    (108) literal -> . character_literal
+    (109) literal -> . empty_literal
+    (110) literal -> . character_string_literal
+    (70) array_location -> . location
+    (111) integer_literal -> . ICONST
+    (112) boolean_literal -> . TRUE
+    (113) boolean_literal -> . FALSE
+    (114) character_literal -> . CCONST
+    (115) empty_literal -> . NULL
+    (116) character_string_literal -> . SCONST
+
+    INT             shift and go to state 36
+    BOOL            shift and go to state 37
+    CHAR            shift and go to state 40
+    ID              shift and go to state 106
+    MINUS           shift and go to state 84
+    NOT             shift and go to state 65
+    ARROW           shift and go to state 77
+    ICONST          shift and go to state 93
+    TRUE            shift and go to state 90
+    FALSE           shift and go to state 86
+    CCONST          shift and go to state 81
+    NULL            shift and go to state 72
+    SCONST          shift and go to state 91
+
+    boolean_literal                shift and go to state 70
+    literal_range                  shift and go to state 109
+    array_element                  shift and go to state 78
+    boolean_mode                   shift and go to state 28
+    array_slice                    shift and go to state 75
+    empty_literal                  shift and go to state 83
+    index_mode                     shift and go to state 105
+    character_mode                 shift and go to state 31
+    string_slice                   shift and go to state 68
+    discrete_mode_name             shift and go to state 32
+    location                       shift and go to state 67
+    dereferenced_reference         shift and go to state 85
+    monadic_operator               shift and go to state 69
+    expression                     shift and go to state 98
+    string_element                 shift and go to state 87
+    index_mode_list                shift and go to state 108
+    integer_mode                   shift and go to state 41
+    operand2                       shift and go to state 88
+    lower_bound                    shift and go to state 99
+    array_location                 shift and go to state 74
+    literal                        shift and go to state 89
+    referenced_location            shift and go to state 73
+    discrete_range_mode            shift and go to state 42
+    primitive_value                shift and go to state 94
+    character_literal              shift and go to state 76
+    operand1                       shift and go to state 64
+    operand4                       shift and go to state 92
+    character_string_literal       shift and go to state 66
+    operand3                       shift and go to state 79
+    integer_literal                shift and go to state 95
+    discrete_mode                  shift and go to state 107
+    operand0                       shift and go to state 80
+
+state 61
+
+    (43) reference_mode -> REF mode .
+
+    ASSIGN          reduce using rule 43 (reference_mode -> REF mode .)
+    COMMA           reduce using rule 43 (reference_mode -> REF mode .)
+    SEMI            reduce using rule 43 (reference_mode -> REF mode .)
+
+
+state 62
+
+    (24) mode_definition -> identifier_list ASSIGN mode .
+
+    COMMA           reduce using rule 24 (mode_definition -> identifier_list ASSIGN mode .)
+    SEMI            reduce using rule 24 (mode_definition -> identifier_list ASSIGN mode .)
+
+
+state 63
+
+    (23) newmode_list -> mode_definition COMMA newmode_list .
+
+    SEMI            reduce using rule 23 (newmode_list -> mode_definition COMMA newmode_list .)
+
+
+state 64
+
+    (72) operand0 -> operand1 .
+    (75) operand1 -> operand1 . operator2 operand2
+    (91) operator2 -> . arithmetic_additive_operator
+    (92) operator2 -> . string_concatenation_operator
+    (93) arithmetic_additive_operator -> . PLUS
+    (94) arithmetic_additive_operator -> . MINUS
+    (95) string_concatenation_operator -> . CONCAT
+
+    AND             reduce using rule 72 (operand0 -> operand1 .)
+    OR              reduce using rule 72 (operand0 -> operand1 .)
+    EQUAL           reduce using rule 72 (operand0 -> operand1 .)
+    NOTEQ           reduce using rule 72 (operand0 -> operand1 .)
+    GREATER         reduce using rule 72 (operand0 -> operand1 .)
+    GTEQUAL         reduce using rule 72 (operand0 -> operand1 .)
+    LESS            reduce using rule 72 (operand0 -> operand1 .)
+    LTEQUAL         reduce using rule 72 (operand0 -> operand1 .)
+    IN              reduce using rule 72 (operand0 -> operand1 .)
+    COMMA           reduce using rule 72 (operand0 -> operand1 .)
+    SEMI            reduce using rule 72 (operand0 -> operand1 .)
+    RBRACKET        reduce using rule 72 (operand0 -> operand1 .)
+    COLON           reduce using rule 72 (operand0 -> operand1 .)
+    LBRACKET        reduce using rule 72 (operand0 -> operand1 .)
+    RPAREN          reduce using rule 72 (operand0 -> operand1 .)
+    PLUS            shift and go to state 110
+    MINUS           shift and go to state 113
+    CONCAT          shift and go to state 114
+
+    operator2                      shift and go to state 111
+    arithmetic_additive_operator   shift and go to state 112
+    string_concatenation_operator  shift and go to state 115
+
+state 65
+
+    (87) monadic_operator -> NOT .
+
+    ID              reduce using rule 87 (monadic_operator -> NOT .)
+    ARROW           reduce using rule 87 (monadic_operator -> NOT .)
+    ICONST          reduce using rule 87 (monadic_operator -> NOT .)
+    TRUE            reduce using rule 87 (monadic_operator -> NOT .)
+    FALSE           reduce using rule 87 (monadic_operator -> NOT .)
+    CCONST          reduce using rule 87 (monadic_operator -> NOT .)
+    NULL            reduce using rule 87 (monadic_operator -> NOT .)
+    SCONST          reduce using rule 87 (monadic_operator -> NOT .)
+
+
+state 66
+
+    (110) literal -> character_string_literal .
+
+    TIMES           reduce using rule 110 (literal -> character_string_literal .)
+    DIVIDE          reduce using rule 110 (literal -> character_string_literal .)
+    MODULO          reduce using rule 110 (literal -> character_string_literal .)
+    PLUS            reduce using rule 110 (literal -> character_string_literal .)
+    MINUS           reduce using rule 110 (literal -> character_string_literal .)
+    CONCAT          reduce using rule 110 (literal -> character_string_literal .)
+    AND             reduce using rule 110 (literal -> character_string_literal .)
+    OR              reduce using rule 110 (literal -> character_string_literal .)
+    EQUAL           reduce using rule 110 (literal -> character_string_literal .)
+    NOTEQ           reduce using rule 110 (literal -> character_string_literal .)
+    GREATER         reduce using rule 110 (literal -> character_string_literal .)
+    GTEQUAL         reduce using rule 110 (literal -> character_string_literal .)
+    LESS            reduce using rule 110 (literal -> character_string_literal .)
+    LTEQUAL         reduce using rule 110 (literal -> character_string_literal .)
+    IN              reduce using rule 110 (literal -> character_string_literal .)
+    COMMA           reduce using rule 110 (literal -> character_string_literal .)
+    RBRACKET        reduce using rule 110 (literal -> character_string_literal .)
+    COLON           reduce using rule 110 (literal -> character_string_literal .)
+    RPAREN          reduce using rule 110 (literal -> character_string_literal .)
+    SEMI            reduce using rule 110 (literal -> character_string_literal .)
+    LBRACKET        reduce using rule 110 (literal -> character_string_literal .)
+
+
+state 67
+
+    (80) operand4 -> location .
+    (60) dereferenced_reference -> location . ARROW
+    (70) array_location -> location .
+
+  ! reduce/reduce conflict for LBRACKET resolved using rule 70 (array_location -> location .)
+    TIMES           reduce using rule 80 (operand4 -> location .)
+    DIVIDE          reduce using rule 80 (operand4 -> location .)
+    MODULO          reduce using rule 80 (operand4 -> location .)
+    PLUS            reduce using rule 80 (operand4 -> location .)
+    MINUS           reduce using rule 80 (operand4 -> location .)
+    CONCAT          reduce using rule 80 (operand4 -> location .)
+    AND             reduce using rule 80 (operand4 -> location .)
+    OR              reduce using rule 80 (operand4 -> location .)
+    EQUAL           reduce using rule 80 (operand4 -> location .)
+    NOTEQ           reduce using rule 80 (operand4 -> location .)
+    GREATER         reduce using rule 80 (operand4 -> location .)
+    GTEQUAL         reduce using rule 80 (operand4 -> location .)
+    LESS            reduce using rule 80 (operand4 -> location .)
+    LTEQUAL         reduce using rule 80 (operand4 -> location .)
+    IN              reduce using rule 80 (operand4 -> location .)
+    COMMA           reduce using rule 80 (operand4 -> location .)
+    RBRACKET        reduce using rule 80 (operand4 -> location .)
+    COLON           reduce using rule 80 (operand4 -> location .)
+    SEMI            reduce using rule 80 (operand4 -> location .)
+    RPAREN          reduce using rule 80 (operand4 -> location .)
+    ARROW           shift and go to state 116
+    LBRACKET        reduce using rule 70 (array_location -> location .)
+
+  ! LBRACKET        [ reduce using rule 80 (operand4 -> location .) ]
+
+
+state 68
+
+    (57) location -> string_slice .
+
+    ARROW           reduce using rule 57 (location -> string_slice .)
+    TIMES           reduce using rule 57 (location -> string_slice .)
+    DIVIDE          reduce using rule 57 (location -> string_slice .)
+    MODULO          reduce using rule 57 (location -> string_slice .)
+    PLUS            reduce using rule 57 (location -> string_slice .)
+    MINUS           reduce using rule 57 (location -> string_slice .)
+    CONCAT          reduce using rule 57 (location -> string_slice .)
+    AND             reduce using rule 57 (location -> string_slice .)
+    OR              reduce using rule 57 (location -> string_slice .)
+    EQUAL           reduce using rule 57 (location -> string_slice .)
+    NOTEQ           reduce using rule 57 (location -> string_slice .)
+    GREATER         reduce using rule 57 (location -> string_slice .)
+    GTEQUAL         reduce using rule 57 (location -> string_slice .)
+    LESS            reduce using rule 57 (location -> string_slice .)
+    LTEQUAL         reduce using rule 57 (location -> string_slice .)
+    IN              reduce using rule 57 (location -> string_slice .)
+    COMMA           reduce using rule 57 (location -> string_slice .)
+    SEMI            reduce using rule 57 (location -> string_slice .)
+    COLON           reduce using rule 57 (location -> string_slice .)
+    RBRACKET        reduce using rule 57 (location -> string_slice .)
+    LBRACKET        reduce using rule 57 (location -> string_slice .)
+    RPAREN          reduce using rule 57 (location -> string_slice .)
+
+
+state 69
+
+    (78) operand3 -> monadic_operator . operand4
+    (80) operand4 -> . location
+    (81) operand4 -> . referenced_location
+    (82) operand4 -> . primitive_value
+    (54) location -> . ID
+    (55) location -> . dereferenced_reference
+    (56) location -> . string_element
+    (57) location -> . string_slice
+    (58) location -> . array_element
+    (59) location -> . array_slice
+    (88) referenced_location -> . ARROW location
+    (105) primitive_value -> . literal
+    (60) dereferenced_reference -> . location ARROW
+    (61) string_element -> . ID LBRACKET start_element LBRACKET
+    (63) string_slice -> . ID LBRACKET left_element COLON right_element RBRACKET
+    (66) array_element -> . array_location LBRACKET expression_list RBRACKET
+    (69) array_slice -> . array_location LBRACKET lower_bound COLON upper_bound RBRACKET
+    (106) literal -> . integer_literal
+    (107) literal -> . boolean_literal
+    (108) literal -> . character_literal
+    (109) literal -> . empty_literal
+    (110) literal -> . character_string_literal
+    (70) array_location -> . location
+    (111) integer_literal -> . ICONST
+    (112) boolean_literal -> . TRUE
+    (113) boolean_literal -> . FALSE
+    (114) character_literal -> . CCONST
+    (115) empty_literal -> . NULL
+    (116) character_string_literal -> . SCONST
+
+    ID              shift and go to state 82
+    ARROW           shift and go to state 77
+    ICONST          shift and go to state 93
+    TRUE            shift and go to state 90
+    FALSE           shift and go to state 86
+    CCONST          shift and go to state 81
+    NULL            shift and go to state 72
+    SCONST          shift and go to state 91
+
+    array_element                  shift and go to state 78
+    character_string_literal       shift and go to state 66
+    empty_literal                  shift and go to state 83
+    location                       shift and go to state 67
+    dereferenced_reference         shift and go to state 85
+    boolean_literal                shift and go to state 70
+    string_element                 shift and go to state 87
+    referenced_location            shift and go to state 73
+    array_location                 shift and go to state 74
+    literal                        shift and go to state 89
+    array_slice                    shift and go to state 75
+    primitive_value                shift and go to state 94
+    character_literal              shift and go to state 76
+    string_slice                   shift and go to state 68
+    operand4                       shift and go to state 117
+    integer_literal                shift and go to state 95
+
+state 70
+
+    (107) literal -> boolean_literal .
+
+    TIMES           reduce using rule 107 (literal -> boolean_literal .)
+    DIVIDE          reduce using rule 107 (literal -> boolean_literal .)
+    MODULO          reduce using rule 107 (literal -> boolean_literal .)
+    PLUS            reduce using rule 107 (literal -> boolean_literal .)
+    MINUS           reduce using rule 107 (literal -> boolean_literal .)
+    CONCAT          reduce using rule 107 (literal -> boolean_literal .)
+    AND             reduce using rule 107 (literal -> boolean_literal .)
+    OR              reduce using rule 107 (literal -> boolean_literal .)
+    EQUAL           reduce using rule 107 (literal -> boolean_literal .)
+    NOTEQ           reduce using rule 107 (literal -> boolean_literal .)
+    GREATER         reduce using rule 107 (literal -> boolean_literal .)
+    GTEQUAL         reduce using rule 107 (literal -> boolean_literal .)
+    LESS            reduce using rule 107 (literal -> boolean_literal .)
+    LTEQUAL         reduce using rule 107 (literal -> boolean_literal .)
+    IN              reduce using rule 107 (literal -> boolean_literal .)
+    COMMA           reduce using rule 107 (literal -> boolean_literal .)
+    RBRACKET        reduce using rule 107 (literal -> boolean_literal .)
+    COLON           reduce using rule 107 (literal -> boolean_literal .)
+    RPAREN          reduce using rule 107 (literal -> boolean_literal .)
+    SEMI            reduce using rule 107 (literal -> boolean_literal .)
+    LBRACKET        reduce using rule 107 (literal -> boolean_literal .)
+
+
+state 71
+
+    (12) synonym_definition -> identifier_list ASSIGN expression .
+
+    COMMA           reduce using rule 12 (synonym_definition -> identifier_list ASSIGN expression .)
+    SEMI            reduce using rule 12 (synonym_definition -> identifier_list ASSIGN expression .)
+
+
+state 72
+
+    (115) empty_literal -> NULL .
+
+    TIMES           reduce using rule 115 (empty_literal -> NULL .)
+    DIVIDE          reduce using rule 115 (empty_literal -> NULL .)
+    MODULO          reduce using rule 115 (empty_literal -> NULL .)
+    PLUS            reduce using rule 115 (empty_literal -> NULL .)
+    MINUS           reduce using rule 115 (empty_literal -> NULL .)
+    CONCAT          reduce using rule 115 (empty_literal -> NULL .)
+    AND             reduce using rule 115 (empty_literal -> NULL .)
+    OR              reduce using rule 115 (empty_literal -> NULL .)
+    EQUAL           reduce using rule 115 (empty_literal -> NULL .)
+    NOTEQ           reduce using rule 115 (empty_literal -> NULL .)
+    GREATER         reduce using rule 115 (empty_literal -> NULL .)
+    GTEQUAL         reduce using rule 115 (empty_literal -> NULL .)
+    LESS            reduce using rule 115 (empty_literal -> NULL .)
+    LTEQUAL         reduce using rule 115 (empty_literal -> NULL .)
+    IN              reduce using rule 115 (empty_literal -> NULL .)
+    COMMA           reduce using rule 115 (empty_literal -> NULL .)
+    SEMI            reduce using rule 115 (empty_literal -> NULL .)
+    RBRACKET        reduce using rule 115 (empty_literal -> NULL .)
+    LBRACKET        reduce using rule 115 (empty_literal -> NULL .)
+    COLON           reduce using rule 115 (empty_literal -> NULL .)
+    RPAREN          reduce using rule 115 (empty_literal -> NULL .)
+
+
+state 73
+
+    (81) operand4 -> referenced_location .
+
+    TIMES           reduce using rule 81 (operand4 -> referenced_location .)
+    DIVIDE          reduce using rule 81 (operand4 -> referenced_location .)
+    MODULO          reduce using rule 81 (operand4 -> referenced_location .)
+    PLUS            reduce using rule 81 (operand4 -> referenced_location .)
+    MINUS           reduce using rule 81 (operand4 -> referenced_location .)
+    CONCAT          reduce using rule 81 (operand4 -> referenced_location .)
+    AND             reduce using rule 81 (operand4 -> referenced_location .)
+    OR              reduce using rule 81 (operand4 -> referenced_location .)
+    EQUAL           reduce using rule 81 (operand4 -> referenced_location .)
+    NOTEQ           reduce using rule 81 (operand4 -> referenced_location .)
+    GREATER         reduce using rule 81 (operand4 -> referenced_location .)
+    GTEQUAL         reduce using rule 81 (operand4 -> referenced_location .)
+    LESS            reduce using rule 81 (operand4 -> referenced_location .)
+    LTEQUAL         reduce using rule 81 (operand4 -> referenced_location .)
+    IN              reduce using rule 81 (operand4 -> referenced_location .)
+    COMMA           reduce using rule 81 (operand4 -> referenced_location .)
+    RBRACKET        reduce using rule 81 (operand4 -> referenced_location .)
+    COLON           reduce using rule 81 (operand4 -> referenced_location .)
+    SEMI            reduce using rule 81 (operand4 -> referenced_location .)
+    RPAREN          reduce using rule 81 (operand4 -> referenced_location .)
+    LBRACKET        reduce using rule 81 (operand4 -> referenced_location .)
+
+
+state 74
+
+    (66) array_element -> array_location . LBRACKET expression_list RBRACKET
+    (69) array_slice -> array_location . LBRACKET lower_bound COLON upper_bound RBRACKET
+
+    LBRACKET        shift and go to state 118
+
+
+state 75
+
+    (59) location -> array_slice .
+
+    ARROW           reduce using rule 59 (location -> array_slice .)
+    TIMES           reduce using rule 59 (location -> array_slice .)
+    DIVIDE          reduce using rule 59 (location -> array_slice .)
+    MODULO          reduce using rule 59 (location -> array_slice .)
+    PLUS            reduce using rule 59 (location -> array_slice .)
+    MINUS           reduce using rule 59 (location -> array_slice .)
+    CONCAT          reduce using rule 59 (location -> array_slice .)
+    AND             reduce using rule 59 (location -> array_slice .)
+    OR              reduce using rule 59 (location -> array_slice .)
+    EQUAL           reduce using rule 59 (location -> array_slice .)
+    NOTEQ           reduce using rule 59 (location -> array_slice .)
+    GREATER         reduce using rule 59 (location -> array_slice .)
+    GTEQUAL         reduce using rule 59 (location -> array_slice .)
+    LESS            reduce using rule 59 (location -> array_slice .)
+    LTEQUAL         reduce using rule 59 (location -> array_slice .)
+    IN              reduce using rule 59 (location -> array_slice .)
+    COMMA           reduce using rule 59 (location -> array_slice .)
+    SEMI            reduce using rule 59 (location -> array_slice .)
+    COLON           reduce using rule 59 (location -> array_slice .)
+    RBRACKET        reduce using rule 59 (location -> array_slice .)
+    LBRACKET        reduce using rule 59 (location -> array_slice .)
+    RPAREN          reduce using rule 59 (location -> array_slice .)
+
+
+state 76
+
+    (108) literal -> character_literal .
+
+    TIMES           reduce using rule 108 (literal -> character_literal .)
+    DIVIDE          reduce using rule 108 (literal -> character_literal .)
+    MODULO          reduce using rule 108 (literal -> character_literal .)
+    PLUS            reduce using rule 108 (literal -> character_literal .)
+    MINUS           reduce using rule 108 (literal -> character_literal .)
+    CONCAT          reduce using rule 108 (literal -> character_literal .)
+    AND             reduce using rule 108 (literal -> character_literal .)
+    OR              reduce using rule 108 (literal -> character_literal .)
+    EQUAL           reduce using rule 108 (literal -> character_literal .)
+    NOTEQ           reduce using rule 108 (literal -> character_literal .)
+    GREATER         reduce using rule 108 (literal -> character_literal .)
+    GTEQUAL         reduce using rule 108 (literal -> character_literal .)
+    LESS            reduce using rule 108 (literal -> character_literal .)
+    LTEQUAL         reduce using rule 108 (literal -> character_literal .)
+    IN              reduce using rule 108 (literal -> character_literal .)
+    COMMA           reduce using rule 108 (literal -> character_literal .)
+    RBRACKET        reduce using rule 108 (literal -> character_literal .)
+    COLON           reduce using rule 108 (literal -> character_literal .)
+    RPAREN          reduce using rule 108 (literal -> character_literal .)
+    SEMI            reduce using rule 108 (literal -> character_literal .)
+    LBRACKET        reduce using rule 108 (literal -> character_literal .)
+
+
+state 77
+
+    (88) referenced_location -> ARROW . location
+    (54) location -> . ID
+    (55) location -> . dereferenced_reference
+    (56) location -> . string_element
+    (57) location -> . string_slice
+    (58) location -> . array_element
+    (59) location -> . array_slice
+    (60) dereferenced_reference -> . location ARROW
+    (61) string_element -> . ID LBRACKET start_element LBRACKET
+    (63) string_slice -> . ID LBRACKET left_element COLON right_element RBRACKET
+    (66) array_element -> . array_location LBRACKET expression_list RBRACKET
+    (69) array_slice -> . array_location LBRACKET lower_bound COLON upper_bound RBRACKET
+    (70) array_location -> . location
+
+    ID              shift and go to state 82
+
+    array_element                  shift and go to state 78
+    array_location                 shift and go to state 74
+    array_slice                    shift and go to state 75
+    location                       shift and go to state 119
+    string_slice                   shift and go to state 68
+    dereferenced_reference         shift and go to state 85
+    string_element                 shift and go to state 87
+
+state 78
+
+    (58) location -> array_element .
+
+    ARROW           reduce using rule 58 (location -> array_element .)
+    TIMES           reduce using rule 58 (location -> array_element .)
+    DIVIDE          reduce using rule 58 (location -> array_element .)
+    MODULO          reduce using rule 58 (location -> array_element .)
+    PLUS            reduce using rule 58 (location -> array_element .)
+    MINUS           reduce using rule 58 (location -> array_element .)
+    CONCAT          reduce using rule 58 (location -> array_element .)
+    AND             reduce using rule 58 (location -> array_element .)
+    OR              reduce using rule 58 (location -> array_element .)
+    EQUAL           reduce using rule 58 (location -> array_element .)
+    NOTEQ           reduce using rule 58 (location -> array_element .)
+    GREATER         reduce using rule 58 (location -> array_element .)
+    GTEQUAL         reduce using rule 58 (location -> array_element .)
+    LESS            reduce using rule 58 (location -> array_element .)
+    LTEQUAL         reduce using rule 58 (location -> array_element .)
+    IN              reduce using rule 58 (location -> array_element .)
+    COMMA           reduce using rule 58 (location -> array_element .)
+    SEMI            reduce using rule 58 (location -> array_element .)
+    COLON           reduce using rule 58 (location -> array_element .)
+    RBRACKET        reduce using rule 58 (location -> array_element .)
+    LBRACKET        reduce using rule 58 (location -> array_element .)
+    RPAREN          reduce using rule 58 (location -> array_element .)
+
+
+state 79
+
+    (76) operand2 -> operand3 .
+
+    TIMES           reduce using rule 76 (operand2 -> operand3 .)
+    DIVIDE          reduce using rule 76 (operand2 -> operand3 .)
+    MODULO          reduce using rule 76 (operand2 -> operand3 .)
+    PLUS            reduce using rule 76 (operand2 -> operand3 .)
+    MINUS           reduce using rule 76 (operand2 -> operand3 .)
+    CONCAT          reduce using rule 76 (operand2 -> operand3 .)
+    AND             reduce using rule 76 (operand2 -> operand3 .)
+    OR              reduce using rule 76 (operand2 -> operand3 .)
+    EQUAL           reduce using rule 76 (operand2 -> operand3 .)
+    NOTEQ           reduce using rule 76 (operand2 -> operand3 .)
+    GREATER         reduce using rule 76 (operand2 -> operand3 .)
+    GTEQUAL         reduce using rule 76 (operand2 -> operand3 .)
+    LESS            reduce using rule 76 (operand2 -> operand3 .)
+    LTEQUAL         reduce using rule 76 (operand2 -> operand3 .)
+    IN              reduce using rule 76 (operand2 -> operand3 .)
+    COMMA           reduce using rule 76 (operand2 -> operand3 .)
+    RBRACKET        reduce using rule 76 (operand2 -> operand3 .)
+    COLON           reduce using rule 76 (operand2 -> operand3 .)
+    SEMI            reduce using rule 76 (operand2 -> operand3 .)
+    LBRACKET        reduce using rule 76 (operand2 -> operand3 .)
+    RPAREN          reduce using rule 76 (operand2 -> operand3 .)
+
+
+state 80
+
+    (71) expression -> operand0 .
+    (73) operand0 -> operand0 . operator1 operand1
+    (89) operator1 -> . relational_operator
+    (90) operator1 -> . membership_operator
+    (96) relational_operator -> . AND
+    (97) relational_operator -> . OR
+    (98) relational_operator -> . EQUAL
+    (99) relational_operator -> . NOTEQ
+    (100) relational_operator -> . GREATER
+    (101) relational_operator -> . GTEQUAL
+    (102) relational_operator -> . LESS
+    (103) relational_operator -> . LTEQUAL
+    (104) membership_operator -> . IN
+
+    COLON           reduce using rule 71 (expression -> operand0 .)
+    COMMA           reduce using rule 71 (expression -> operand0 .)
+    SEMI            reduce using rule 71 (expression -> operand0 .)
+    RBRACKET        reduce using rule 71 (expression -> operand0 .)
+    RPAREN          reduce using rule 71 (expression -> operand0 .)
+    LBRACKET        reduce using rule 71 (expression -> operand0 .)
+    AND             shift and go to state 127
+    OR              shift and go to state 124
+    EQUAL           shift and go to state 122
+    NOTEQ           shift and go to state 130
+    GREATER         shift and go to state 125
+    GTEQUAL         shift and go to state 129
+    LESS            shift and go to state 128
+    LTEQUAL         shift and go to state 126
+    IN              shift and go to state 121
+
+    relational_operator            shift and go to state 131
+    membership_operator            shift and go to state 120
+    operator1                      shift and go to state 123
+
+state 81
+
+    (114) character_literal -> CCONST .
+
+    TIMES           reduce using rule 114 (character_literal -> CCONST .)
+    DIVIDE          reduce using rule 114 (character_literal -> CCONST .)
+    MODULO          reduce using rule 114 (character_literal -> CCONST .)
+    PLUS            reduce using rule 114 (character_literal -> CCONST .)
+    MINUS           reduce using rule 114 (character_literal -> CCONST .)
+    CONCAT          reduce using rule 114 (character_literal -> CCONST .)
+    AND             reduce using rule 114 (character_literal -> CCONST .)
+    OR              reduce using rule 114 (character_literal -> CCONST .)
+    EQUAL           reduce using rule 114 (character_literal -> CCONST .)
+    NOTEQ           reduce using rule 114 (character_literal -> CCONST .)
+    GREATER         reduce using rule 114 (character_literal -> CCONST .)
+    GTEQUAL         reduce using rule 114 (character_literal -> CCONST .)
+    LESS            reduce using rule 114 (character_literal -> CCONST .)
+    LTEQUAL         reduce using rule 114 (character_literal -> CCONST .)
+    IN              reduce using rule 114 (character_literal -> CCONST .)
+    COMMA           reduce using rule 114 (character_literal -> CCONST .)
+    SEMI            reduce using rule 114 (character_literal -> CCONST .)
+    COLON           reduce using rule 114 (character_literal -> CCONST .)
+    RBRACKET        reduce using rule 114 (character_literal -> CCONST .)
+    LBRACKET        reduce using rule 114 (character_literal -> CCONST .)
+    RPAREN          reduce using rule 114 (character_literal -> CCONST .)
+
+
+state 82
+
+    (54) location -> ID .
+    (61) string_element -> ID . LBRACKET start_element LBRACKET
+    (63) string_slice -> ID . LBRACKET left_element COLON right_element RBRACKET
+
+  ! shift/reduce conflict for LBRACKET resolved as shift
+    ARROW           reduce using rule 54 (location -> ID .)
+    TIMES           reduce using rule 54 (location -> ID .)
+    DIVIDE          reduce using rule 54 (location -> ID .)
+    MODULO          reduce using rule 54 (location -> ID .)
+    PLUS            reduce using rule 54 (location -> ID .)
+    MINUS           reduce using rule 54 (location -> ID .)
+    CONCAT          reduce using rule 54 (location -> ID .)
+    AND             reduce using rule 54 (location -> ID .)
+    OR              reduce using rule 54 (location -> ID .)
+    EQUAL           reduce using rule 54 (location -> ID .)
+    NOTEQ           reduce using rule 54 (location -> ID .)
+    GREATER         reduce using rule 54 (location -> ID .)
+    GTEQUAL         reduce using rule 54 (location -> ID .)
+    LESS            reduce using rule 54 (location -> ID .)
+    LTEQUAL         reduce using rule 54 (location -> ID .)
+    IN              reduce using rule 54 (location -> ID .)
+    COMMA           reduce using rule 54 (location -> ID .)
+    SEMI            reduce using rule 54 (location -> ID .)
+    COLON           reduce using rule 54 (location -> ID .)
+    RBRACKET        reduce using rule 54 (location -> ID .)
+    RPAREN          reduce using rule 54 (location -> ID .)
+    LBRACKET        shift and go to state 132
+
+  ! LBRACKET        [ reduce using rule 54 (location -> ID .) ]
+
+
+state 83
+
+    (109) literal -> empty_literal .
+
+    TIMES           reduce using rule 109 (literal -> empty_literal .)
+    DIVIDE          reduce using rule 109 (literal -> empty_literal .)
+    MODULO          reduce using rule 109 (literal -> empty_literal .)
+    PLUS            reduce using rule 109 (literal -> empty_literal .)
+    MINUS           reduce using rule 109 (literal -> empty_literal .)
+    CONCAT          reduce using rule 109 (literal -> empty_literal .)
+    AND             reduce using rule 109 (literal -> empty_literal .)
+    OR              reduce using rule 109 (literal -> empty_literal .)
+    EQUAL           reduce using rule 109 (literal -> empty_literal .)
+    NOTEQ           reduce using rule 109 (literal -> empty_literal .)
+    GREATER         reduce using rule 109 (literal -> empty_literal .)
+    GTEQUAL         reduce using rule 109 (literal -> empty_literal .)
+    LESS            reduce using rule 109 (literal -> empty_literal .)
+    LTEQUAL         reduce using rule 109 (literal -> empty_literal .)
+    IN              reduce using rule 109 (literal -> empty_literal .)
+    COMMA           reduce using rule 109 (literal -> empty_literal .)
+    RBRACKET        reduce using rule 109 (literal -> empty_literal .)
+    COLON           reduce using rule 109 (literal -> empty_literal .)
+    RPAREN          reduce using rule 109 (literal -> empty_literal .)
+    SEMI            reduce using rule 109 (literal -> empty_literal .)
+    LBRACKET        reduce using rule 109 (literal -> empty_literal .)
+
+
+state 84
+
+    (86) monadic_operator -> MINUS .
+
+    ID              reduce using rule 86 (monadic_operator -> MINUS .)
+    ARROW           reduce using rule 86 (monadic_operator -> MINUS .)
+    ICONST          reduce using rule 86 (monadic_operator -> MINUS .)
+    TRUE            reduce using rule 86 (monadic_operator -> MINUS .)
+    FALSE           reduce using rule 86 (monadic_operator -> MINUS .)
+    CCONST          reduce using rule 86 (monadic_operator -> MINUS .)
+    NULL            reduce using rule 86 (monadic_operator -> MINUS .)
+    SCONST          reduce using rule 86 (monadic_operator -> MINUS .)
+
+
+state 85
+
+    (55) location -> dereferenced_reference .
+
+    ARROW           reduce using rule 55 (location -> dereferenced_reference .)
+    TIMES           reduce using rule 55 (location -> dereferenced_reference .)
+    DIVIDE          reduce using rule 55 (location -> dereferenced_reference .)
+    MODULO          reduce using rule 55 (location -> dereferenced_reference .)
+    PLUS            reduce using rule 55 (location -> dereferenced_reference .)
+    MINUS           reduce using rule 55 (location -> dereferenced_reference .)
+    CONCAT          reduce using rule 55 (location -> dereferenced_reference .)
+    AND             reduce using rule 55 (location -> dereferenced_reference .)
+    OR              reduce using rule 55 (location -> dereferenced_reference .)
+    EQUAL           reduce using rule 55 (location -> dereferenced_reference .)
+    NOTEQ           reduce using rule 55 (location -> dereferenced_reference .)
+    GREATER         reduce using rule 55 (location -> dereferenced_reference .)
+    GTEQUAL         reduce using rule 55 (location -> dereferenced_reference .)
+    LESS            reduce using rule 55 (location -> dereferenced_reference .)
+    LTEQUAL         reduce using rule 55 (location -> dereferenced_reference .)
+    IN              reduce using rule 55 (location -> dereferenced_reference .)
+    COMMA           reduce using rule 55 (location -> dereferenced_reference .)
+    SEMI            reduce using rule 55 (location -> dereferenced_reference .)
+    COLON           reduce using rule 55 (location -> dereferenced_reference .)
+    RBRACKET        reduce using rule 55 (location -> dereferenced_reference .)
+    LBRACKET        reduce using rule 55 (location -> dereferenced_reference .)
+    RPAREN          reduce using rule 55 (location -> dereferenced_reference .)
+
+
+state 86
+
+    (113) boolean_literal -> FALSE .
+
+    TIMES           reduce using rule 113 (boolean_literal -> FALSE .)
+    DIVIDE          reduce using rule 113 (boolean_literal -> FALSE .)
+    MODULO          reduce using rule 113 (boolean_literal -> FALSE .)
+    PLUS            reduce using rule 113 (boolean_literal -> FALSE .)
+    MINUS           reduce using rule 113 (boolean_literal -> FALSE .)
+    CONCAT          reduce using rule 113 (boolean_literal -> FALSE .)
+    AND             reduce using rule 113 (boolean_literal -> FALSE .)
+    OR              reduce using rule 113 (boolean_literal -> FALSE .)
+    EQUAL           reduce using rule 113 (boolean_literal -> FALSE .)
+    NOTEQ           reduce using rule 113 (boolean_literal -> FALSE .)
+    GREATER         reduce using rule 113 (boolean_literal -> FALSE .)
+    GTEQUAL         reduce using rule 113 (boolean_literal -> FALSE .)
+    LESS            reduce using rule 113 (boolean_literal -> FALSE .)
+    LTEQUAL         reduce using rule 113 (boolean_literal -> FALSE .)
+    IN              reduce using rule 113 (boolean_literal -> FALSE .)
+    COMMA           reduce using rule 113 (boolean_literal -> FALSE .)
+    RBRACKET        reduce using rule 113 (boolean_literal -> FALSE .)
+    COLON           reduce using rule 113 (boolean_literal -> FALSE .)
+    LBRACKET        reduce using rule 113 (boolean_literal -> FALSE .)
+    SEMI            reduce using rule 113 (boolean_literal -> FALSE .)
+    RPAREN          reduce using rule 113 (boolean_literal -> FALSE .)
+
+
+state 87
+
+    (56) location -> string_element .
+
+    ARROW           reduce using rule 56 (location -> string_element .)
+    TIMES           reduce using rule 56 (location -> string_element .)
+    DIVIDE          reduce using rule 56 (location -> string_element .)
+    MODULO          reduce using rule 56 (location -> string_element .)
+    PLUS            reduce using rule 56 (location -> string_element .)
+    MINUS           reduce using rule 56 (location -> string_element .)
+    CONCAT          reduce using rule 56 (location -> string_element .)
+    AND             reduce using rule 56 (location -> string_element .)
+    OR              reduce using rule 56 (location -> string_element .)
+    EQUAL           reduce using rule 56 (location -> string_element .)
+    NOTEQ           reduce using rule 56 (location -> string_element .)
+    GREATER         reduce using rule 56 (location -> string_element .)
+    GTEQUAL         reduce using rule 56 (location -> string_element .)
+    LESS            reduce using rule 56 (location -> string_element .)
+    LTEQUAL         reduce using rule 56 (location -> string_element .)
+    IN              reduce using rule 56 (location -> string_element .)
+    COMMA           reduce using rule 56 (location -> string_element .)
+    SEMI            reduce using rule 56 (location -> string_element .)
+    COLON           reduce using rule 56 (location -> string_element .)
+    RBRACKET        reduce using rule 56 (location -> string_element .)
+    LBRACKET        reduce using rule 56 (location -> string_element .)
+    RPAREN          reduce using rule 56 (location -> string_element .)
+
+
+state 88
+
+    (74) operand1 -> operand2 .
+    (77) operand2 -> operand2 . arithmetic_multiplicative_operator operand3
+    (83) arithmetic_multiplicative_operator -> . TIMES
+    (84) arithmetic_multiplicative_operator -> . DIVIDE
+    (85) arithmetic_multiplicative_operator -> . MODULO
+
+    PLUS            reduce using rule 74 (operand1 -> operand2 .)
+    MINUS           reduce using rule 74 (operand1 -> operand2 .)
+    CONCAT          reduce using rule 74 (operand1 -> operand2 .)
+    AND             reduce using rule 74 (operand1 -> operand2 .)
+    OR              reduce using rule 74 (operand1 -> operand2 .)
+    EQUAL           reduce using rule 74 (operand1 -> operand2 .)
+    NOTEQ           reduce using rule 74 (operand1 -> operand2 .)
+    GREATER         reduce using rule 74 (operand1 -> operand2 .)
+    GTEQUAL         reduce using rule 74 (operand1 -> operand2 .)
+    LESS            reduce using rule 74 (operand1 -> operand2 .)
+    LTEQUAL         reduce using rule 74 (operand1 -> operand2 .)
+    IN              reduce using rule 74 (operand1 -> operand2 .)
+    LBRACKET        reduce using rule 74 (operand1 -> operand2 .)
+    COLON           reduce using rule 74 (operand1 -> operand2 .)
+    RBRACKET        reduce using rule 74 (operand1 -> operand2 .)
+    COMMA           reduce using rule 74 (operand1 -> operand2 .)
+    SEMI            reduce using rule 74 (operand1 -> operand2 .)
+    RPAREN          reduce using rule 74 (operand1 -> operand2 .)
+    TIMES           shift and go to state 136
+    DIVIDE          shift and go to state 133
+    MODULO          shift and go to state 134
+
+    arithmetic_multiplicative_operator shift and go to state 135
+
+state 89
+
+    (105) primitive_value -> literal .
+
+    TIMES           reduce using rule 105 (primitive_value -> literal .)
+    DIVIDE          reduce using rule 105 (primitive_value -> literal .)
+    MODULO          reduce using rule 105 (primitive_value -> literal .)
+    PLUS            reduce using rule 105 (primitive_value -> literal .)
+    MINUS           reduce using rule 105 (primitive_value -> literal .)
+    CONCAT          reduce using rule 105 (primitive_value -> literal .)
+    AND             reduce using rule 105 (primitive_value -> literal .)
+    OR              reduce using rule 105 (primitive_value -> literal .)
+    EQUAL           reduce using rule 105 (primitive_value -> literal .)
+    NOTEQ           reduce using rule 105 (primitive_value -> literal .)
+    GREATER         reduce using rule 105 (primitive_value -> literal .)
+    GTEQUAL         reduce using rule 105 (primitive_value -> literal .)
+    LESS            reduce using rule 105 (primitive_value -> literal .)
+    LTEQUAL         reduce using rule 105 (primitive_value -> literal .)
+    IN              reduce using rule 105 (primitive_value -> literal .)
+    COMMA           reduce using rule 105 (primitive_value -> literal .)
+    SEMI            reduce using rule 105 (primitive_value -> literal .)
+    COLON           reduce using rule 105 (primitive_value -> literal .)
+    RBRACKET        reduce using rule 105 (primitive_value -> literal .)
+    LBRACKET        reduce using rule 105 (primitive_value -> literal .)
+    RPAREN          reduce using rule 105 (primitive_value -> literal .)
+
+
+state 90
+
+    (112) boolean_literal -> TRUE .
+
+    TIMES           reduce using rule 112 (boolean_literal -> TRUE .)
+    DIVIDE          reduce using rule 112 (boolean_literal -> TRUE .)
+    MODULO          reduce using rule 112 (boolean_literal -> TRUE .)
+    PLUS            reduce using rule 112 (boolean_literal -> TRUE .)
+    MINUS           reduce using rule 112 (boolean_literal -> TRUE .)
+    CONCAT          reduce using rule 112 (boolean_literal -> TRUE .)
+    AND             reduce using rule 112 (boolean_literal -> TRUE .)
+    OR              reduce using rule 112 (boolean_literal -> TRUE .)
+    EQUAL           reduce using rule 112 (boolean_literal -> TRUE .)
+    NOTEQ           reduce using rule 112 (boolean_literal -> TRUE .)
+    GREATER         reduce using rule 112 (boolean_literal -> TRUE .)
+    GTEQUAL         reduce using rule 112 (boolean_literal -> TRUE .)
+    LESS            reduce using rule 112 (boolean_literal -> TRUE .)
+    LTEQUAL         reduce using rule 112 (boolean_literal -> TRUE .)
+    IN              reduce using rule 112 (boolean_literal -> TRUE .)
+    COMMA           reduce using rule 112 (boolean_literal -> TRUE .)
+    RBRACKET        reduce using rule 112 (boolean_literal -> TRUE .)
+    COLON           reduce using rule 112 (boolean_literal -> TRUE .)
+    LBRACKET        reduce using rule 112 (boolean_literal -> TRUE .)
+    SEMI            reduce using rule 112 (boolean_literal -> TRUE .)
+    RPAREN          reduce using rule 112 (boolean_literal -> TRUE .)
+
+
+state 91
+
+    (116) character_string_literal -> SCONST .
+
+    TIMES           reduce using rule 116 (character_string_literal -> SCONST .)
+    DIVIDE          reduce using rule 116 (character_string_literal -> SCONST .)
+    MODULO          reduce using rule 116 (character_string_literal -> SCONST .)
+    PLUS            reduce using rule 116 (character_string_literal -> SCONST .)
+    MINUS           reduce using rule 116 (character_string_literal -> SCONST .)
+    CONCAT          reduce using rule 116 (character_string_literal -> SCONST .)
+    AND             reduce using rule 116 (character_string_literal -> SCONST .)
+    OR              reduce using rule 116 (character_string_literal -> SCONST .)
+    EQUAL           reduce using rule 116 (character_string_literal -> SCONST .)
+    NOTEQ           reduce using rule 116 (character_string_literal -> SCONST .)
+    GREATER         reduce using rule 116 (character_string_literal -> SCONST .)
+    GTEQUAL         reduce using rule 116 (character_string_literal -> SCONST .)
+    LESS            reduce using rule 116 (character_string_literal -> SCONST .)
+    LTEQUAL         reduce using rule 116 (character_string_literal -> SCONST .)
+    IN              reduce using rule 116 (character_string_literal -> SCONST .)
+    COMMA           reduce using rule 116 (character_string_literal -> SCONST .)
+    SEMI            reduce using rule 116 (character_string_literal -> SCONST .)
+    LBRACKET        reduce using rule 116 (character_string_literal -> SCONST .)
+    COLON           reduce using rule 116 (character_string_literal -> SCONST .)
+    RBRACKET        reduce using rule 116 (character_string_literal -> SCONST .)
+    RPAREN          reduce using rule 116 (character_string_literal -> SCONST .)
+
+
+state 92
+
+    (79) operand3 -> operand4 .
+
+    TIMES           reduce using rule 79 (operand3 -> operand4 .)
+    DIVIDE          reduce using rule 79 (operand3 -> operand4 .)
+    MODULO          reduce using rule 79 (operand3 -> operand4 .)
+    PLUS            reduce using rule 79 (operand3 -> operand4 .)
+    MINUS           reduce using rule 79 (operand3 -> operand4 .)
+    CONCAT          reduce using rule 79 (operand3 -> operand4 .)
+    AND             reduce using rule 79 (operand3 -> operand4 .)
+    OR              reduce using rule 79 (operand3 -> operand4 .)
+    EQUAL           reduce using rule 79 (operand3 -> operand4 .)
+    NOTEQ           reduce using rule 79 (operand3 -> operand4 .)
+    GREATER         reduce using rule 79 (operand3 -> operand4 .)
+    GTEQUAL         reduce using rule 79 (operand3 -> operand4 .)
+    LESS            reduce using rule 79 (operand3 -> operand4 .)
+    LTEQUAL         reduce using rule 79 (operand3 -> operand4 .)
+    IN              reduce using rule 79 (operand3 -> operand4 .)
+    COMMA           reduce using rule 79 (operand3 -> operand4 .)
+    SEMI            reduce using rule 79 (operand3 -> operand4 .)
+    RPAREN          reduce using rule 79 (operand3 -> operand4 .)
+    RBRACKET        reduce using rule 79 (operand3 -> operand4 .)
+    COLON           reduce using rule 79 (operand3 -> operand4 .)
+    LBRACKET        reduce using rule 79 (operand3 -> operand4 .)
+
+
+state 93
+
+    (111) integer_literal -> ICONST .
+
+    TIMES           reduce using rule 111 (integer_literal -> ICONST .)
+    DIVIDE          reduce using rule 111 (integer_literal -> ICONST .)
+    MODULO          reduce using rule 111 (integer_literal -> ICONST .)
+    PLUS            reduce using rule 111 (integer_literal -> ICONST .)
+    MINUS           reduce using rule 111 (integer_literal -> ICONST .)
+    CONCAT          reduce using rule 111 (integer_literal -> ICONST .)
+    AND             reduce using rule 111 (integer_literal -> ICONST .)
+    OR              reduce using rule 111 (integer_literal -> ICONST .)
+    EQUAL           reduce using rule 111 (integer_literal -> ICONST .)
+    NOTEQ           reduce using rule 111 (integer_literal -> ICONST .)
+    GREATER         reduce using rule 111 (integer_literal -> ICONST .)
+    GTEQUAL         reduce using rule 111 (integer_literal -> ICONST .)
+    LESS            reduce using rule 111 (integer_literal -> ICONST .)
+    LTEQUAL         reduce using rule 111 (integer_literal -> ICONST .)
+    IN              reduce using rule 111 (integer_literal -> ICONST .)
+    LBRACKET        reduce using rule 111 (integer_literal -> ICONST .)
+    COLON           reduce using rule 111 (integer_literal -> ICONST .)
+    COMMA           reduce using rule 111 (integer_literal -> ICONST .)
+    SEMI            reduce using rule 111 (integer_literal -> ICONST .)
+    RPAREN          reduce using rule 111 (integer_literal -> ICONST .)
+    RBRACKET        reduce using rule 111 (integer_literal -> ICONST .)
+
+
+state 94
+
+    (82) operand4 -> primitive_value .
+
+    TIMES           reduce using rule 82 (operand4 -> primitive_value .)
+    DIVIDE          reduce using rule 82 (operand4 -> primitive_value .)
+    MODULO          reduce using rule 82 (operand4 -> primitive_value .)
+    PLUS            reduce using rule 82 (operand4 -> primitive_value .)
+    MINUS           reduce using rule 82 (operand4 -> primitive_value .)
+    CONCAT          reduce using rule 82 (operand4 -> primitive_value .)
+    AND             reduce using rule 82 (operand4 -> primitive_value .)
+    OR              reduce using rule 82 (operand4 -> primitive_value .)
+    EQUAL           reduce using rule 82 (operand4 -> primitive_value .)
+    NOTEQ           reduce using rule 82 (operand4 -> primitive_value .)
+    GREATER         reduce using rule 82 (operand4 -> primitive_value .)
+    GTEQUAL         reduce using rule 82 (operand4 -> primitive_value .)
+    LESS            reduce using rule 82 (operand4 -> primitive_value .)
+    LTEQUAL         reduce using rule 82 (operand4 -> primitive_value .)
+    IN              reduce using rule 82 (operand4 -> primitive_value .)
+    COMMA           reduce using rule 82 (operand4 -> primitive_value .)
+    RBRACKET        reduce using rule 82 (operand4 -> primitive_value .)
+    COLON           reduce using rule 82 (operand4 -> primitive_value .)
+    SEMI            reduce using rule 82 (operand4 -> primitive_value .)
+    RPAREN          reduce using rule 82 (operand4 -> primitive_value .)
+    LBRACKET        reduce using rule 82 (operand4 -> primitive_value .)
+
+
+state 95
+
+    (106) literal -> integer_literal .
+
+    TIMES           reduce using rule 106 (literal -> integer_literal .)
+    DIVIDE          reduce using rule 106 (literal -> integer_literal .)
+    MODULO          reduce using rule 106 (literal -> integer_literal .)
+    PLUS            reduce using rule 106 (literal -> integer_literal .)
+    MINUS           reduce using rule 106 (literal -> integer_literal .)
+    CONCAT          reduce using rule 106 (literal -> integer_literal .)
+    AND             reduce using rule 106 (literal -> integer_literal .)
+    OR              reduce using rule 106 (literal -> integer_literal .)
+    EQUAL           reduce using rule 106 (literal -> integer_literal .)
+    NOTEQ           reduce using rule 106 (literal -> integer_literal .)
+    GREATER         reduce using rule 106 (literal -> integer_literal .)
+    GTEQUAL         reduce using rule 106 (literal -> integer_literal .)
+    LESS            reduce using rule 106 (literal -> integer_literal .)
+    LTEQUAL         reduce using rule 106 (literal -> integer_literal .)
+    IN              reduce using rule 106 (literal -> integer_literal .)
+    COMMA           reduce using rule 106 (literal -> integer_literal .)
+    RBRACKET        reduce using rule 106 (literal -> integer_literal .)
+    COLON           reduce using rule 106 (literal -> integer_literal .)
+    RPAREN          reduce using rule 106 (literal -> integer_literal .)
+    SEMI            reduce using rule 106 (literal -> integer_literal .)
+    LBRACKET        reduce using rule 106 (literal -> integer_literal .)
+
+
+state 96
+
+    (11) synonym_definition -> identifier_list mode ASSIGN . expression
+    (71) expression -> . operand0
+    (72) operand0 -> . operand1
+    (73) operand0 -> . operand0 operator1 operand1
+    (74) operand1 -> . operand2
+    (75) operand1 -> . operand1 operator2 operand2
+    (76) operand2 -> . operand3
+    (77) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
+    (78) operand3 -> . monadic_operator operand4
+    (79) operand3 -> . operand4
+    (86) monadic_operator -> . MINUS
+    (87) monadic_operator -> . NOT
+    (80) operand4 -> . location
+    (81) operand4 -> . referenced_location
+    (82) operand4 -> . primitive_value
+    (54) location -> . ID
+    (55) location -> . dereferenced_reference
+    (56) location -> . string_element
+    (57) location -> . string_slice
+    (58) location -> . array_element
+    (59) location -> . array_slice
+    (88) referenced_location -> . ARROW location
+    (105) primitive_value -> . literal
+    (60) dereferenced_reference -> . location ARROW
+    (61) string_element -> . ID LBRACKET start_element LBRACKET
+    (63) string_slice -> . ID LBRACKET left_element COLON right_element RBRACKET
+    (66) array_element -> . array_location LBRACKET expression_list RBRACKET
+    (69) array_slice -> . array_location LBRACKET lower_bound COLON upper_bound RBRACKET
+    (106) literal -> . integer_literal
+    (107) literal -> . boolean_literal
+    (108) literal -> . character_literal
+    (109) literal -> . empty_literal
+    (110) literal -> . character_string_literal
+    (70) array_location -> . location
+    (111) integer_literal -> . ICONST
+    (112) boolean_literal -> . TRUE
+    (113) boolean_literal -> . FALSE
+    (114) character_literal -> . CCONST
+    (115) empty_literal -> . NULL
+    (116) character_string_literal -> . SCONST
+
+    MINUS           shift and go to state 84
+    NOT             shift and go to state 65
+    ID              shift and go to state 82
+    ARROW           shift and go to state 77
+    ICONST          shift and go to state 93
+    TRUE            shift and go to state 90
+    FALSE           shift and go to state 86
+    CCONST          shift and go to state 81
+    NULL            shift and go to state 72
+    SCONST          shift and go to state 91
+
+    boolean_literal                shift and go to state 70
+    array_element                  shift and go to state 78
+    character_string_literal       shift and go to state 66
+    empty_literal                  shift and go to state 83
+    location                       shift and go to state 67
+    string_slice                   shift and go to state 68
+    dereferenced_reference         shift and go to state 85
+    monadic_operator               shift and go to state 69
+    expression                     shift and go to state 137
+    string_element                 shift and go to state 87
+    operand2                       shift and go to state 88
+    referenced_location            shift and go to state 73
+    array_location                 shift and go to state 74
+    literal                        shift and go to state 89
+    array_slice                    shift and go to state 75
+    character_literal              shift and go to state 76
+    operand1                       shift and go to state 64
+    operand4                       shift and go to state 92
+    operand3                       shift and go to state 79
+    integer_literal                shift and go to state 95
+    primitive_value                shift and go to state 94
+    operand0                       shift and go to state 80
+
+state 97
+
+    (10) synonym_list -> synonym_definition COMMA synonym_list .
+
+    SEMI            reduce using rule 10 (synonym_list -> synonym_definition COMMA synonym_list .)
+
+
+state 98
+
+    (41) lower_bound -> expression .
+
+    COLON           reduce using rule 41 (lower_bound -> expression .)
+
+
+state 99
+
+    (40) literal_range -> lower_bound . COLON upper_bound
+
+    COLON           shift and go to state 138
+
+
+state 100
+
+    (38) discrete_range_mode -> discrete_mode_name LPAREN literal_range . RPAREN
+
+    RPAREN          shift and go to state 139
+
+
+state 101
+
+    (46) string_mode -> CHARS LBRACKET string_length . RBRACKET
+
+    RBRACKET        shift and go to state 140
+
+
+state 102
+
+    (47) string_length -> integer_literal .
+
+    RBRACKET        reduce using rule 47 (string_length -> integer_literal .)
+
+
+state 103
+
+    (18) initialization -> ASSIGN expression .
+
+    COMMA           reduce using rule 18 (initialization -> ASSIGN expression .)
+    SEMI            reduce using rule 18 (initialization -> ASSIGN expression .)
+
+
+state 104
+
+    (39) discrete_range_mode -> discrete_mode LPAREN literal_range . RPAREN
+
+    RPAREN          shift and go to state 141
+
+
+state 105
+
+    (49) index_mode_list -> index_mode .
+    (50) index_mode_list -> index_mode . COMMA index_mode_list
+
+    RBRACKET        reduce using rule 49 (index_mode_list -> index_mode .)
+    COMMA           shift and go to state 142
+
+
+state 106
+
+    (34) discrete_mode_name -> ID .
+    (54) location -> ID .
+    (61) string_element -> ID . LBRACKET start_element LBRACKET
+    (63) string_slice -> ID . LBRACKET left_element COLON right_element RBRACKET
+
+  ! shift/reduce conflict for LBRACKET resolved as shift
+    LPAREN          reduce using rule 34 (discrete_mode_name -> ID .)
+    ARROW           reduce using rule 54 (location -> ID .)
+    TIMES           reduce using rule 54 (location -> ID .)
+    DIVIDE          reduce using rule 54 (location -> ID .)
+    MODULO          reduce using rule 54 (location -> ID .)
+    PLUS            reduce using rule 54 (location -> ID .)
+    MINUS           reduce using rule 54 (location -> ID .)
+    CONCAT          reduce using rule 54 (location -> ID .)
+    AND             reduce using rule 54 (location -> ID .)
+    OR              reduce using rule 54 (location -> ID .)
+    EQUAL           reduce using rule 54 (location -> ID .)
+    NOTEQ           reduce using rule 54 (location -> ID .)
+    GREATER         reduce using rule 54 (location -> ID .)
+    GTEQUAL         reduce using rule 54 (location -> ID .)
+    LESS            reduce using rule 54 (location -> ID .)
+    LTEQUAL         reduce using rule 54 (location -> ID .)
+    IN              reduce using rule 54 (location -> ID .)
+    COLON           reduce using rule 54 (location -> ID .)
+    LBRACKET        shift and go to state 132
+
+  ! LBRACKET        [ reduce using rule 54 (location -> ID .) ]
+
+
+state 107
+
+    (51) index_mode -> discrete_mode .
+    (39) discrete_range_mode -> discrete_mode . LPAREN literal_range RPAREN
+
+    COMMA           reduce using rule 51 (index_mode -> discrete_mode .)
+    RBRACKET        reduce using rule 51 (index_mode -> discrete_mode .)
+    LPAREN          shift and go to state 59
+
+
+state 108
+
+    (48) array_mode -> ARRAY LBRACKET index_mode_list . RBRACKET element_mode
+
+    RBRACKET        shift and go to state 143
+
+
+state 109
+
+    (52) index_mode -> literal_range .
+
+    COMMA           reduce using rule 52 (index_mode -> literal_range .)
+    RBRACKET        reduce using rule 52 (index_mode -> literal_range .)
+
+
+state 110
+
+    (93) arithmetic_additive_operator -> PLUS .
+
+    MINUS           reduce using rule 93 (arithmetic_additive_operator -> PLUS .)
+    NOT             reduce using rule 93 (arithmetic_additive_operator -> PLUS .)
+    ID              reduce using rule 93 (arithmetic_additive_operator -> PLUS .)
+    ARROW           reduce using rule 93 (arithmetic_additive_operator -> PLUS .)
+    ICONST          reduce using rule 93 (arithmetic_additive_operator -> PLUS .)
+    TRUE            reduce using rule 93 (arithmetic_additive_operator -> PLUS .)
+    FALSE           reduce using rule 93 (arithmetic_additive_operator -> PLUS .)
+    CCONST          reduce using rule 93 (arithmetic_additive_operator -> PLUS .)
+    NULL            reduce using rule 93 (arithmetic_additive_operator -> PLUS .)
+    SCONST          reduce using rule 93 (arithmetic_additive_operator -> PLUS .)
+
+
+state 111
+
+    (75) operand1 -> operand1 operator2 . operand2
+    (76) operand2 -> . operand3
+    (77) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
+    (78) operand3 -> . monadic_operator operand4
+    (79) operand3 -> . operand4
+    (86) monadic_operator -> . MINUS
+    (87) monadic_operator -> . NOT
+    (80) operand4 -> . location
+    (81) operand4 -> . referenced_location
+    (82) operand4 -> . primitive_value
+    (54) location -> . ID
+    (55) location -> . dereferenced_reference
+    (56) location -> . string_element
+    (57) location -> . string_slice
+    (58) location -> . array_element
+    (59) location -> . array_slice
+    (88) referenced_location -> . ARROW location
+    (105) primitive_value -> . literal
+    (60) dereferenced_reference -> . location ARROW
+    (61) string_element -> . ID LBRACKET start_element LBRACKET
+    (63) string_slice -> . ID LBRACKET left_element COLON right_element RBRACKET
+    (66) array_element -> . array_location LBRACKET expression_list RBRACKET
+    (69) array_slice -> . array_location LBRACKET lower_bound COLON upper_bound RBRACKET
+    (106) literal -> . integer_literal
+    (107) literal -> . boolean_literal
+    (108) literal -> . character_literal
+    (109) literal -> . empty_literal
+    (110) literal -> . character_string_literal
+    (70) array_location -> . location
+    (111) integer_literal -> . ICONST
+    (112) boolean_literal -> . TRUE
+    (113) boolean_literal -> . FALSE
+    (114) character_literal -> . CCONST
+    (115) empty_literal -> . NULL
+    (116) character_string_literal -> . SCONST
+
+    MINUS           shift and go to state 84
+    NOT             shift and go to state 65
+    ID              shift and go to state 82
+    ARROW           shift and go to state 77
+    ICONST          shift and go to state 93
+    TRUE            shift and go to state 90
+    FALSE           shift and go to state 86
+    CCONST          shift and go to state 81
+    NULL            shift and go to state 72
+    SCONST          shift and go to state 91
+
+    array_element                  shift and go to state 78
+    character_string_literal       shift and go to state 66
+    empty_literal                  shift and go to state 83
+    location                       shift and go to state 67
+    string_slice                   shift and go to state 68
+    dereferenced_reference         shift and go to state 85
+    monadic_operator               shift and go to state 69
+    boolean_literal                shift and go to state 70
+    string_element                 shift and go to state 87
+    operand2                       shift and go to state 144
+    referenced_location            shift and go to state 73
+    array_location                 shift and go to state 74
+    literal                        shift and go to state 89
+    array_slice                    shift and go to state 75
+    primitive_value                shift and go to state 94
+    character_literal              shift and go to state 76
+    operand4                       shift and go to state 92
+    operand3                       shift and go to state 79
+    integer_literal                shift and go to state 95
+
+state 112
+
+    (91) operator2 -> arithmetic_additive_operator .
+
+    MINUS           reduce using rule 91 (operator2 -> arithmetic_additive_operator .)
+    NOT             reduce using rule 91 (operator2 -> arithmetic_additive_operator .)
+    ID              reduce using rule 91 (operator2 -> arithmetic_additive_operator .)
+    ARROW           reduce using rule 91 (operator2 -> arithmetic_additive_operator .)
+    ICONST          reduce using rule 91 (operator2 -> arithmetic_additive_operator .)
+    TRUE            reduce using rule 91 (operator2 -> arithmetic_additive_operator .)
+    FALSE           reduce using rule 91 (operator2 -> arithmetic_additive_operator .)
+    CCONST          reduce using rule 91 (operator2 -> arithmetic_additive_operator .)
+    NULL            reduce using rule 91 (operator2 -> arithmetic_additive_operator .)
+    SCONST          reduce using rule 91 (operator2 -> arithmetic_additive_operator .)
+
+
+state 113
+
+    (94) arithmetic_additive_operator -> MINUS .
+
+    MINUS           reduce using rule 94 (arithmetic_additive_operator -> MINUS .)
+    NOT             reduce using rule 94 (arithmetic_additive_operator -> MINUS .)
+    ID              reduce using rule 94 (arithmetic_additive_operator -> MINUS .)
+    ARROW           reduce using rule 94 (arithmetic_additive_operator -> MINUS .)
+    ICONST          reduce using rule 94 (arithmetic_additive_operator -> MINUS .)
+    TRUE            reduce using rule 94 (arithmetic_additive_operator -> MINUS .)
+    FALSE           reduce using rule 94 (arithmetic_additive_operator -> MINUS .)
+    CCONST          reduce using rule 94 (arithmetic_additive_operator -> MINUS .)
+    NULL            reduce using rule 94 (arithmetic_additive_operator -> MINUS .)
+    SCONST          reduce using rule 94 (arithmetic_additive_operator -> MINUS .)
+
+
+state 114
+
+    (95) string_concatenation_operator -> CONCAT .
+
+    MINUS           reduce using rule 95 (string_concatenation_operator -> CONCAT .)
+    NOT             reduce using rule 95 (string_concatenation_operator -> CONCAT .)
+    ID              reduce using rule 95 (string_concatenation_operator -> CONCAT .)
+    ARROW           reduce using rule 95 (string_concatenation_operator -> CONCAT .)
+    ICONST          reduce using rule 95 (string_concatenation_operator -> CONCAT .)
+    TRUE            reduce using rule 95 (string_concatenation_operator -> CONCAT .)
+    FALSE           reduce using rule 95 (string_concatenation_operator -> CONCAT .)
+    CCONST          reduce using rule 95 (string_concatenation_operator -> CONCAT .)
+    NULL            reduce using rule 95 (string_concatenation_operator -> CONCAT .)
+    SCONST          reduce using rule 95 (string_concatenation_operator -> CONCAT .)
+
+
+state 115
+
+    (92) operator2 -> string_concatenation_operator .
+
+    MINUS           reduce using rule 92 (operator2 -> string_concatenation_operator .)
+    NOT             reduce using rule 92 (operator2 -> string_concatenation_operator .)
+    ID              reduce using rule 92 (operator2 -> string_concatenation_operator .)
+    ARROW           reduce using rule 92 (operator2 -> string_concatenation_operator .)
+    ICONST          reduce using rule 92 (operator2 -> string_concatenation_operator .)
+    TRUE            reduce using rule 92 (operator2 -> string_concatenation_operator .)
+    FALSE           reduce using rule 92 (operator2 -> string_concatenation_operator .)
+    CCONST          reduce using rule 92 (operator2 -> string_concatenation_operator .)
+    NULL            reduce using rule 92 (operator2 -> string_concatenation_operator .)
+    SCONST          reduce using rule 92 (operator2 -> string_concatenation_operator .)
+
+
+state 116
+
+    (60) dereferenced_reference -> location ARROW .
+
+    ARROW           reduce using rule 60 (dereferenced_reference -> location ARROW .)
+    TIMES           reduce using rule 60 (dereferenced_reference -> location ARROW .)
+    DIVIDE          reduce using rule 60 (dereferenced_reference -> location ARROW .)
+    MODULO          reduce using rule 60 (dereferenced_reference -> location ARROW .)
+    PLUS            reduce using rule 60 (dereferenced_reference -> location ARROW .)
+    MINUS           reduce using rule 60 (dereferenced_reference -> location ARROW .)
+    CONCAT          reduce using rule 60 (dereferenced_reference -> location ARROW .)
+    AND             reduce using rule 60 (dereferenced_reference -> location ARROW .)
+    OR              reduce using rule 60 (dereferenced_reference -> location ARROW .)
+    EQUAL           reduce using rule 60 (dereferenced_reference -> location ARROW .)
+    NOTEQ           reduce using rule 60 (dereferenced_reference -> location ARROW .)
+    GREATER         reduce using rule 60 (dereferenced_reference -> location ARROW .)
+    GTEQUAL         reduce using rule 60 (dereferenced_reference -> location ARROW .)
+    LESS            reduce using rule 60 (dereferenced_reference -> location ARROW .)
+    LTEQUAL         reduce using rule 60 (dereferenced_reference -> location ARROW .)
+    IN              reduce using rule 60 (dereferenced_reference -> location ARROW .)
+    RBRACKET        reduce using rule 60 (dereferenced_reference -> location ARROW .)
+    LBRACKET        reduce using rule 60 (dereferenced_reference -> location ARROW .)
+    COMMA           reduce using rule 60 (dereferenced_reference -> location ARROW .)
+    SEMI            reduce using rule 60 (dereferenced_reference -> location ARROW .)
+    COLON           reduce using rule 60 (dereferenced_reference -> location ARROW .)
+    RPAREN          reduce using rule 60 (dereferenced_reference -> location ARROW .)
+
+
+state 117
+
+    (78) operand3 -> monadic_operator operand4 .
+
+    TIMES           reduce using rule 78 (operand3 -> monadic_operator operand4 .)
+    DIVIDE          reduce using rule 78 (operand3 -> monadic_operator operand4 .)
+    MODULO          reduce using rule 78 (operand3 -> monadic_operator operand4 .)
+    PLUS            reduce using rule 78 (operand3 -> monadic_operator operand4 .)
+    MINUS           reduce using rule 78 (operand3 -> monadic_operator operand4 .)
+    CONCAT          reduce using rule 78 (operand3 -> monadic_operator operand4 .)
+    AND             reduce using rule 78 (operand3 -> monadic_operator operand4 .)
+    OR              reduce using rule 78 (operand3 -> monadic_operator operand4 .)
+    EQUAL           reduce using rule 78 (operand3 -> monadic_operator operand4 .)
+    NOTEQ           reduce using rule 78 (operand3 -> monadic_operator operand4 .)
+    GREATER         reduce using rule 78 (operand3 -> monadic_operator operand4 .)
+    GTEQUAL         reduce using rule 78 (operand3 -> monadic_operator operand4 .)
+    LESS            reduce using rule 78 (operand3 -> monadic_operator operand4 .)
+    LTEQUAL         reduce using rule 78 (operand3 -> monadic_operator operand4 .)
+    IN              reduce using rule 78 (operand3 -> monadic_operator operand4 .)
+    COMMA           reduce using rule 78 (operand3 -> monadic_operator operand4 .)
+    SEMI            reduce using rule 78 (operand3 -> monadic_operator operand4 .)
+    RPAREN          reduce using rule 78 (operand3 -> monadic_operator operand4 .)
+    RBRACKET        reduce using rule 78 (operand3 -> monadic_operator operand4 .)
+    COLON           reduce using rule 78 (operand3 -> monadic_operator operand4 .)
+    LBRACKET        reduce using rule 78 (operand3 -> monadic_operator operand4 .)
+
+
+state 118
+
+    (66) array_element -> array_location LBRACKET . expression_list RBRACKET
+    (69) array_slice -> array_location LBRACKET . lower_bound COLON upper_bound RBRACKET
+    (67) expression_list -> . expression
+    (68) expression_list -> . expression COMMA expression_list
+    (41) lower_bound -> . expression
+    (71) expression -> . operand0
+    (72) operand0 -> . operand1
+    (73) operand0 -> . operand0 operator1 operand1
+    (74) operand1 -> . operand2
+    (75) operand1 -> . operand1 operator2 operand2
+    (76) operand2 -> . operand3
+    (77) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
+    (78) operand3 -> . monadic_operator operand4
+    (79) operand3 -> . operand4
+    (86) monadic_operator -> . MINUS
+    (87) monadic_operator -> . NOT
+    (80) operand4 -> . location
+    (81) operand4 -> . referenced_location
+    (82) operand4 -> . primitive_value
+    (54) location -> . ID
+    (55) location -> . dereferenced_reference
+    (56) location -> . string_element
+    (57) location -> . string_slice
+    (58) location -> . array_element
+    (59) location -> . array_slice
+    (88) referenced_location -> . ARROW location
+    (105) primitive_value -> . literal
+    (60) dereferenced_reference -> . location ARROW
+    (61) string_element -> . ID LBRACKET start_element LBRACKET
+    (63) string_slice -> . ID LBRACKET left_element COLON right_element RBRACKET
+    (66) array_element -> . array_location LBRACKET expression_list RBRACKET
+    (69) array_slice -> . array_location LBRACKET lower_bound COLON upper_bound RBRACKET
+    (106) literal -> . integer_literal
+    (107) literal -> . boolean_literal
+    (108) literal -> . character_literal
+    (109) literal -> . empty_literal
+    (110) literal -> . character_string_literal
+    (70) array_location -> . location
+    (111) integer_literal -> . ICONST
+    (112) boolean_literal -> . TRUE
+    (113) boolean_literal -> . FALSE
+    (114) character_literal -> . CCONST
+    (115) empty_literal -> . NULL
+    (116) character_string_literal -> . SCONST
+
+    MINUS           shift and go to state 84
+    NOT             shift and go to state 65
+    ID              shift and go to state 82
+    ARROW           shift and go to state 77
+    ICONST          shift and go to state 93
+    TRUE            shift and go to state 90
+    FALSE           shift and go to state 86
+    CCONST          shift and go to state 81
+    NULL            shift and go to state 72
+    SCONST          shift and go to state 91
+
+    boolean_literal                shift and go to state 70
+    array_element                  shift and go to state 78
+    character_string_literal       shift and go to state 66
+    empty_literal                  shift and go to state 83
+    location                       shift and go to state 67
+    expression_list                shift and go to state 145
+    string_slice                   shift and go to state 68
+    dereferenced_reference         shift and go to state 85
+    monadic_operator               shift and go to state 69
+    expression                     shift and go to state 146
+    string_element                 shift and go to state 87
+    operand2                       shift and go to state 88
+    lower_bound                    shift and go to state 147
+    array_location                 shift and go to state 74
+    literal                        shift and go to state 89
+    referenced_location            shift and go to state 73
+    array_slice                    shift and go to state 75
+    character_literal              shift and go to state 76
+    operand1                       shift and go to state 64
+    operand4                       shift and go to state 92
+    operand3                       shift and go to state 79
+    integer_literal                shift and go to state 95
+    primitive_value                shift and go to state 94
+    operand0                       shift and go to state 80
+
+state 119
+
+    (88) referenced_location -> ARROW location .
+    (60) dereferenced_reference -> location . ARROW
+    (70) array_location -> location .
+
+  ! reduce/reduce conflict for LBRACKET resolved using rule 70 (array_location -> location .)
+    TIMES           reduce using rule 88 (referenced_location -> ARROW location .)
+    DIVIDE          reduce using rule 88 (referenced_location -> ARROW location .)
+    MODULO          reduce using rule 88 (referenced_location -> ARROW location .)
+    PLUS            reduce using rule 88 (referenced_location -> ARROW location .)
+    MINUS           reduce using rule 88 (referenced_location -> ARROW location .)
+    CONCAT          reduce using rule 88 (referenced_location -> ARROW location .)
+    AND             reduce using rule 88 (referenced_location -> ARROW location .)
+    OR              reduce using rule 88 (referenced_location -> ARROW location .)
+    EQUAL           reduce using rule 88 (referenced_location -> ARROW location .)
+    NOTEQ           reduce using rule 88 (referenced_location -> ARROW location .)
+    GREATER         reduce using rule 88 (referenced_location -> ARROW location .)
+    GTEQUAL         reduce using rule 88 (referenced_location -> ARROW location .)
+    LESS            reduce using rule 88 (referenced_location -> ARROW location .)
+    LTEQUAL         reduce using rule 88 (referenced_location -> ARROW location .)
+    IN              reduce using rule 88 (referenced_location -> ARROW location .)
+    COMMA           reduce using rule 88 (referenced_location -> ARROW location .)
+    SEMI            reduce using rule 88 (referenced_location -> ARROW location .)
+    COLON           reduce using rule 88 (referenced_location -> ARROW location .)
+    RBRACKET        reduce using rule 88 (referenced_location -> ARROW location .)
+    RPAREN          reduce using rule 88 (referenced_location -> ARROW location .)
+    ARROW           shift and go to state 116
+    LBRACKET        reduce using rule 70 (array_location -> location .)
+
+  ! LBRACKET        [ reduce using rule 88 (referenced_location -> ARROW location .) ]
+
+
+state 120
+
+    (90) operator1 -> membership_operator .
+
+    MINUS           reduce using rule 90 (operator1 -> membership_operator .)
+    NOT             reduce using rule 90 (operator1 -> membership_operator .)
+    ID              reduce using rule 90 (operator1 -> membership_operator .)
+    ARROW           reduce using rule 90 (operator1 -> membership_operator .)
+    ICONST          reduce using rule 90 (operator1 -> membership_operator .)
+    TRUE            reduce using rule 90 (operator1 -> membership_operator .)
+    FALSE           reduce using rule 90 (operator1 -> membership_operator .)
+    CCONST          reduce using rule 90 (operator1 -> membership_operator .)
+    NULL            reduce using rule 90 (operator1 -> membership_operator .)
+    SCONST          reduce using rule 90 (operator1 -> membership_operator .)
+
+
+state 121
+
+    (104) membership_operator -> IN .
+
+    MINUS           reduce using rule 104 (membership_operator -> IN .)
+    NOT             reduce using rule 104 (membership_operator -> IN .)
+    ID              reduce using rule 104 (membership_operator -> IN .)
+    ARROW           reduce using rule 104 (membership_operator -> IN .)
+    ICONST          reduce using rule 104 (membership_operator -> IN .)
+    TRUE            reduce using rule 104 (membership_operator -> IN .)
+    FALSE           reduce using rule 104 (membership_operator -> IN .)
+    CCONST          reduce using rule 104 (membership_operator -> IN .)
+    NULL            reduce using rule 104 (membership_operator -> IN .)
+    SCONST          reduce using rule 104 (membership_operator -> IN .)
+
+
+state 122
+
+    (98) relational_operator -> EQUAL .
+
+    MINUS           reduce using rule 98 (relational_operator -> EQUAL .)
+    NOT             reduce using rule 98 (relational_operator -> EQUAL .)
+    ID              reduce using rule 98 (relational_operator -> EQUAL .)
+    ARROW           reduce using rule 98 (relational_operator -> EQUAL .)
+    ICONST          reduce using rule 98 (relational_operator -> EQUAL .)
+    TRUE            reduce using rule 98 (relational_operator -> EQUAL .)
+    FALSE           reduce using rule 98 (relational_operator -> EQUAL .)
+    CCONST          reduce using rule 98 (relational_operator -> EQUAL .)
+    NULL            reduce using rule 98 (relational_operator -> EQUAL .)
+    SCONST          reduce using rule 98 (relational_operator -> EQUAL .)
+
+
+state 123
+
+    (73) operand0 -> operand0 operator1 . operand1
+    (74) operand1 -> . operand2
+    (75) operand1 -> . operand1 operator2 operand2
+    (76) operand2 -> . operand3
+    (77) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
+    (78) operand3 -> . monadic_operator operand4
+    (79) operand3 -> . operand4
+    (86) monadic_operator -> . MINUS
+    (87) monadic_operator -> . NOT
+    (80) operand4 -> . location
+    (81) operand4 -> . referenced_location
+    (82) operand4 -> . primitive_value
+    (54) location -> . ID
+    (55) location -> . dereferenced_reference
+    (56) location -> . string_element
+    (57) location -> . string_slice
+    (58) location -> . array_element
+    (59) location -> . array_slice
+    (88) referenced_location -> . ARROW location
+    (105) primitive_value -> . literal
+    (60) dereferenced_reference -> . location ARROW
+    (61) string_element -> . ID LBRACKET start_element LBRACKET
+    (63) string_slice -> . ID LBRACKET left_element COLON right_element RBRACKET
+    (66) array_element -> . array_location LBRACKET expression_list RBRACKET
+    (69) array_slice -> . array_location LBRACKET lower_bound COLON upper_bound RBRACKET
+    (106) literal -> . integer_literal
+    (107) literal -> . boolean_literal
+    (108) literal -> . character_literal
+    (109) literal -> . empty_literal
+    (110) literal -> . character_string_literal
+    (70) array_location -> . location
+    (111) integer_literal -> . ICONST
+    (112) boolean_literal -> . TRUE
+    (113) boolean_literal -> . FALSE
+    (114) character_literal -> . CCONST
+    (115) empty_literal -> . NULL
+    (116) character_string_literal -> . SCONST
+
+    MINUS           shift and go to state 84
+    NOT             shift and go to state 65
+    ID              shift and go to state 82
+    ARROW           shift and go to state 77
+    ICONST          shift and go to state 93
+    TRUE            shift and go to state 90
+    FALSE           shift and go to state 86
+    CCONST          shift and go to state 81
+    NULL            shift and go to state 72
+    SCONST          shift and go to state 91
+
+    array_element                  shift and go to state 78
+    character_string_literal       shift and go to state 66
+    empty_literal                  shift and go to state 83
+    location                       shift and go to state 67
+    string_slice                   shift and go to state 68
+    boolean_literal                shift and go to state 70
+    dereferenced_reference         shift and go to state 85
+    monadic_operator               shift and go to state 69
+    primitive_value                shift and go to state 94
+    string_element                 shift and go to state 87
+    operand2                       shift and go to state 88
+    referenced_location            shift and go to state 73
+    array_location                 shift and go to state 74
+    literal                        shift and go to state 89
+    array_slice                    shift and go to state 75
+    character_literal              shift and go to state 76
+    operand1                       shift and go to state 148
+    operand4                       shift and go to state 92
+    operand3                       shift and go to state 79
+    integer_literal                shift and go to state 95
+
+state 124
+
+    (97) relational_operator -> OR .
+
+    MINUS           reduce using rule 97 (relational_operator -> OR .)
+    NOT             reduce using rule 97 (relational_operator -> OR .)
+    ID              reduce using rule 97 (relational_operator -> OR .)
+    ARROW           reduce using rule 97 (relational_operator -> OR .)
+    ICONST          reduce using rule 97 (relational_operator -> OR .)
+    TRUE            reduce using rule 97 (relational_operator -> OR .)
+    FALSE           reduce using rule 97 (relational_operator -> OR .)
+    CCONST          reduce using rule 97 (relational_operator -> OR .)
+    NULL            reduce using rule 97 (relational_operator -> OR .)
+    SCONST          reduce using rule 97 (relational_operator -> OR .)
+
+
+state 125
+
+    (100) relational_operator -> GREATER .
+
+    MINUS           reduce using rule 100 (relational_operator -> GREATER .)
+    NOT             reduce using rule 100 (relational_operator -> GREATER .)
+    ID              reduce using rule 100 (relational_operator -> GREATER .)
+    ARROW           reduce using rule 100 (relational_operator -> GREATER .)
+    ICONST          reduce using rule 100 (relational_operator -> GREATER .)
+    TRUE            reduce using rule 100 (relational_operator -> GREATER .)
+    FALSE           reduce using rule 100 (relational_operator -> GREATER .)
+    CCONST          reduce using rule 100 (relational_operator -> GREATER .)
+    NULL            reduce using rule 100 (relational_operator -> GREATER .)
+    SCONST          reduce using rule 100 (relational_operator -> GREATER .)
+
+
+state 126
+
+    (103) relational_operator -> LTEQUAL .
+
+    MINUS           reduce using rule 103 (relational_operator -> LTEQUAL .)
+    NOT             reduce using rule 103 (relational_operator -> LTEQUAL .)
+    ID              reduce using rule 103 (relational_operator -> LTEQUAL .)
+    ARROW           reduce using rule 103 (relational_operator -> LTEQUAL .)
+    ICONST          reduce using rule 103 (relational_operator -> LTEQUAL .)
+    TRUE            reduce using rule 103 (relational_operator -> LTEQUAL .)
+    FALSE           reduce using rule 103 (relational_operator -> LTEQUAL .)
+    CCONST          reduce using rule 103 (relational_operator -> LTEQUAL .)
+    NULL            reduce using rule 103 (relational_operator -> LTEQUAL .)
+    SCONST          reduce using rule 103 (relational_operator -> LTEQUAL .)
+
+
+state 127
+
+    (96) relational_operator -> AND .
+
+    MINUS           reduce using rule 96 (relational_operator -> AND .)
+    NOT             reduce using rule 96 (relational_operator -> AND .)
+    ID              reduce using rule 96 (relational_operator -> AND .)
+    ARROW           reduce using rule 96 (relational_operator -> AND .)
+    ICONST          reduce using rule 96 (relational_operator -> AND .)
+    TRUE            reduce using rule 96 (relational_operator -> AND .)
+    FALSE           reduce using rule 96 (relational_operator -> AND .)
+    CCONST          reduce using rule 96 (relational_operator -> AND .)
+    NULL            reduce using rule 96 (relational_operator -> AND .)
+    SCONST          reduce using rule 96 (relational_operator -> AND .)
+
+
+state 128
+
+    (102) relational_operator -> LESS .
+
+    MINUS           reduce using rule 102 (relational_operator -> LESS .)
+    NOT             reduce using rule 102 (relational_operator -> LESS .)
+    ID              reduce using rule 102 (relational_operator -> LESS .)
+    ARROW           reduce using rule 102 (relational_operator -> LESS .)
+    ICONST          reduce using rule 102 (relational_operator -> LESS .)
+    TRUE            reduce using rule 102 (relational_operator -> LESS .)
+    FALSE           reduce using rule 102 (relational_operator -> LESS .)
+    CCONST          reduce using rule 102 (relational_operator -> LESS .)
+    NULL            reduce using rule 102 (relational_operator -> LESS .)
+    SCONST          reduce using rule 102 (relational_operator -> LESS .)
+
+
+state 129
+
+    (101) relational_operator -> GTEQUAL .
+
+    MINUS           reduce using rule 101 (relational_operator -> GTEQUAL .)
+    NOT             reduce using rule 101 (relational_operator -> GTEQUAL .)
+    ID              reduce using rule 101 (relational_operator -> GTEQUAL .)
+    ARROW           reduce using rule 101 (relational_operator -> GTEQUAL .)
+    ICONST          reduce using rule 101 (relational_operator -> GTEQUAL .)
+    TRUE            reduce using rule 101 (relational_operator -> GTEQUAL .)
+    FALSE           reduce using rule 101 (relational_operator -> GTEQUAL .)
+    CCONST          reduce using rule 101 (relational_operator -> GTEQUAL .)
+    NULL            reduce using rule 101 (relational_operator -> GTEQUAL .)
+    SCONST          reduce using rule 101 (relational_operator -> GTEQUAL .)
+
+
+state 130
+
+    (99) relational_operator -> NOTEQ .
+
+    MINUS           reduce using rule 99 (relational_operator -> NOTEQ .)
+    NOT             reduce using rule 99 (relational_operator -> NOTEQ .)
+    ID              reduce using rule 99 (relational_operator -> NOTEQ .)
+    ARROW           reduce using rule 99 (relational_operator -> NOTEQ .)
+    ICONST          reduce using rule 99 (relational_operator -> NOTEQ .)
+    TRUE            reduce using rule 99 (relational_operator -> NOTEQ .)
+    FALSE           reduce using rule 99 (relational_operator -> NOTEQ .)
+    CCONST          reduce using rule 99 (relational_operator -> NOTEQ .)
+    NULL            reduce using rule 99 (relational_operator -> NOTEQ .)
+    SCONST          reduce using rule 99 (relational_operator -> NOTEQ .)
+
+
+state 131
+
+    (89) operator1 -> relational_operator .
+
+    MINUS           reduce using rule 89 (operator1 -> relational_operator .)
+    NOT             reduce using rule 89 (operator1 -> relational_operator .)
+    ID              reduce using rule 89 (operator1 -> relational_operator .)
+    ARROW           reduce using rule 89 (operator1 -> relational_operator .)
+    ICONST          reduce using rule 89 (operator1 -> relational_operator .)
+    TRUE            reduce using rule 89 (operator1 -> relational_operator .)
+    FALSE           reduce using rule 89 (operator1 -> relational_operator .)
+    CCONST          reduce using rule 89 (operator1 -> relational_operator .)
+    NULL            reduce using rule 89 (operator1 -> relational_operator .)
+    SCONST          reduce using rule 89 (operator1 -> relational_operator .)
+
+
+state 132
+
+    (61) string_element -> ID LBRACKET . start_element LBRACKET
+    (63) string_slice -> ID LBRACKET . left_element COLON right_element RBRACKET
+    (62) start_element -> . expression
+    (64) left_element -> . expression
+    (71) expression -> . operand0
+    (72) operand0 -> . operand1
+    (73) operand0 -> . operand0 operator1 operand1
+    (74) operand1 -> . operand2
+    (75) operand1 -> . operand1 operator2 operand2
+    (76) operand2 -> . operand3
+    (77) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
+    (78) operand3 -> . monadic_operator operand4
+    (79) operand3 -> . operand4
+    (86) monadic_operator -> . MINUS
+    (87) monadic_operator -> . NOT
+    (80) operand4 -> . location
+    (81) operand4 -> . referenced_location
+    (82) operand4 -> . primitive_value
+    (54) location -> . ID
+    (55) location -> . dereferenced_reference
+    (56) location -> . string_element
+    (57) location -> . string_slice
+    (58) location -> . array_element
+    (59) location -> . array_slice
+    (88) referenced_location -> . ARROW location
+    (105) primitive_value -> . literal
+    (60) dereferenced_reference -> . location ARROW
+    (61) string_element -> . ID LBRACKET start_element LBRACKET
+    (63) string_slice -> . ID LBRACKET left_element COLON right_element RBRACKET
+    (66) array_element -> . array_location LBRACKET expression_list RBRACKET
+    (69) array_slice -> . array_location LBRACKET lower_bound COLON upper_bound RBRACKET
+    (106) literal -> . integer_literal
+    (107) literal -> . boolean_literal
+    (108) literal -> . character_literal
+    (109) literal -> . empty_literal
+    (110) literal -> . character_string_literal
+    (70) array_location -> . location
+    (111) integer_literal -> . ICONST
+    (112) boolean_literal -> . TRUE
+    (113) boolean_literal -> . FALSE
+    (114) character_literal -> . CCONST
+    (115) empty_literal -> . NULL
+    (116) character_string_literal -> . SCONST
+
+    MINUS           shift and go to state 84
+    NOT             shift and go to state 65
+    ID              shift and go to state 82
+    ARROW           shift and go to state 77
+    ICONST          shift and go to state 93
+    TRUE            shift and go to state 90
+    FALSE           shift and go to state 86
+    CCONST          shift and go to state 81
+    NULL            shift and go to state 72
+    SCONST          shift and go to state 91
+
+    boolean_literal                shift and go to state 70
+    array_element                  shift and go to state 78
+    character_string_literal       shift and go to state 66
+    empty_literal                  shift and go to state 83
+    location                       shift and go to state 67
+    start_element                  shift and go to state 149
+    string_slice                   shift and go to state 68
+    dereferenced_reference         shift and go to state 85
+    monadic_operator               shift and go to state 69
+    expression                     shift and go to state 150
+    string_element                 shift and go to state 87
+    left_element                   shift and go to state 151
+    operand2                       shift and go to state 88
+    referenced_location            shift and go to state 73
+    array_location                 shift and go to state 74
+    literal                        shift and go to state 89
+    array_slice                    shift and go to state 75
+    character_literal              shift and go to state 76
+    operand1                       shift and go to state 64
+    operand4                       shift and go to state 92
+    operand3                       shift and go to state 79
+    integer_literal                shift and go to state 95
+    primitive_value                shift and go to state 94
+    operand0                       shift and go to state 80
+
+state 133
+
+    (84) arithmetic_multiplicative_operator -> DIVIDE .
+
+    MINUS           reduce using rule 84 (arithmetic_multiplicative_operator -> DIVIDE .)
+    NOT             reduce using rule 84 (arithmetic_multiplicative_operator -> DIVIDE .)
+    ID              reduce using rule 84 (arithmetic_multiplicative_operator -> DIVIDE .)
+    ARROW           reduce using rule 84 (arithmetic_multiplicative_operator -> DIVIDE .)
+    ICONST          reduce using rule 84 (arithmetic_multiplicative_operator -> DIVIDE .)
+    TRUE            reduce using rule 84 (arithmetic_multiplicative_operator -> DIVIDE .)
+    FALSE           reduce using rule 84 (arithmetic_multiplicative_operator -> DIVIDE .)
+    CCONST          reduce using rule 84 (arithmetic_multiplicative_operator -> DIVIDE .)
+    NULL            reduce using rule 84 (arithmetic_multiplicative_operator -> DIVIDE .)
+    SCONST          reduce using rule 84 (arithmetic_multiplicative_operator -> DIVIDE .)
+
+
+state 134
+
+    (85) arithmetic_multiplicative_operator -> MODULO .
+
+    MINUS           reduce using rule 85 (arithmetic_multiplicative_operator -> MODULO .)
+    NOT             reduce using rule 85 (arithmetic_multiplicative_operator -> MODULO .)
+    ID              reduce using rule 85 (arithmetic_multiplicative_operator -> MODULO .)
+    ARROW           reduce using rule 85 (arithmetic_multiplicative_operator -> MODULO .)
+    ICONST          reduce using rule 85 (arithmetic_multiplicative_operator -> MODULO .)
+    TRUE            reduce using rule 85 (arithmetic_multiplicative_operator -> MODULO .)
+    FALSE           reduce using rule 85 (arithmetic_multiplicative_operator -> MODULO .)
+    CCONST          reduce using rule 85 (arithmetic_multiplicative_operator -> MODULO .)
+    NULL            reduce using rule 85 (arithmetic_multiplicative_operator -> MODULO .)
+    SCONST          reduce using rule 85 (arithmetic_multiplicative_operator -> MODULO .)
+
+
+state 135
+
+    (77) operand2 -> operand2 arithmetic_multiplicative_operator . operand3
+    (78) operand3 -> . monadic_operator operand4
+    (79) operand3 -> . operand4
+    (86) monadic_operator -> . MINUS
+    (87) monadic_operator -> . NOT
+    (80) operand4 -> . location
+    (81) operand4 -> . referenced_location
+    (82) operand4 -> . primitive_value
+    (54) location -> . ID
+    (55) location -> . dereferenced_reference
+    (56) location -> . string_element
+    (57) location -> . string_slice
+    (58) location -> . array_element
+    (59) location -> . array_slice
+    (88) referenced_location -> . ARROW location
+    (105) primitive_value -> . literal
+    (60) dereferenced_reference -> . location ARROW
+    (61) string_element -> . ID LBRACKET start_element LBRACKET
+    (63) string_slice -> . ID LBRACKET left_element COLON right_element RBRACKET
+    (66) array_element -> . array_location LBRACKET expression_list RBRACKET
+    (69) array_slice -> . array_location LBRACKET lower_bound COLON upper_bound RBRACKET
+    (106) literal -> . integer_literal
+    (107) literal -> . boolean_literal
+    (108) literal -> . character_literal
+    (109) literal -> . empty_literal
+    (110) literal -> . character_string_literal
+    (70) array_location -> . location
+    (111) integer_literal -> . ICONST
+    (112) boolean_literal -> . TRUE
+    (113) boolean_literal -> . FALSE
+    (114) character_literal -> . CCONST
+    (115) empty_literal -> . NULL
+    (116) character_string_literal -> . SCONST
+
+    MINUS           shift and go to state 84
+    NOT             shift and go to state 65
+    ID              shift and go to state 82
+    ARROW           shift and go to state 77
+    ICONST          shift and go to state 93
+    TRUE            shift and go to state 90
+    FALSE           shift and go to state 86
+    CCONST          shift and go to state 81
+    NULL            shift and go to state 72
+    SCONST          shift and go to state 91
+
+    array_element                  shift and go to state 78
+    character_string_literal       shift and go to state 66
+    empty_literal                  shift and go to state 83
+    location                       shift and go to state 67
+    dereferenced_reference         shift and go to state 85
+    monadic_operator               shift and go to state 69
+    boolean_literal                shift and go to state 70
+    string_element                 shift and go to state 87
+    referenced_location            shift and go to state 73
+    array_location                 shift and go to state 74
+    literal                        shift and go to state 89
+    array_slice                    shift and go to state 75
+    primitive_value                shift and go to state 94
+    character_literal              shift and go to state 76
+    string_slice                   shift and go to state 68
+    operand4                       shift and go to state 92
+    operand3                       shift and go to state 152
+    integer_literal                shift and go to state 95
+
+state 136
+
+    (83) arithmetic_multiplicative_operator -> TIMES .
+
+    MINUS           reduce using rule 83 (arithmetic_multiplicative_operator -> TIMES .)
+    NOT             reduce using rule 83 (arithmetic_multiplicative_operator -> TIMES .)
+    ID              reduce using rule 83 (arithmetic_multiplicative_operator -> TIMES .)
+    ARROW           reduce using rule 83 (arithmetic_multiplicative_operator -> TIMES .)
+    ICONST          reduce using rule 83 (arithmetic_multiplicative_operator -> TIMES .)
+    TRUE            reduce using rule 83 (arithmetic_multiplicative_operator -> TIMES .)
+    FALSE           reduce using rule 83 (arithmetic_multiplicative_operator -> TIMES .)
+    CCONST          reduce using rule 83 (arithmetic_multiplicative_operator -> TIMES .)
+    NULL            reduce using rule 83 (arithmetic_multiplicative_operator -> TIMES .)
+    SCONST          reduce using rule 83 (arithmetic_multiplicative_operator -> TIMES .)
+
+
+state 137
+
+    (11) synonym_definition -> identifier_list mode ASSIGN expression .
+
+    COMMA           reduce using rule 11 (synonym_definition -> identifier_list mode ASSIGN expression .)
+    SEMI            reduce using rule 11 (synonym_definition -> identifier_list mode ASSIGN expression .)
+
+
+state 138
+
+    (40) literal_range -> lower_bound COLON . upper_bound
+    (42) upper_bound -> . expression
+    (71) expression -> . operand0
+    (72) operand0 -> . operand1
+    (73) operand0 -> . operand0 operator1 operand1
+    (74) operand1 -> . operand2
+    (75) operand1 -> . operand1 operator2 operand2
+    (76) operand2 -> . operand3
+    (77) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
+    (78) operand3 -> . monadic_operator operand4
+    (79) operand3 -> . operand4
+    (86) monadic_operator -> . MINUS
+    (87) monadic_operator -> . NOT
+    (80) operand4 -> . location
+    (81) operand4 -> . referenced_location
+    (82) operand4 -> . primitive_value
+    (54) location -> . ID
+    (55) location -> . dereferenced_reference
+    (56) location -> . string_element
+    (57) location -> . string_slice
+    (58) location -> . array_element
+    (59) location -> . array_slice
+    (88) referenced_location -> . ARROW location
+    (105) primitive_value -> . literal
+    (60) dereferenced_reference -> . location ARROW
+    (61) string_element -> . ID LBRACKET start_element LBRACKET
+    (63) string_slice -> . ID LBRACKET left_element COLON right_element RBRACKET
+    (66) array_element -> . array_location LBRACKET expression_list RBRACKET
+    (69) array_slice -> . array_location LBRACKET lower_bound COLON upper_bound RBRACKET
+    (106) literal -> . integer_literal
+    (107) literal -> . boolean_literal
+    (108) literal -> . character_literal
+    (109) literal -> . empty_literal
+    (110) literal -> . character_string_literal
+    (70) array_location -> . location
+    (111) integer_literal -> . ICONST
+    (112) boolean_literal -> . TRUE
+    (113) boolean_literal -> . FALSE
+    (114) character_literal -> . CCONST
+    (115) empty_literal -> . NULL
+    (116) character_string_literal -> . SCONST
+
+    MINUS           shift and go to state 84
+    NOT             shift and go to state 65
+    ID              shift and go to state 82
+    ARROW           shift and go to state 77
+    ICONST          shift and go to state 93
+    TRUE            shift and go to state 90
+    FALSE           shift and go to state 86
+    CCONST          shift and go to state 81
+    NULL            shift and go to state 72
+    SCONST          shift and go to state 91
+
+    array_element                  shift and go to state 78
+    character_string_literal       shift and go to state 66
+    empty_literal                  shift and go to state 83
+    upper_bound                    shift and go to state 154
+    location                       shift and go to state 67
+    string_slice                   shift and go to state 68
+    boolean_literal                shift and go to state 70
+    dereferenced_reference         shift and go to state 85
+    monadic_operator               shift and go to state 69
+    expression                     shift and go to state 153
+    string_element                 shift and go to state 87
+    operand2                       shift and go to state 88
+    array_location                 shift and go to state 74
+    literal                        shift and go to state 89
+    referenced_location            shift and go to state 73
+    array_slice                    shift and go to state 75
+    character_literal              shift and go to state 76
+    operand1                       shift and go to state 64
+    operand4                       shift and go to state 92
+    operand3                       shift and go to state 79
+    integer_literal                shift and go to state 95
+    primitive_value                shift and go to state 94
+    operand0                       shift and go to state 80
+
+state 139
+
+    (38) discrete_range_mode -> discrete_mode_name LPAREN literal_range RPAREN .
+
+    LPAREN          reduce using rule 38 (discrete_range_mode -> discrete_mode_name LPAREN literal_range RPAREN .)
+    ASSIGN          reduce using rule 38 (discrete_range_mode -> discrete_mode_name LPAREN literal_range RPAREN .)
+    COMMA           reduce using rule 38 (discrete_range_mode -> discrete_mode_name LPAREN literal_range RPAREN .)
+    SEMI            reduce using rule 38 (discrete_range_mode -> discrete_mode_name LPAREN literal_range RPAREN .)
+    RBRACKET        reduce using rule 38 (discrete_range_mode -> discrete_mode_name LPAREN literal_range RPAREN .)
+
+
+state 140
+
+    (46) string_mode -> CHARS LBRACKET string_length RBRACKET .
+
+    ASSIGN          reduce using rule 46 (string_mode -> CHARS LBRACKET string_length RBRACKET .)
+    COMMA           reduce using rule 46 (string_mode -> CHARS LBRACKET string_length RBRACKET .)
+    SEMI            reduce using rule 46 (string_mode -> CHARS LBRACKET string_length RBRACKET .)
+
+
+state 141
+
+    (39) discrete_range_mode -> discrete_mode LPAREN literal_range RPAREN .
+
+    LPAREN          reduce using rule 39 (discrete_range_mode -> discrete_mode LPAREN literal_range RPAREN .)
+    ASSIGN          reduce using rule 39 (discrete_range_mode -> discrete_mode LPAREN literal_range RPAREN .)
+    COMMA           reduce using rule 39 (discrete_range_mode -> discrete_mode LPAREN literal_range RPAREN .)
+    SEMI            reduce using rule 39 (discrete_range_mode -> discrete_mode LPAREN literal_range RPAREN .)
+    RBRACKET        reduce using rule 39 (discrete_range_mode -> discrete_mode LPAREN literal_range RPAREN .)
+
+
+state 142
+
+    (50) index_mode_list -> index_mode COMMA . index_mode_list
+    (49) index_mode_list -> . index_mode
+    (50) index_mode_list -> . index_mode COMMA index_mode_list
+    (51) index_mode -> . discrete_mode
+    (52) index_mode -> . literal_range
+    (30) discrete_mode -> . integer_mode
+    (31) discrete_mode -> . boolean_mode
+    (32) discrete_mode -> . character_mode
+    (33) discrete_mode -> . discrete_range_mode
+    (40) literal_range -> . lower_bound COLON upper_bound
+    (35) integer_mode -> . INT
+    (36) boolean_mode -> . BOOL
+    (37) character_mode -> . CHAR
+    (38) discrete_range_mode -> . discrete_mode_name LPAREN literal_range RPAREN
+    (39) discrete_range_mode -> . discrete_mode LPAREN literal_range RPAREN
+    (41) lower_bound -> . expression
+    (34) discrete_mode_name -> . ID
+    (71) expression -> . operand0
+    (72) operand0 -> . operand1
+    (73) operand0 -> . operand0 operator1 operand1
+    (74) operand1 -> . operand2
+    (75) operand1 -> . operand1 operator2 operand2
+    (76) operand2 -> . operand3
+    (77) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
+    (78) operand3 -> . monadic_operator operand4
+    (79) operand3 -> . operand4
+    (86) monadic_operator -> . MINUS
+    (87) monadic_operator -> . NOT
+    (80) operand4 -> . location
+    (81) operand4 -> . referenced_location
+    (82) operand4 -> . primitive_value
+    (54) location -> . ID
+    (55) location -> . dereferenced_reference
+    (56) location -> . string_element
+    (57) location -> . string_slice
+    (58) location -> . array_element
+    (59) location -> . array_slice
+    (88) referenced_location -> . ARROW location
+    (105) primitive_value -> . literal
+    (60) dereferenced_reference -> . location ARROW
+    (61) string_element -> . ID LBRACKET start_element LBRACKET
+    (63) string_slice -> . ID LBRACKET left_element COLON right_element RBRACKET
+    (66) array_element -> . array_location LBRACKET expression_list RBRACKET
+    (69) array_slice -> . array_location LBRACKET lower_bound COLON upper_bound RBRACKET
+    (106) literal -> . integer_literal
+    (107) literal -> . boolean_literal
+    (108) literal -> . character_literal
+    (109) literal -> . empty_literal
+    (110) literal -> . character_string_literal
+    (70) array_location -> . location
+    (111) integer_literal -> . ICONST
+    (112) boolean_literal -> . TRUE
+    (113) boolean_literal -> . FALSE
+    (114) character_literal -> . CCONST
+    (115) empty_literal -> . NULL
+    (116) character_string_literal -> . SCONST
+
+    INT             shift and go to state 36
+    BOOL            shift and go to state 37
+    CHAR            shift and go to state 40
+    ID              shift and go to state 106
+    MINUS           shift and go to state 84
+    NOT             shift and go to state 65
+    ARROW           shift and go to state 77
+    ICONST          shift and go to state 93
+    TRUE            shift and go to state 90
+    FALSE           shift and go to state 86
+    CCONST          shift and go to state 81
+    NULL            shift and go to state 72
+    SCONST          shift and go to state 91
+
+    boolean_literal                shift and go to state 70
+    literal_range                  shift and go to state 109
+    array_element                  shift and go to state 78
+    boolean_mode                   shift and go to state 28
+    array_slice                    shift and go to state 75
+    empty_literal                  shift and go to state 83
+    index_mode                     shift and go to state 105
+    character_mode                 shift and go to state 31
+    string_slice                   shift and go to state 68
+    discrete_mode_name             shift and go to state 32
+    location                       shift and go to state 67
+    dereferenced_reference         shift and go to state 85
+    monadic_operator               shift and go to state 69
+    expression                     shift and go to state 98
+    string_element                 shift and go to state 87
+    index_mode_list                shift and go to state 155
+    integer_mode                   shift and go to state 41
+    operand2                       shift and go to state 88
+    lower_bound                    shift and go to state 99
+    array_location                 shift and go to state 74
+    literal                        shift and go to state 89
+    referenced_location            shift and go to state 73
+    discrete_range_mode            shift and go to state 42
+    primitive_value                shift and go to state 94
+    character_literal              shift and go to state 76
+    operand1                       shift and go to state 64
+    operand4                       shift and go to state 92
+    character_string_literal       shift and go to state 66
+    operand3                       shift and go to state 79
+    integer_literal                shift and go to state 95
+    discrete_mode                  shift and go to state 107
+    operand0                       shift and go to state 80
+
+state 143
+
+    (48) array_mode -> ARRAY LBRACKET index_mode_list RBRACKET . element_mode
+    (53) element_mode -> . mode
+    (25) mode -> . mode_name
+    (26) mode -> . discrete_mode
+    (27) mode -> . reference_mode
+    (28) mode -> . composite_mode
+    (29) mode_name -> . ID
+    (30) discrete_mode -> . integer_mode
+    (31) discrete_mode -> . boolean_mode
+    (32) discrete_mode -> . character_mode
+    (33) discrete_mode -> . discrete_range_mode
+    (43) reference_mode -> . REF mode
+    (44) composite_mode -> . string_mode
+    (45) composite_mode -> . array_mode
+    (35) integer_mode -> . INT
+    (36) boolean_mode -> . BOOL
+    (37) character_mode -> . CHAR
+    (38) discrete_range_mode -> . discrete_mode_name LPAREN literal_range RPAREN
+    (39) discrete_range_mode -> . discrete_mode LPAREN literal_range RPAREN
+    (46) string_mode -> . CHARS LBRACKET string_length RBRACKET
+    (48) array_mode -> . ARRAY LBRACKET index_mode_list RBRACKET element_mode
+    (34) discrete_mode_name -> . ID
+
+    ID              shift and go to state 27
+    REF             shift and go to state 43
+    INT             shift and go to state 36
+    BOOL            shift and go to state 37
+    CHAR            shift and go to state 40
+    CHARS           shift and go to state 33
+    ARRAY           shift and go to state 38
+
+    element_mode                   shift and go to state 157
+    integer_mode                   shift and go to state 41
+    boolean_mode                   shift and go to state 28
+    composite_mode                 shift and go to state 29
+    discrete_range_mode            shift and go to state 42
+    mode_name                      shift and go to state 30
+    string_mode                    shift and go to state 44
+    character_mode                 shift and go to state 31
+    discrete_mode_name             shift and go to state 32
+    mode                           shift and go to state 156
+    reference_mode                 shift and go to state 39
+    array_mode                     shift and go to state 45
+    discrete_mode                  shift and go to state 35
+
+state 144
+
+    (75) operand1 -> operand1 operator2 operand2 .
+    (77) operand2 -> operand2 . arithmetic_multiplicative_operator operand3
+    (83) arithmetic_multiplicative_operator -> . TIMES
+    (84) arithmetic_multiplicative_operator -> . DIVIDE
+    (85) arithmetic_multiplicative_operator -> . MODULO
+
+    PLUS            reduce using rule 75 (operand1 -> operand1 operator2 operand2 .)
+    MINUS           reduce using rule 75 (operand1 -> operand1 operator2 operand2 .)
+    CONCAT          reduce using rule 75 (operand1 -> operand1 operator2 operand2 .)
+    AND             reduce using rule 75 (operand1 -> operand1 operator2 operand2 .)
+    OR              reduce using rule 75 (operand1 -> operand1 operator2 operand2 .)
+    EQUAL           reduce using rule 75 (operand1 -> operand1 operator2 operand2 .)
+    NOTEQ           reduce using rule 75 (operand1 -> operand1 operator2 operand2 .)
+    GREATER         reduce using rule 75 (operand1 -> operand1 operator2 operand2 .)
+    GTEQUAL         reduce using rule 75 (operand1 -> operand1 operator2 operand2 .)
+    LESS            reduce using rule 75 (operand1 -> operand1 operator2 operand2 .)
+    LTEQUAL         reduce using rule 75 (operand1 -> operand1 operator2 operand2 .)
+    IN              reduce using rule 75 (operand1 -> operand1 operator2 operand2 .)
+    LBRACKET        reduce using rule 75 (operand1 -> operand1 operator2 operand2 .)
+    COLON           reduce using rule 75 (operand1 -> operand1 operator2 operand2 .)
+    RBRACKET        reduce using rule 75 (operand1 -> operand1 operator2 operand2 .)
+    COMMA           reduce using rule 75 (operand1 -> operand1 operator2 operand2 .)
+    SEMI            reduce using rule 75 (operand1 -> operand1 operator2 operand2 .)
+    RPAREN          reduce using rule 75 (operand1 -> operand1 operator2 operand2 .)
+    TIMES           shift and go to state 136
+    DIVIDE          shift and go to state 133
+    MODULO          shift and go to state 134
+
+    arithmetic_multiplicative_operator shift and go to state 135
+
+state 145
+
+    (66) array_element -> array_location LBRACKET expression_list . RBRACKET
+
+    RBRACKET        shift and go to state 158
+
+
+state 146
+
+    (67) expression_list -> expression .
+    (68) expression_list -> expression . COMMA expression_list
+    (41) lower_bound -> expression .
+
+    RBRACKET        reduce using rule 67 (expression_list -> expression .)
+    COMMA           shift and go to state 159
+    COLON           reduce using rule 41 (lower_bound -> expression .)
+
+
+state 147
+
+    (69) array_slice -> array_location LBRACKET lower_bound . COLON upper_bound RBRACKET
+
+    COLON           shift and go to state 160
+
+
+state 148
+
+    (73) operand0 -> operand0 operator1 operand1 .
+    (75) operand1 -> operand1 . operator2 operand2
+    (91) operator2 -> . arithmetic_additive_operator
+    (92) operator2 -> . string_concatenation_operator
+    (93) arithmetic_additive_operator -> . PLUS
+    (94) arithmetic_additive_operator -> . MINUS
+    (95) string_concatenation_operator -> . CONCAT
+
+    AND             reduce using rule 73 (operand0 -> operand0 operator1 operand1 .)
+    OR              reduce using rule 73 (operand0 -> operand0 operator1 operand1 .)
+    EQUAL           reduce using rule 73 (operand0 -> operand0 operator1 operand1 .)
+    NOTEQ           reduce using rule 73 (operand0 -> operand0 operator1 operand1 .)
+    GREATER         reduce using rule 73 (operand0 -> operand0 operator1 operand1 .)
+    GTEQUAL         reduce using rule 73 (operand0 -> operand0 operator1 operand1 .)
+    LESS            reduce using rule 73 (operand0 -> operand0 operator1 operand1 .)
+    LTEQUAL         reduce using rule 73 (operand0 -> operand0 operator1 operand1 .)
+    IN              reduce using rule 73 (operand0 -> operand0 operator1 operand1 .)
+    COMMA           reduce using rule 73 (operand0 -> operand0 operator1 operand1 .)
+    SEMI            reduce using rule 73 (operand0 -> operand0 operator1 operand1 .)
+    RBRACKET        reduce using rule 73 (operand0 -> operand0 operator1 operand1 .)
+    COLON           reduce using rule 73 (operand0 -> operand0 operator1 operand1 .)
+    LBRACKET        reduce using rule 73 (operand0 -> operand0 operator1 operand1 .)
+    RPAREN          reduce using rule 73 (operand0 -> operand0 operator1 operand1 .)
+    PLUS            shift and go to state 110
+    MINUS           shift and go to state 113
+    CONCAT          shift and go to state 114
+
+    operator2                      shift and go to state 111
+    arithmetic_additive_operator   shift and go to state 112
+    string_concatenation_operator  shift and go to state 115
+
+state 149
+
+    (61) string_element -> ID LBRACKET start_element . LBRACKET
+
+    LBRACKET        shift and go to state 161
+
+
+state 150
+
+    (62) start_element -> expression .
+    (64) left_element -> expression .
+
+    LBRACKET        reduce using rule 62 (start_element -> expression .)
+    COLON           reduce using rule 64 (left_element -> expression .)
+
+
+state 151
+
+    (63) string_slice -> ID LBRACKET left_element . COLON right_element RBRACKET
+
+    COLON           shift and go to state 162
+
+
+state 152
+
+    (77) operand2 -> operand2 arithmetic_multiplicative_operator operand3 .
+
+    TIMES           reduce using rule 77 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    DIVIDE          reduce using rule 77 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    MODULO          reduce using rule 77 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    PLUS            reduce using rule 77 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    MINUS           reduce using rule 77 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    CONCAT          reduce using rule 77 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    AND             reduce using rule 77 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    OR              reduce using rule 77 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    EQUAL           reduce using rule 77 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    NOTEQ           reduce using rule 77 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    GREATER         reduce using rule 77 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    GTEQUAL         reduce using rule 77 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    LESS            reduce using rule 77 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    LTEQUAL         reduce using rule 77 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    IN              reduce using rule 77 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    COMMA           reduce using rule 77 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    RBRACKET        reduce using rule 77 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    COLON           reduce using rule 77 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    SEMI            reduce using rule 77 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    LBRACKET        reduce using rule 77 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+    RPAREN          reduce using rule 77 (operand2 -> operand2 arithmetic_multiplicative_operator operand3 .)
+
+
+state 153
+
+    (42) upper_bound -> expression .
+
+    RBRACKET        reduce using rule 42 (upper_bound -> expression .)
+    RPAREN          reduce using rule 42 (upper_bound -> expression .)
+    COMMA           reduce using rule 42 (upper_bound -> expression .)
+
+
+state 154
+
+    (40) literal_range -> lower_bound COLON upper_bound .
+
+    RPAREN          reduce using rule 40 (literal_range -> lower_bound COLON upper_bound .)
+    COMMA           reduce using rule 40 (literal_range -> lower_bound COLON upper_bound .)
+    RBRACKET        reduce using rule 40 (literal_range -> lower_bound COLON upper_bound .)
+
+
+state 155
+
+    (50) index_mode_list -> index_mode COMMA index_mode_list .
+
+    RBRACKET        reduce using rule 50 (index_mode_list -> index_mode COMMA index_mode_list .)
+
+
+state 156
+
+    (53) element_mode -> mode .
+
+    ASSIGN          reduce using rule 53 (element_mode -> mode .)
+    COMMA           reduce using rule 53 (element_mode -> mode .)
+    SEMI            reduce using rule 53 (element_mode -> mode .)
+
+
+state 157
+
+    (48) array_mode -> ARRAY LBRACKET index_mode_list RBRACKET element_mode .
+
+    ASSIGN          reduce using rule 48 (array_mode -> ARRAY LBRACKET index_mode_list RBRACKET element_mode .)
+    COMMA           reduce using rule 48 (array_mode -> ARRAY LBRACKET index_mode_list RBRACKET element_mode .)
+    SEMI            reduce using rule 48 (array_mode -> ARRAY LBRACKET index_mode_list RBRACKET element_mode .)
+
+
+state 158
+
+    (66) array_element -> array_location LBRACKET expression_list RBRACKET .
+
+    ARROW           reduce using rule 66 (array_element -> array_location LBRACKET expression_list RBRACKET .)
+    TIMES           reduce using rule 66 (array_element -> array_location LBRACKET expression_list RBRACKET .)
+    DIVIDE          reduce using rule 66 (array_element -> array_location LBRACKET expression_list RBRACKET .)
+    MODULO          reduce using rule 66 (array_element -> array_location LBRACKET expression_list RBRACKET .)
+    PLUS            reduce using rule 66 (array_element -> array_location LBRACKET expression_list RBRACKET .)
+    MINUS           reduce using rule 66 (array_element -> array_location LBRACKET expression_list RBRACKET .)
+    CONCAT          reduce using rule 66 (array_element -> array_location LBRACKET expression_list RBRACKET .)
+    AND             reduce using rule 66 (array_element -> array_location LBRACKET expression_list RBRACKET .)
+    OR              reduce using rule 66 (array_element -> array_location LBRACKET expression_list RBRACKET .)
+    EQUAL           reduce using rule 66 (array_element -> array_location LBRACKET expression_list RBRACKET .)
+    NOTEQ           reduce using rule 66 (array_element -> array_location LBRACKET expression_list RBRACKET .)
+    GREATER         reduce using rule 66 (array_element -> array_location LBRACKET expression_list RBRACKET .)
+    GTEQUAL         reduce using rule 66 (array_element -> array_location LBRACKET expression_list RBRACKET .)
+    LESS            reduce using rule 66 (array_element -> array_location LBRACKET expression_list RBRACKET .)
+    LTEQUAL         reduce using rule 66 (array_element -> array_location LBRACKET expression_list RBRACKET .)
+    IN              reduce using rule 66 (array_element -> array_location LBRACKET expression_list RBRACKET .)
+    COLON           reduce using rule 66 (array_element -> array_location LBRACKET expression_list RBRACKET .)
+    LBRACKET        reduce using rule 66 (array_element -> array_location LBRACKET expression_list RBRACKET .)
+    COMMA           reduce using rule 66 (array_element -> array_location LBRACKET expression_list RBRACKET .)
+    SEMI            reduce using rule 66 (array_element -> array_location LBRACKET expression_list RBRACKET .)
+    RBRACKET        reduce using rule 66 (array_element -> array_location LBRACKET expression_list RBRACKET .)
+    RPAREN          reduce using rule 66 (array_element -> array_location LBRACKET expression_list RBRACKET .)
+
+
+state 159
+
+    (68) expression_list -> expression COMMA . expression_list
+    (67) expression_list -> . expression
+    (68) expression_list -> . expression COMMA expression_list
+    (71) expression -> . operand0
+    (72) operand0 -> . operand1
+    (73) operand0 -> . operand0 operator1 operand1
+    (74) operand1 -> . operand2
+    (75) operand1 -> . operand1 operator2 operand2
+    (76) operand2 -> . operand3
+    (77) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
+    (78) operand3 -> . monadic_operator operand4
+    (79) operand3 -> . operand4
+    (86) monadic_operator -> . MINUS
+    (87) monadic_operator -> . NOT
+    (80) operand4 -> . location
+    (81) operand4 -> . referenced_location
+    (82) operand4 -> . primitive_value
+    (54) location -> . ID
+    (55) location -> . dereferenced_reference
+    (56) location -> . string_element
+    (57) location -> . string_slice
+    (58) location -> . array_element
+    (59) location -> . array_slice
+    (88) referenced_location -> . ARROW location
+    (105) primitive_value -> . literal
+    (60) dereferenced_reference -> . location ARROW
+    (61) string_element -> . ID LBRACKET start_element LBRACKET
+    (63) string_slice -> . ID LBRACKET left_element COLON right_element RBRACKET
+    (66) array_element -> . array_location LBRACKET expression_list RBRACKET
+    (69) array_slice -> . array_location LBRACKET lower_bound COLON upper_bound RBRACKET
+    (106) literal -> . integer_literal
+    (107) literal -> . boolean_literal
+    (108) literal -> . character_literal
+    (109) literal -> . empty_literal
+    (110) literal -> . character_string_literal
+    (70) array_location -> . location
+    (111) integer_literal -> . ICONST
+    (112) boolean_literal -> . TRUE
+    (113) boolean_literal -> . FALSE
+    (114) character_literal -> . CCONST
+    (115) empty_literal -> . NULL
+    (116) character_string_literal -> . SCONST
+
+    MINUS           shift and go to state 84
+    NOT             shift and go to state 65
+    ID              shift and go to state 82
+    ARROW           shift and go to state 77
+    ICONST          shift and go to state 93
+    TRUE            shift and go to state 90
+    FALSE           shift and go to state 86
+    CCONST          shift and go to state 81
+    NULL            shift and go to state 72
+    SCONST          shift and go to state 91
+
+    boolean_literal                shift and go to state 70
+    array_element                  shift and go to state 78
+    character_string_literal       shift and go to state 66
+    empty_literal                  shift and go to state 83
+    location                       shift and go to state 67
+    expression_list                shift and go to state 163
+    string_slice                   shift and go to state 68
+    dereferenced_reference         shift and go to state 85
+    monadic_operator               shift and go to state 69
+    expression                     shift and go to state 164
+    string_element                 shift and go to state 87
+    operand2                       shift and go to state 88
+    referenced_location            shift and go to state 73
+    array_location                 shift and go to state 74
+    literal                        shift and go to state 89
+    array_slice                    shift and go to state 75
+    character_literal              shift and go to state 76
+    operand1                       shift and go to state 64
+    operand4                       shift and go to state 92
+    operand3                       shift and go to state 79
+    integer_literal                shift and go to state 95
+    primitive_value                shift and go to state 94
+    operand0                       shift and go to state 80
+
+state 160
+
+    (69) array_slice -> array_location LBRACKET lower_bound COLON . upper_bound RBRACKET
+    (42) upper_bound -> . expression
+    (71) expression -> . operand0
+    (72) operand0 -> . operand1
+    (73) operand0 -> . operand0 operator1 operand1
+    (74) operand1 -> . operand2
+    (75) operand1 -> . operand1 operator2 operand2
+    (76) operand2 -> . operand3
+    (77) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
+    (78) operand3 -> . monadic_operator operand4
+    (79) operand3 -> . operand4
+    (86) monadic_operator -> . MINUS
+    (87) monadic_operator -> . NOT
+    (80) operand4 -> . location
+    (81) operand4 -> . referenced_location
+    (82) operand4 -> . primitive_value
+    (54) location -> . ID
+    (55) location -> . dereferenced_reference
+    (56) location -> . string_element
+    (57) location -> . string_slice
+    (58) location -> . array_element
+    (59) location -> . array_slice
+    (88) referenced_location -> . ARROW location
+    (105) primitive_value -> . literal
+    (60) dereferenced_reference -> . location ARROW
+    (61) string_element -> . ID LBRACKET start_element LBRACKET
+    (63) string_slice -> . ID LBRACKET left_element COLON right_element RBRACKET
+    (66) array_element -> . array_location LBRACKET expression_list RBRACKET
+    (69) array_slice -> . array_location LBRACKET lower_bound COLON upper_bound RBRACKET
+    (106) literal -> . integer_literal
+    (107) literal -> . boolean_literal
+    (108) literal -> . character_literal
+    (109) literal -> . empty_literal
+    (110) literal -> . character_string_literal
+    (70) array_location -> . location
+    (111) integer_literal -> . ICONST
+    (112) boolean_literal -> . TRUE
+    (113) boolean_literal -> . FALSE
+    (114) character_literal -> . CCONST
+    (115) empty_literal -> . NULL
+    (116) character_string_literal -> . SCONST
+
+    MINUS           shift and go to state 84
+    NOT             shift and go to state 65
+    ID              shift and go to state 82
+    ARROW           shift and go to state 77
+    ICONST          shift and go to state 93
+    TRUE            shift and go to state 90
+    FALSE           shift and go to state 86
+    CCONST          shift and go to state 81
+    NULL            shift and go to state 72
+    SCONST          shift and go to state 91
+
+    array_element                  shift and go to state 78
+    character_string_literal       shift and go to state 66
+    empty_literal                  shift and go to state 83
+    upper_bound                    shift and go to state 165
+    location                       shift and go to state 67
+    string_slice                   shift and go to state 68
+    boolean_literal                shift and go to state 70
+    dereferenced_reference         shift and go to state 85
+    monadic_operator               shift and go to state 69
+    expression                     shift and go to state 153
+    string_element                 shift and go to state 87
+    operand2                       shift and go to state 88
+    array_location                 shift and go to state 74
+    literal                        shift and go to state 89
+    referenced_location            shift and go to state 73
+    array_slice                    shift and go to state 75
+    character_literal              shift and go to state 76
+    operand1                       shift and go to state 64
+    operand4                       shift and go to state 92
+    operand3                       shift and go to state 79
+    integer_literal                shift and go to state 95
+    primitive_value                shift and go to state 94
+    operand0                       shift and go to state 80
+
+state 161
+
+    (61) string_element -> ID LBRACKET start_element LBRACKET .
+
+    ARROW           reduce using rule 61 (string_element -> ID LBRACKET start_element LBRACKET .)
+    TIMES           reduce using rule 61 (string_element -> ID LBRACKET start_element LBRACKET .)
+    DIVIDE          reduce using rule 61 (string_element -> ID LBRACKET start_element LBRACKET .)
+    MODULO          reduce using rule 61 (string_element -> ID LBRACKET start_element LBRACKET .)
+    PLUS            reduce using rule 61 (string_element -> ID LBRACKET start_element LBRACKET .)
+    MINUS           reduce using rule 61 (string_element -> ID LBRACKET start_element LBRACKET .)
+    CONCAT          reduce using rule 61 (string_element -> ID LBRACKET start_element LBRACKET .)
+    AND             reduce using rule 61 (string_element -> ID LBRACKET start_element LBRACKET .)
+    OR              reduce using rule 61 (string_element -> ID LBRACKET start_element LBRACKET .)
+    EQUAL           reduce using rule 61 (string_element -> ID LBRACKET start_element LBRACKET .)
+    NOTEQ           reduce using rule 61 (string_element -> ID LBRACKET start_element LBRACKET .)
+    GREATER         reduce using rule 61 (string_element -> ID LBRACKET start_element LBRACKET .)
+    GTEQUAL         reduce using rule 61 (string_element -> ID LBRACKET start_element LBRACKET .)
+    LESS            reduce using rule 61 (string_element -> ID LBRACKET start_element LBRACKET .)
+    LTEQUAL         reduce using rule 61 (string_element -> ID LBRACKET start_element LBRACKET .)
+    IN              reduce using rule 61 (string_element -> ID LBRACKET start_element LBRACKET .)
+    RBRACKET        reduce using rule 61 (string_element -> ID LBRACKET start_element LBRACKET .)
+    LBRACKET        reduce using rule 61 (string_element -> ID LBRACKET start_element LBRACKET .)
+    COMMA           reduce using rule 61 (string_element -> ID LBRACKET start_element LBRACKET .)
+    SEMI            reduce using rule 61 (string_element -> ID LBRACKET start_element LBRACKET .)
+    COLON           reduce using rule 61 (string_element -> ID LBRACKET start_element LBRACKET .)
+    RPAREN          reduce using rule 61 (string_element -> ID LBRACKET start_element LBRACKET .)
+
+
+state 162
+
+    (63) string_slice -> ID LBRACKET left_element COLON . right_element RBRACKET
+    (65) right_element -> . expression
+    (71) expression -> . operand0
+    (72) operand0 -> . operand1
+    (73) operand0 -> . operand0 operator1 operand1
+    (74) operand1 -> . operand2
+    (75) operand1 -> . operand1 operator2 operand2
+    (76) operand2 -> . operand3
+    (77) operand2 -> . operand2 arithmetic_multiplicative_operator operand3
+    (78) operand3 -> . monadic_operator operand4
+    (79) operand3 -> . operand4
+    (86) monadic_operator -> . MINUS
+    (87) monadic_operator -> . NOT
+    (80) operand4 -> . location
+    (81) operand4 -> . referenced_location
+    (82) operand4 -> . primitive_value
+    (54) location -> . ID
+    (55) location -> . dereferenced_reference
+    (56) location -> . string_element
+    (57) location -> . string_slice
+    (58) location -> . array_element
+    (59) location -> . array_slice
+    (88) referenced_location -> . ARROW location
+    (105) primitive_value -> . literal
+    (60) dereferenced_reference -> . location ARROW
+    (61) string_element -> . ID LBRACKET start_element LBRACKET
+    (63) string_slice -> . ID LBRACKET left_element COLON right_element RBRACKET
+    (66) array_element -> . array_location LBRACKET expression_list RBRACKET
+    (69) array_slice -> . array_location LBRACKET lower_bound COLON upper_bound RBRACKET
+    (106) literal -> . integer_literal
+    (107) literal -> . boolean_literal
+    (108) literal -> . character_literal
+    (109) literal -> . empty_literal
+    (110) literal -> . character_string_literal
+    (70) array_location -> . location
+    (111) integer_literal -> . ICONST
+    (112) boolean_literal -> . TRUE
+    (113) boolean_literal -> . FALSE
+    (114) character_literal -> . CCONST
+    (115) empty_literal -> . NULL
+    (116) character_string_literal -> . SCONST
+
+    MINUS           shift and go to state 84
+    NOT             shift and go to state 65
+    ID              shift and go to state 82
+    ARROW           shift and go to state 77
+    ICONST          shift and go to state 93
+    TRUE            shift and go to state 90
+    FALSE           shift and go to state 86
+    CCONST          shift and go to state 81
+    NULL            shift and go to state 72
+    SCONST          shift and go to state 91
+
+    boolean_literal                shift and go to state 70
+    array_element                  shift and go to state 78
+    character_string_literal       shift and go to state 66
+    empty_literal                  shift and go to state 83
+    location                       shift and go to state 67
+    string_slice                   shift and go to state 68
+    dereferenced_reference         shift and go to state 85
+    monadic_operator               shift and go to state 69
+    expression                     shift and go to state 166
+    string_element                 shift and go to state 87
+    operand2                       shift and go to state 88
+    referenced_location            shift and go to state 73
+    array_location                 shift and go to state 74
+    literal                        shift and go to state 89
+    array_slice                    shift and go to state 75
+    character_literal              shift and go to state 76
+    operand1                       shift and go to state 64
+    operand4                       shift and go to state 92
+    operand3                       shift and go to state 79
+    integer_literal                shift and go to state 95
+    primitive_value                shift and go to state 94
+    operand0                       shift and go to state 80
+    right_element                  shift and go to state 167
+
+state 163
+
+    (68) expression_list -> expression COMMA expression_list .
+
+    RBRACKET        reduce using rule 68 (expression_list -> expression COMMA expression_list .)
+
+
+state 164
+
+    (67) expression_list -> expression .
+    (68) expression_list -> expression . COMMA expression_list
+
+    RBRACKET        reduce using rule 67 (expression_list -> expression .)
+    COMMA           shift and go to state 159
+
+
+state 165
+
+    (69) array_slice -> array_location LBRACKET lower_bound COLON upper_bound . RBRACKET
+
+    RBRACKET        shift and go to state 168
+
+
+state 166
+
+    (65) right_element -> expression .
+
+    RBRACKET        reduce using rule 65 (right_element -> expression .)
+
+
+state 167
+
+    (63) string_slice -> ID LBRACKET left_element COLON right_element . RBRACKET
+
+    RBRACKET        shift and go to state 169
+
+
+state 168
+
+    (69) array_slice -> array_location LBRACKET lower_bound COLON upper_bound RBRACKET .
+
+    ARROW           reduce using rule 69 (array_slice -> array_location LBRACKET lower_bound COLON upper_bound RBRACKET .)
+    TIMES           reduce using rule 69 (array_slice -> array_location LBRACKET lower_bound COLON upper_bound RBRACKET .)
+    DIVIDE          reduce using rule 69 (array_slice -> array_location LBRACKET lower_bound COLON upper_bound RBRACKET .)
+    MODULO          reduce using rule 69 (array_slice -> array_location LBRACKET lower_bound COLON upper_bound RBRACKET .)
+    PLUS            reduce using rule 69 (array_slice -> array_location LBRACKET lower_bound COLON upper_bound RBRACKET .)
+    MINUS           reduce using rule 69 (array_slice -> array_location LBRACKET lower_bound COLON upper_bound RBRACKET .)
+    CONCAT          reduce using rule 69 (array_slice -> array_location LBRACKET lower_bound COLON upper_bound RBRACKET .)
+    AND             reduce using rule 69 (array_slice -> array_location LBRACKET lower_bound COLON upper_bound RBRACKET .)
+    OR              reduce using rule 69 (array_slice -> array_location LBRACKET lower_bound COLON upper_bound RBRACKET .)
+    EQUAL           reduce using rule 69 (array_slice -> array_location LBRACKET lower_bound COLON upper_bound RBRACKET .)
+    NOTEQ           reduce using rule 69 (array_slice -> array_location LBRACKET lower_bound COLON upper_bound RBRACKET .)
+    GREATER         reduce using rule 69 (array_slice -> array_location LBRACKET lower_bound COLON upper_bound RBRACKET .)
+    GTEQUAL         reduce using rule 69 (array_slice -> array_location LBRACKET lower_bound COLON upper_bound RBRACKET .)
+    LESS            reduce using rule 69 (array_slice -> array_location LBRACKET lower_bound COLON upper_bound RBRACKET .)
+    LTEQUAL         reduce using rule 69 (array_slice -> array_location LBRACKET lower_bound COLON upper_bound RBRACKET .)
+    IN              reduce using rule 69 (array_slice -> array_location LBRACKET lower_bound COLON upper_bound RBRACKET .)
+    COMMA           reduce using rule 69 (array_slice -> array_location LBRACKET lower_bound COLON upper_bound RBRACKET .)
+    SEMI            reduce using rule 69 (array_slice -> array_location LBRACKET lower_bound COLON upper_bound RBRACKET .)
+    LBRACKET        reduce using rule 69 (array_slice -> array_location LBRACKET lower_bound COLON upper_bound RBRACKET .)
+    COLON           reduce using rule 69 (array_slice -> array_location LBRACKET lower_bound COLON upper_bound RBRACKET .)
+    RBRACKET        reduce using rule 69 (array_slice -> array_location LBRACKET lower_bound COLON upper_bound RBRACKET .)
+    RPAREN          reduce using rule 69 (array_slice -> array_location LBRACKET lower_bound COLON upper_bound RBRACKET .)
+
+
+state 169
+
+    (63) string_slice -> ID LBRACKET left_element COLON right_element RBRACKET .
+
+    ARROW           reduce using rule 63 (string_slice -> ID LBRACKET left_element COLON right_element RBRACKET .)
+    TIMES           reduce using rule 63 (string_slice -> ID LBRACKET left_element COLON right_element RBRACKET .)
+    DIVIDE          reduce using rule 63 (string_slice -> ID LBRACKET left_element COLON right_element RBRACKET .)
+    MODULO          reduce using rule 63 (string_slice -> ID LBRACKET left_element COLON right_element RBRACKET .)
+    PLUS            reduce using rule 63 (string_slice -> ID LBRACKET left_element COLON right_element RBRACKET .)
+    MINUS           reduce using rule 63 (string_slice -> ID LBRACKET left_element COLON right_element RBRACKET .)
+    CONCAT          reduce using rule 63 (string_slice -> ID LBRACKET left_element COLON right_element RBRACKET .)
+    AND             reduce using rule 63 (string_slice -> ID LBRACKET left_element COLON right_element RBRACKET .)
+    OR              reduce using rule 63 (string_slice -> ID LBRACKET left_element COLON right_element RBRACKET .)
+    EQUAL           reduce using rule 63 (string_slice -> ID LBRACKET left_element COLON right_element RBRACKET .)
+    NOTEQ           reduce using rule 63 (string_slice -> ID LBRACKET left_element COLON right_element RBRACKET .)
+    GREATER         reduce using rule 63 (string_slice -> ID LBRACKET left_element COLON right_element RBRACKET .)
+    GTEQUAL         reduce using rule 63 (string_slice -> ID LBRACKET left_element COLON right_element RBRACKET .)
+    LESS            reduce using rule 63 (string_slice -> ID LBRACKET left_element COLON right_element RBRACKET .)
+    LTEQUAL         reduce using rule 63 (string_slice -> ID LBRACKET left_element COLON right_element RBRACKET .)
+    IN              reduce using rule 63 (string_slice -> ID LBRACKET left_element COLON right_element RBRACKET .)
+    COLON           reduce using rule 63 (string_slice -> ID LBRACKET left_element COLON right_element RBRACKET .)
+    LBRACKET        reduce using rule 63 (string_slice -> ID LBRACKET left_element COLON right_element RBRACKET .)
+    COMMA           reduce using rule 63 (string_slice -> ID LBRACKET left_element COLON right_element RBRACKET .)
+    SEMI            reduce using rule 63 (string_slice -> ID LBRACKET left_element COLON right_element RBRACKET .)
+    RPAREN          reduce using rule 63 (string_slice -> ID LBRACKET left_element COLON right_element RBRACKET .)
+    RBRACKET        reduce using rule 63 (string_slice -> ID LBRACKET left_element COLON right_element RBRACKET .)
+
+WARNING: 
+WARNING: Conflicts:
+WARNING: 
+WARNING: shift/reduce conflict for LBRACKET in state 82 resolved as shift
+WARNING: shift/reduce conflict for LBRACKET in state 106 resolved as shift
+WARNING: reduce/reduce conflict in state 67 resolved using rule (array_location -> location)
+WARNING: rejected rule (operand4 -> location) in state 67
+WARNING: reduce/reduce conflict in state 119 resolved using rule (array_location -> location)
+WARNING: rejected rule (referenced_location -> ARROW location) in state 119
