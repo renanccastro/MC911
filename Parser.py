@@ -1,6 +1,8 @@
 import ply.yacc as yacc
 
 from Tokenizer import Tokenizer
+from nodes.ConditionalExpression import ConditionalExpression
+from nodes.ElsifExpression import ElsifExpression
 from nodes.NewModeStatement import NewModeStatement
 from nodes.AST import AST
 from nodes.DeclarationStatement import DeclarationStatement
@@ -314,11 +316,34 @@ class Parser:
     # EXPRESSION
     # '''
 
-    # TODO: FALTA CONDITIONAL EXPRESSION
     def p_expression(self,p):
-        '''expression : operand0'''
+        '''expression : operand0
+                      | conditional_expression'''
         p[0] = Expression(p[1])
 
+    # '''
+    # Conditional Expression
+    # '''
+    def p_conditional_expression(self,p):
+        '''conditional_expression : IF expression then_expression else_expression FI
+                                  | IF expression then_expression elsif_expression else_expression FI'''
+        p[0] = ConditionalExpression(p[2], p[3], p[4] if len(p) > 6 else None, p[4] if len(p) <= 6 else p[5])
+
+    def p_then_expression(self,p):
+        '''then_expression : THEN expression'''
+        p[0] = p[2]
+
+    def p_else_expression(self,p):
+        '''else_expression : ELSE expression'''
+        p[0] = p[2]
+    def p_elsif_expression(self,p):
+        '''elsif_expression : ELSIF expression then_expression
+                            | elsif_expression ELSIF expression then_expression'''
+        if len(p) <= 4:
+            p[0] = [ElsifExpression(p[2],p[3])]
+        else:
+            p[0] = p[1]
+            p[0].append(ElsifExpression(p[3], p[4]))
     # '''
     # OPERAND
     # '''
