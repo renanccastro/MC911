@@ -1,6 +1,11 @@
 import ply.yacc as yacc
 
 from Tokenizer import Tokenizer
+from nodes.Actions.CallAction import CallAction
+from nodes.Actions.ExitAction import ExitAction
+from nodes.Actions.ResultAction import ResultAction
+from nodes.Actions.ReturnAction import ReturnAction
+from nodes.BuiltinCall import BuiltinCall
 from nodes.ConditionalExpression import ConditionalExpression
 from nodes.ElsifExpression import ElsifExpression
 from nodes.NewModeStatement import NewModeStatement
@@ -17,6 +22,7 @@ from nodes.Modes.CompositeMode import CompositeMode, StringMode, ArrayMode
 from nodes.MonadicOperation import MonadicOperation
 from nodes.Operand import Operand
 from nodes.Operation import Operation
+from nodes.ProcedureCall import ProcedureCall
 from nodes.ProcedureDefinition import ProcedureDefinition
 from nodes.ProcedureParameter import ProcedureParameter
 from nodes.ProcedureReturn import ProcedureReturn
@@ -168,9 +174,9 @@ class Parser:
                         | mode_definition COMMA newmode_list'''
         if len(p) == 2:
             p[0] = [p[1]]
-        elif len(p) == 4:
-            p[0] = [p[1]]
-            p[0].append(p[3])
+        elif len(p) > 3:
+            p[0] = p[3]
+            p[0].append(p[1])
 
     def p_mode_definition(self, p):
         '''mode_definition : identifier_list ASSIGN mode'''
@@ -194,12 +200,12 @@ class Parser:
 
     def p_formal_parameter_list(self, p):
         '''formal_parameter_list : formal_parameter
-                                 | formal_parameter COMMA formal_parameter'''
+                                 | formal_parameter COMMA formal_parameter_list'''
         if len(p) == 2:
             p[0] = [p[1]]
-        elif len(p) == 4:
-            p[0] = [p[1]]
-            p[0].append(p[3])
+        elif len(p) > 3:
+            p[0] = p[3]
+            p[0].append(p[1])
 
     def p_formal_parameter(self, p):
         '''formal_parameter : identifier_list mode LOC
@@ -304,9 +310,11 @@ class Parser:
     def p_index_mode_list(self, p):
         '''index_mode_list : index_mode
                            | index_mode COMMA index_mode_list'''
-        p[0] = [p[1]]
-        if (len(p) > 2):
-            p[0].append(p[3])
+        if len(p) == 2:
+            p[0] = [p[1]]
+        elif len(p) > 3:
+            p[0] = p[3]
+            p[0].append(p[1])
 
     def p_index_mode(self, p):
         '''index_mode : discrete_mode
@@ -583,15 +591,18 @@ class Parser:
     # '''
 
     def p_action_statement(self,p):
-        '''action_statement : identifier COLON action 
-                            | action'''
+        '''action_statement : identifier COLON action SEMI
+                            | action SEMI'''
         p[0] = ActionStatement(p[1] if len(p) == 4 else None,
                                p[3] if len(p) == 4 else p[1])
 
-    #TODO call_action, exit_action, result_action, return_action
     def p_action(self,p):
         '''action : bracketed_action
-                  | assignment_action'''
+                  | assignment_action
+                  | call_action
+                  | exit_action
+                  | result_action
+                  | return_action'''
         p[0] = p[1]
           
     #TODO do_action
@@ -656,6 +667,68 @@ class Parser:
                 p[0] = p[1]
         else:
             pass
+
+
+    # '''
+    # CALL ACTION
+    # '''
+
+    def p_call_action(self, p):
+        '''call_action : procedure_call
+                       | builtin_call'''
+        p[0] = CallAction(p[1])
+
+    def p_builtin_call(self, p):
+        '''builtin_call : builtin_name LPAREN parameter_list RPAREN
+                        | builtin_name LPAREN RPAREN'''
+        p[0] = BuiltinCall(p[1],p[3] if len(p) == 5 else None)
+
+
+    def p_builtin_name(self, p):
+        '''builtin_name : ABS
+                        | ASC
+                        | NUM
+                        | UPPER
+                        | LOWER
+                        | LENGTH
+                        | READ
+                        | PRINT'''
+        p[0] = p[1]
+
+    def p_procedure_call(self, p):
+        '''procedure_call : ID LPAREN parameter_list RPAREN
+                          | ID LPAREN RPAREN'''
+        p[0] = ProcedureCall(p[1],p[3] if len(p) == 5 else None)
+
+    def p_parameter_list(self, p):
+        '''parameter_list : expression
+                          | expression COMMA parameter_list'''
+        if len(p) == 2:
+            p[0] = [p[1]]
+        elif len(p) > 3:
+            p[0] = p[3]
+            p[0].append(p[1])
+
+    def p_exit_action(self, p):
+        '''exit_action : EXIT label_id'''
+        p[0] = ExitAction(p[2])
+
+    def p_label_id(self, p):
+        '''label_id : ID'''
+        p[0] = p[1]
+
+    def p_return_action(self, p):
+        '''return_action : RETURN result'''
+        p[0] = ReturnAction(p[2])
+
+    def p_result(self, p):
+        '''result : expression
+                  | empty'''
+        p[0] = p[1]
+    def p_result_action(self, p):
+        '''result_action : RESULT expression'''
+        p[0] = ResultAction(p[2])
+
 
 
 
