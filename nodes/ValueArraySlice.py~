@@ -1,0 +1,4 @@
+from .AST import AST
+
+class ValueArrayList(AST):
+    _fields = ['array_primitive_value','lower','upper']

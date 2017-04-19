@@ -1,6 +1,8 @@
 import ply.yacc as yacc
 
 from Tokenizer import Tokenizer
+from nodes.ConditionalExpression import ConditionalExpression
+from nodes.ElsifExpression import ElsifExpression
 from nodes.NewModeStatement import NewModeStatement
 from nodes.AST import AST
 from nodes.DeclarationStatement import DeclarationStatement
@@ -28,6 +30,12 @@ from nodes.StringSlice import StringSlice
 from nodes.ArrayElement import ArrayElement
 from nodes.ArraySlice import ArraySlice
 from nodes.ReferencedLocation import ReferencedLocation
+from nodes.ValueArrayElement import ValueArrayElement
+from nodes.ValueArraySlice import ValueArraySlice
+from nodes.ActionStatement import ActionStatement
+from nodes.AssigmentAction import AssigmentAction
+from nodes.AssigningOperator import AssigningOperator
+from nodes.ConditionalClause import ConditionalClause
 
 class Parser:
 
@@ -63,11 +71,12 @@ class Parser:
         else:
             pass
 
-	# TODO: procedure_statement, action_statement
+	# TODO: procedure_statement
     def p_statement(self, p):
         '''statement : declaration_statement
                      | synonym_statement
-                     | newmode_statement'''
+                     | newmode_statement
+                     | action_statement'''
         p[0] = p[1]
 
 
@@ -267,7 +276,7 @@ class Parser:
         p[0] = Location(p[1])
 	
     def p_dereferenced_reference(self,p):
-        '''dereferenced_reference : location ARROW'''
+        '''dereferenced_reference : array_location ARROW'''
         p[0] = DereferencedLocation(p[1])
 	
     def p_string_element(self,p):
@@ -314,11 +323,42 @@ class Parser:
     # EXPRESSION
     # '''
 
-    # TODO: FALTA CONDITIONAL EXPRESSION
     def p_expression(self,p):
-        '''expression : operand0'''
+        '''expression : operand0
+                      | conditional_expression'''
         p[0] = Expression(p[1])
+        
+    def p_parenthesized_expression(self,p):
+        '''parenthesized_expression : LPAREN expression RPAREN'''
+        p[0] = p[1]
 
+    # '''
+    # Conditional Expression
+    # '''
+    
+    def p_conditional_expression(self,p):
+        '''conditional_expression : IF expression then_expression else_expression FI
+                                  | IF expression then_expression elsif_expression else_expression FI'''
+        p[0] = ConditionalExpression(p[2], p[3], p[4] if len(p) > 6 else None, p[4] if len(p) <= 6 else p[5])
+
+    def p_then_expression(self,p):
+        '''then_expression : THEN expression'''
+        p[0] = p[2]
+
+    def p_else_expression(self,p):
+        '''else_expression : ELSE expression'''
+        p[0] = p[2]
+        
+    def p_elsif_expression(self,p):
+        '''elsif_expression : ELSIF expression then_expression
+                            | elsif_expression ELSIF expression then_expression'''
+        if len(p) <= 4:
+            p[0] = [ElsifExpression(p[2],p[3])]
+        else:
+            p[0] = p[1]
+            p[0].append(ElsifExpression(p[3], p[4]))
+            
+            
     # '''
     # OPERAND
     # '''
@@ -416,14 +456,15 @@ class Parser:
         p[0] = p[1]
 
 
-
     # '''
     # PRIMITIVE VALUES
     # '''
-    # TODO: SOH LITERAIS POR ENQUANTO
 
     def p_primitive_value(self,p):
-        '''primitive_value : literal'''
+        '''primitive_value : literal
+                           | value_array_element
+                           | value_array_slice
+                           | parenthesized_expression'''
         p[0] = p[1]
 
     def p_literal(self,p):
@@ -433,6 +474,19 @@ class Parser:
                    | empty_literal
                    | character_string_literal'''
         p[0] = p[1]
+        
+    def p_value_array_element(self,p):
+        '''value_array_element : primitive_value LBRACKET expression_list RBRACKET'''
+        p[0] = ValueArrayElement(p[1],p[3])
+        
+    def p_value_array_slice(self,p):
+        '''value_array_slice : primitive_value LBRACKET expression COLON expression RBRACKET'''
+        p[0] = ValueArrayList(p[1],p[3],p[5])
+    
+    #def p_array_primitive_value(self,p):
+    #    '''array_primitive_value : primitive_value'''
+    #    p[0] = p[1]
+        
     def p_integer_literal(self,p):
         '''integer_literal : ICONST'''
         p[0] = IntegerLiteral(p[1])
@@ -446,7 +500,6 @@ class Parser:
         '''character_literal : CCONST'''
         p[0] = CharLiteral(p[1])
 
-
     def p_empty_literal(self,p):
         '''empty_literal : NULL'''
         p[0] = NullLiteral(p[1])
@@ -454,6 +507,89 @@ class Parser:
     def p_character_string_literal(self,p):
         '''character_string_literal : SCONST'''
         p[0] = StringLiteral(p[1])
+
+
+
+    # '''
+    # ACTION STATEMENT
+    # '''
+
+    def p_action_statement(self,p):
+        '''action_statement : identifier COLON action 
+                            | action'''
+        p[0] = ActionStatement(p[1] if len(p) == 4 else None,
+                               p[3] if len(p) == 4 else p[1])
+
+    #TODO call_action, exit_action, result_action, return_action
+    def p_action(self,p):
+        '''action : bracketed_action
+                  | assignment_action'''
+        p[0] = p[1]
+          
+    #TODO do_action
+    def p_bracketed_action(self,p):
+        '''bracketed_action : if_action'''
+        p[0] = p[1]
+    
+    def p_assignment_action(self,p):
+        '''assignment_action : array_location assigning_operator expression'''
+        p[0] = AssigmentAction(p[1],p[2],p[3])
+
+    def p_assigning_operator(self,p):
+        '''assigning_operator : closed_dyadic_operator ASSIGN
+                              | ASSIGN'''
+        p[0] = AssigningOperator(p[1] if len(p) == 3 else None)
+    
+    def p_closed_dyadic_operator(self,p):
+        '''closed_dyadic_operator : arithmetic_additive_operator
+                                  | arithmetic_multiplicative_operator
+                                  | string_concatenation_operator'''
+        p[0] = p[1]
+        
+    def p_if_action(self,p):
+        '''if_action : IF expression then_clause else_clause FI
+                     | IF expression then_clause'''
+        p[0] = ConditionalClause(p[2],[3], p[4] if len(p) == 6 else None, None) 
+    
+    def p_then_clause(self,p):
+        '''then_clause : THEN action_statement_list'''
+        p[0] = p[2]
+
+    def p_else_clause(self,p):
+        '''else_clause : ELSE action_statement_list
+                       | ELSIF expression then_clause else_clause
+                       | ELSIF expression then_clause'''    
+        if len(p) == 3:
+            p[0] = p[1]
+        elif len(p) == 4:
+            p[0] = ConditionalClause(p[2],p[3],None)
+        elif len(p) == 5:
+            p[0] = ConditionalClause(p[2],p[3],p[4])
+        else:
+            pass
+
+    def p_action_statement_list(self,p):
+        '''action_statement_list : action_statement action_statement_nullable'''
+        if len(p) == 3:	
+            if p[2] is not None:
+                p[0] = p[2] + [p[1]]
+            else:
+                p[0] = [p[1]]
+        else:
+            pass
+
+    def p_action_statement_nullable(self,p):
+        '''action_statement_nullable : action_statement action_statement_nullable
+                                     | empty'''    
+        if len(p) == 3:	
+            if p[2] is not None:
+                p[0] = p[2] + [p[1]]
+            else:
+                p[0] = p[1]
+        else:
+            pass
+
+
 
     # empty
     def p_empty(self, p):

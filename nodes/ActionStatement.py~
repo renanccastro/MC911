@@ -1,5 +1,4 @@
 from .AST import AST
 
-
-class Expression(AST):
+class ActionStatement(AST):
     _fields = ['value']
