@@ -75,12 +75,12 @@ class Parser:
         else:
             pass
 
-	# TODO: procedure_statement
     def p_statement(self, p):
         '''statement : declaration_statement
                      | synonym_statement
                      | newmode_statement
-                     | action_statement'''
+                     | action_statement
+                     | procedure_statement'''
         p[0] = p[1]
 
     # '''
@@ -394,14 +394,8 @@ class Parser:
     # '''
     # Conditional Expression
     # '''
-<<<<<<< HEAD
-    
-    def p_conditional_expression(self,p):
-=======
-
     # <editor-fold desc="conditional_expression">
     def p_conditional_expression(self, p):
->>>>>>> 88849d3a870dbf73feac61d54ae8a198c1391559
         '''conditional_expression : IF expression then_expression else_expression FI
                                   | IF expression then_expression elsif_expression else_expression FI'''
         p[0] = ConditionalExpression(p[2], p[3], p[4] if len(p) > 6 else None, p[4] if len(p) <= 6 else p[5])
@@ -413,13 +407,8 @@ class Parser:
     def p_else_expression(self, p):
         '''else_expression : ELSE expression'''
         p[0] = p[2]
-<<<<<<< HEAD
-        
-    def p_elsif_expression(self,p):
-=======
 
     def p_elsif_expression(self, p):
->>>>>>> 88849d3a870dbf73feac61d54ae8a198c1391559
         '''elsif_expression : ELSIF expression then_expression
                             | elsif_expression ELSIF expression then_expression'''
         if len(p) <= 4:
@@ -427,13 +416,9 @@ class Parser:
         else:
             p[0] = p[1]
             p[0].append(ElsifExpression(p[3], p[4]))
-<<<<<<< HEAD
-            
-            
-=======
+
     # </editor-fold>
 
->>>>>>> 88849d3a870dbf73feac61d54ae8a198c1391559
     # '''
     # OPERAND
     # '''
@@ -533,30 +518,24 @@ class Parser:
     def p_membership_operator(self, p):
         '''membership_operator : IN'''
         p[0] = p[1]
-<<<<<<< HEAD
 
-=======
     # </editor-fold>
->>>>>>> 88849d3a870dbf73feac61d54ae8a198c1391559
 
     # '''
     # PRIMITIVE VALUES
     # '''
-<<<<<<< HEAD
 
     def p_primitive_value(self,p):
         '''primitive_value : literal
                            | value_array_element
                            | value_array_slice
                            | parenthesized_expression'''
-=======
 
     # TODO: SOH LITERAIS POR ENQUANTO
 
     # <editor-fold desc="primitive_values">
     def p_primitive_value(self, p):
         '''primitive_value : literal'''
->>>>>>> 88849d3a870dbf73feac61d54ae8a198c1391559
         p[0] = p[1]
 
     def p_literal(self, p):
@@ -566,7 +545,6 @@ class Parser:
                    | empty_literal
                    | character_string_literal'''
         p[0] = p[1]
-<<<<<<< HEAD
         
     def p_value_array_element(self,p):
         '''value_array_element : primitive_value LBRACKET expression_list RBRACKET'''
@@ -581,10 +559,6 @@ class Parser:
     #    p[0] = p[1]
         
     def p_integer_literal(self,p):
-=======
-
-    def p_integer_literal(self, p):
->>>>>>> 88849d3a870dbf73feac61d54ae8a198c1391559
         '''integer_literal : ICONST'''
         p[0] = IntegerLiteral(p[1])
 
@@ -597,11 +571,7 @@ class Parser:
         '''character_literal : CCONST'''
         p[0] = CharLiteral(p[1])
 
-<<<<<<< HEAD
     def p_empty_literal(self,p):
-=======
-    def p_empty_literal(self, p):
->>>>>>> 88849d3a870dbf73feac61d54ae8a198c1391559
         '''empty_literal : NULL'''
         p[0] = NullLiteral(p[1])
 
@@ -704,3 +674,4 @@ class Parser:
 
     def build(self):
         self.parser = yacc.yacc(module=self)
+        

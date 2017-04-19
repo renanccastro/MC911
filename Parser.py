@@ -75,12 +75,12 @@ class Parser:
         else:
             pass
 
-	# TODO: procedure_statement
     def p_statement(self, p):
         '''statement : declaration_statement
                      | synonym_statement
                      | newmode_statement
-                     | action_statement'''
+                     | action_statement
+                     | procedure_statement'''
         p[0] = p[1]
 
     # '''
