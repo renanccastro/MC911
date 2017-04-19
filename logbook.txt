@@ -34,3 +34,8 @@ ainda não funcionam
 16 de Abril
 ===========
 Wendrey: Adicionando regras de Location no Parser. Tenho que resolver conflitos
+
+18 de Abril
+===========
+Wendrey: Adicionando action statements e alguns outros.
+

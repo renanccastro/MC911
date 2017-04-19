@@ -525,17 +525,13 @@ class Parser:
     # PRIMITIVE VALUES
     # '''
 
+    # <editor-fold desc="primitive_values">
+
     def p_primitive_value(self,p):
         '''primitive_value : literal
                            | value_array_element
                            | value_array_slice
                            | parenthesized_expression'''
-
-    # TODO: SOH LITERAIS POR ENQUANTO
-
-    # <editor-fold desc="primitive_values">
-    def p_primitive_value(self, p):
-        '''primitive_value : literal'''
         p[0] = p[1]
 
     def p_literal(self, p):
@@ -621,7 +617,7 @@ class Parser:
     def p_if_action(self,p):
         '''if_action : IF expression then_clause else_clause FI
                      | IF expression then_clause'''
-        p[0] = ConditionalClause(p[2],[3], p[4] if len(p) == 6 else None, None) 
+        p[0] = ConditionalClause(p[2],[3], p[4] if len(p) == 6 else None) 
     
     def p_then_clause(self,p):
         '''then_clause : THEN action_statement_list'''
