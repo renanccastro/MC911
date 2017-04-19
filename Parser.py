@@ -46,7 +46,10 @@ from nodes.ActionStatement import ActionStatement
 from nodes.AssigmentAction import AssigmentAction
 from nodes.AssigningOperator import AssigningOperator
 from nodes.ConditionalClause import ConditionalClause
-
+from nodes.DoAction import DoAction
+from nodes.ControlPart import ControlPart 
+from nodes.StepEnumeration import StepEnumeration
+from nodes.RangeEnumeration import RangeEnumeration
 
 class Parser:
     tokens = Tokenizer.tokens
@@ -605,9 +608,9 @@ class Parser:
                   | return_action'''
         p[0] = p[1]
           
-    #TODO do_action
     def p_bracketed_action(self,p):
-        '''bracketed_action : if_action'''
+        '''bracketed_action : if_action
+                            | do_action'''
         p[0] = p[1]
     
     def p_assignment_action(self,p):
@@ -729,7 +732,67 @@ class Parser:
         '''result_action : RESULT expression'''
         p[0] = ResultAction(p[2])
 
+    # '''
+    # DO ACTION
+    # '''
+    
+    def p_do_action(self,p):
+        '''do_action : DO control_part SEMI action_statement_nullable OD
+                     | DO action_statement_nullable OD'''
+        if len(p) == 6:
+            p[0] = DoAction(p[2],p[4])
+        elif len(p) == 4:
+            p[0] = DoAction(None,p[2])
 
+    def p_control_part(self,p):
+        '''control_part : for_control while_control 
+                        | for_control   
+                        | while_control'''
+        p[0] = ControlPart(p[1], p[2] if len(p) == 3 else None)
+
+    def p_for_control(self,p):
+        '''for_control : FOR iteration'''
+        p[0] = p[2]
+        
+    def p_iteration(self,p):
+        '''iteration : step_enumeration
+                     | range_enumeration'''
+        p[0] = p[1]
+
+    def p_step_enumeration(self,p):
+        '''step_enumeration : identifier ASSIGN expression step_value DOWN end_value 
+                            | identifier ASSIGN expression step_value end_value 
+                            | identifier ASSIGN expression DOWN end_value 
+                            | identifier ASSIGN expression end_value''' 
+        if len(p) == 5:
+            p[0] = StepEnumeration(p[1],p[3],None,None,p[4])
+        elif len(p) == 6:
+            if p[4] == 'DOWN':
+                p[0] = StepEnumeration(p[1],p[3],None,'DOWN',p[5])
+            else:
+                p[0] = StepEnumeration(p[1],p[3],p[4],None,p[5])
+        else:
+            p[0] = StepEnumeration(p[1],p[3],p[4],'DOWN',p[6])
+            
+    def p_step_value(self,p):
+        '''step_value : BY expression'''
+        p[0] = p[2]
+    
+    def p_end_value(self,p):
+        '''end_value : TO expression'''
+        p[0] = p[2]
+
+    def p_range_enumeration(self,p):
+        '''range_enumeration : identifier DOWN IN discrete_mode
+                             | identifier IN discrete_mode'''
+        if len(p) == 4:
+            p[0] = RangeEnumeration(p[1], 'DOWN', p[4])
+        else:
+            p[0] = RangeEnumeration(p[1], None, p[3])            
+    
+    def p_while_control(self,p):
+        '''while_control : WHILE expression'''    
+        p[0] = p[2]
 
 
     # empty
