@@ -39,3 +39,6 @@ Wendrey: Adicionando regras de Location no Parser. Tenho que resolver conflitos
 ===========
 Wendrey: Adicionando action statements e alguns outros.
 
+20 de Abril
+===========
+Wendrey: Analise sintatica ok
