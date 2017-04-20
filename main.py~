@@ -11,12 +11,12 @@ if __name__ == "__main__":
 
     if filename != 'main.py':
 
-        with open(filename, 'r') as content_file:
-            content = content_file.read()
-            tokenizer.tokenize(content)
-            parser.build()
-            result = parser.parser.parse(content)
-            print(result)        
+    with open(filename, 'r') as content_file:
+        content = content_file.read()
+        tokenizer.tokenize(content)
+        parser.build()
+        result = parser.parser.parse(content)
+        print(result)        
 
 
     # TODO: TROCAR PARA LER DE UM ARQUIVO, POR ENQUANTO TA PEGANDO DO CONSOLE PRA TESTES

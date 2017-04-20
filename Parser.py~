@@ -334,15 +334,14 @@ class Parser:
     # '''
 
     # <editor-fold desc="location">
-
+    # TODO call_action
     def p_location(self, p):
         '''location : identifier
 				    | dereferenced_reference
 				    | string_element
 				    | string_slice
 				    | array_element
-				    | array_slice
-				    | call_action'''
+				    | array_slice'''
         p[0] = Location(p[1])
 
     def p_dereferenced_reference(self, p):
