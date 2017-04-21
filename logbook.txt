@@ -41,4 +41,4 @@ Wendrey: Adicionando action statements e alguns outros.
 
 20 de Abril
 ===========
-Wendrey: Analise sintatica ok
+Wendrey: Analise sintatica ok. Node visitor : imprimindo ast

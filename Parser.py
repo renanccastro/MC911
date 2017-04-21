@@ -65,8 +65,9 @@ class Parser:
         'statement_list : statement statement_nullable'
         if len(p) == 3:
             if p[2] is not None:
-                p[0] = p[2]
-                p[0].append(p[1])
+                p[0] = [p[1]] + p[2]
+#                p[0] = p[2]
+#                p[0].append(p[1])
             else:
                 p[0] = [p[1]]
         else:
@@ -77,8 +78,9 @@ class Parser:
                               | empty'''
         if len(p) == 3:
             if p[2] is not None:
-                p[0] = p[2]
-                p[0].append(p[1])
+                p[0] = [p[1]] + p[2]
+#                p[0] = p[2]
+#                p[0].append(p[1])
             else:
                 p[0] = [p[1]]
         else:
@@ -154,8 +156,9 @@ class Parser:
         if len(p) == 2:
             p[0] = [Identifier(p[1])]
         elif len(p) > 3:
-            p[0] = p[3]
-            p[0].append(Identifier(p[1]))
+            p[0] = [Identifier(p[1])] + p[3]
+#            p[0] = p[3]
+#            p[0].append(Identifier(p[1]))
 
     def p_identifier(self, p):
         '''identifier : ID'''
@@ -178,8 +181,9 @@ class Parser:
         if len(p) == 2:
             p[0] = [p[1]]
         elif len(p) > 3:
-            p[0] = p[3]
-            p[0].append(p[1])
+            p[0] = [p[1]] + p[3]
+#            p[0] = p[3]
+#            p[0].append(p[1])
 
     def p_mode_definition(self, p):
         '''mode_definition : identifier_list ASSIGN mode'''
@@ -207,8 +211,9 @@ class Parser:
         if len(p) == 2:
             p[0] = [p[1]]
         elif len(p) > 3:
-            p[0] = p[3]
-            p[0].append(p[1])
+            p[0] = [p[1]] + p[3]
+#            p[0] = p[3]
+#            p[0].append(p[1])
 
     def p_formal_parameter(self, p):
         '''formal_parameter : identifier_list mode LOC
@@ -316,8 +321,9 @@ class Parser:
         if len(p) == 2:
             p[0] = [p[1]]
         elif len(p) > 3:
-            p[0] = p[3]
-            p[0].append(p[1])
+            p[0] = [p[1]] + p[3]
+#            p[0] = p[3]
+#            p[0].append(p[1])
 
     def p_index_mode(self, p):
         '''index_mode : discrete_mode
@@ -622,7 +628,7 @@ class Parser:
     def p_assigning_operator(self,p):
         '''assigning_operator : closed_dyadic_operator ASSIGN
                               | ASSIGN'''
-        p[0] = AssigningOperator(p[1] if len(p) == 3 else None, None)
+        p[0] = AssigningOperator(p[1] if len(p) == 3 else None, '=')
     
     def p_closed_dyadic_operator(self,p):
         '''closed_dyadic_operator : arithmetic_additive_operator
@@ -656,8 +662,9 @@ class Parser:
         '''action_statement_list : action_statement action_statement_nullable'''
         if len(p) == 3:
             if p[2] is not None:
-                p[0] = p[2]
-                p[0].append(p[1])
+                p[0] = [p[1]] + p[2]
+#                p[0] = p[2]
+#                p[0].append(p[1])
             else:
                 p[0] = [p[1]]
         else:
@@ -668,8 +675,9 @@ class Parser:
                                      | empty'''    
         if len(p) == 3:
             if p[2] is not None:
-                p[0] = p[2]
-                p[0].append(p[1])
+                p[0] = [p[1]] + p[2]
+#                p[0] = p[2]
+#                p[0].append(p[1])
             else:
                 p[0] = [p[1]]
         else:
@@ -713,8 +721,9 @@ class Parser:
         if len(p) == 2:
             p[0] = [p[1]]
         elif len(p) > 3:
-            p[0] = p[3]
-            p[0].append(p[1])
+            p[0] = [p[1]] + p[3]
+#            p[0] = p[3]
+#            p[0].append(p[1])
 
     def p_exit_action(self, p):
         '''exit_action : EXIT label_id'''

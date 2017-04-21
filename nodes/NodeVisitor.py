@@ -1,7 +1,7 @@
 from nodes.AST import AST
 import sys
 
-k = 0
+k = 1
 
 class NodeVisitor(object) :
     
@@ -25,19 +25,20 @@ class NodeVisitor(object) :
         """
         global k
         for field in getattr(node,"_fields"):
-            print(field)
+            sys.stdout.write('-- '*k)
             value = getattr(node,field,None)
+            if str(value)[0] != '<' and str(value)[-1] != '>' :
+                print(str(field) + ' : ' + str(value))
+            else :
+                print(field)
             if isinstance(value, list):
                 for item in value:
+                    print(item,value)
                     if isinstance(item,AST):
                         k = k + 1
-                        for n in range(k):
-                            sys.stdout.write('-')
                         self.visit(item)
             elif isinstance(value, AST):
                 k = k + 1
-                for n in range(k):
-                    sys.stdout.write('-')
                 self.visit(value)
         k = k - 1
             
