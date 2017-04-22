@@ -7,6 +7,8 @@ from nodes.Actions.ResultAction import ResultAction
 from nodes.Actions.ReturnAction import ReturnAction
 from nodes.BuiltinCall import BuiltinCall
 from nodes.ConditionalExpression import ConditionalExpression
+from nodes.Control.ForControl import ForControl
+from nodes.Control.WhileControl import WhileControl
 from nodes.ElsifExpression import ElsifExpression
 from nodes.NewModeStatement import NewModeStatement
 from nodes.AST import AST
@@ -408,7 +410,7 @@ class Parser:
         
     def p_parenthesized_expression(self,p):
         '''parenthesized_expression : LPAREN expression RPAREN'''
-        p[0] = p[1]
+        p[0] = p[2]
 
     # '''
     # Conditional Expression
@@ -765,7 +767,7 @@ class Parser:
 
     def p_for_control(self,p):
         '''for_control : FOR iteration'''
-        p[0] = p[2]
+        p[0] = ForControl(p[2])
         
     def p_iteration(self,p):
         '''iteration : step_enumeration
@@ -773,10 +775,10 @@ class Parser:
         p[0] = p[1]
 
     def p_step_enumeration(self,p):
-        '''step_enumeration : identifier ASSIGN expression step_value DOWN end_value 
-                            | identifier ASSIGN expression step_value end_value 
-                            | identifier ASSIGN expression DOWN end_value 
-                            | identifier ASSIGN expression end_value''' 
+        '''step_enumeration : identifier ASSIGN expression step_value DOWN end_value
+                            | identifier ASSIGN expression step_value end_value
+                            | identifier ASSIGN expression DOWN end_value
+                            | identifier ASSIGN expression end_value'''
         if len(p) == 5:
             p[0] = StepEnumeration(p[1],p[3],None,None,p[4])
         elif len(p) == 6:
@@ -805,7 +807,7 @@ class Parser:
     
     def p_while_control(self,p):
         '''while_control : WHILE expression'''    
-        p[0] = p[2]
+        p[0] = WhileControl(p[2])
 
 
     # empty
