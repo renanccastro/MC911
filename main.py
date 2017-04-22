@@ -15,9 +15,9 @@ if __name__ == "__main__" :
 
         with open(filename, 'r') as content_file:
             content = content_file.read()
-            tokenizer.tokenize(content)
+            tokenizer.build()
             parser.build()
-            result = parser.parser.parse(content)
+            result = parser.parser.parse(content, tracking=True)
             print(result)
             print('-----------------------------------------------------------')
             ast = visitor.visit(result)
