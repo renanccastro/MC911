@@ -1,6 +1,6 @@
 
 /* example1: */
-dcl m,n,s int;
+dcl m,n,s int = m <= n;
 
 read(m,n);
 s = 0;
