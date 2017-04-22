@@ -203,7 +203,7 @@ class Parser:
     def p_procedure_definition(self, p):
         '''procedure_definition : PROC LPAREN formal_parameter_list RPAREN result_spec SEMI statement_nullable END SEMI
                                 | PROC LPAREN formal_parameter_list RPAREN SEMI statement_nullable END SEMI'''
-        p[0] = ProcedureDefinition(p[3], p[5] if len(p) == 10 else None , p[7])
+        p[0] = ProcedureDefinition(p[3], p[5] if len(p) == 10 else None , p[7] if len(p) == 10 else p[6])
 
     def p_formal_parameter_list(self, p):
         '''formal_parameter_list : formal_parameter
@@ -639,7 +639,7 @@ class Parser:
     def p_if_action(self,p):
         '''if_action : IF expression then_clause else_clause FI
                      | IF expression then_clause FI'''
-        p[0] = ConditionalClause(p[2],[3], p[4] if len(p) == 6 else None) 
+        p[0] = ConditionalClause(p[2],p[3], p[4] if len(p) == 6 else None)
     
     def p_then_clause(self,p):
         '''then_clause : THEN action_statement_list'''
@@ -650,7 +650,7 @@ class Parser:
                        | ELSIF expression then_clause else_clause
                        | ELSIF expression then_clause'''    
         if len(p) == 3:
-            p[0] = p[1]
+            p[0] = p[2]
         elif len(p) == 4:
             p[0] = ConditionalClause(p[2],p[3],None)
         elif len(p) == 5:
