@@ -2,6 +2,7 @@ from nodes.AST import AST
 from nodes.DiscreteMode import *
 from nodes.Literal import StringLiteral
 from semantic.Environment import Environment
+from semantic.ExprType import *
 from semantic.SymbolTable import SymbolTable
 
 k = 1
@@ -11,10 +12,10 @@ class NodeVisitor(object) :
     def __init__ (self):
         self.environment = Environment()
         self.typemap = {
-            "int": IntegerMode,
-            "char": CharMode,
-            "string": StringLiteral,
-            "bool": BooleanMode
+            "int": int_type,
+            "char": char_type,
+            "string": string_type,
+            "bool": bool_type
         }
     
     def visit(self,node):
@@ -61,6 +62,14 @@ class NodeVisitor(object) :
         node.symtab = self.environment.peek()
         # Visit all of the statements
         for statement in node.statements: self.visit(statement)
+
+
+    def visit_NewModeStatement(self, node):
+        # TODO: AQUI DEVE PERCORRER E GUARDAR EM OUTRO MAPA OS NOVOS TIPOS DEFINIDOSa
+        mode_definition_list = node.mode_definition_list
+        for mode_definition in mode_definition_list:
+            for identifier in mode_definition.identifier_list:
+                self.environment.typeTable.add()
 
     def visit_Declaration(self,node):
         variable_list = node.identifier

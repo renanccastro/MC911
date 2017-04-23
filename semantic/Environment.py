@@ -6,6 +6,7 @@ class Environment(object):
     def __init__(self):
         self.stack = []
         self.root = SymbolTable()
+        self.typeTable = SymbolTable()
         self.stack.append(self.root)
         self.root.update({
             "int": int_type,
