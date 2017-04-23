@@ -1,9 +1,8 @@
-from Tokenizer import Tokenizer
-from Parser import Parser
-from nodes.AST import AST
-from nodes.NodeVisitor import NodeVisitor
 import sys
 
+from Parser import Parser
+from Tokenizer import Tokenizer
+from semantic.NodeVisitor import NodeVisitor
 
 if __name__ == "__main__" :
     filename = sys.argv[-1]

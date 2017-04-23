@@ -1,13 +1,21 @@
 from nodes.AST import AST
-from SymbolTable import SymbolTable
-import sys
+from nodes.DiscreteMode import *
+from nodes.Literal import StringLiteral
+from semantic.Environment import Environment
+from semantic.SymbolTable import SymbolTable
 
 k = 1
 
 class NodeVisitor(object) :
     
     def __init__ (self):
-        self.st = SymbolTable()
+        self.environment = Environment()
+        self.typemap = {
+            "int": IntegerMode,
+            "char": CharMode,
+            "string": StringLiteral,
+            "bool": BooleanMode
+        }
     
     def visit(self,node):
         """
@@ -46,11 +54,19 @@ class NodeVisitor(object) :
                 k = k + 1
                 self.visit(value)
         k = k - 1
-            
+
+    def visit_Program(self, node):
+        self.environment.push(node)
+        node.environment = self.environment
+        node.symtab = self.environment.peek()
+        # Visit all of the statements
+        for statement in node.statements: self.visit(statement)
+
     def visit_Declaration(self,node):
-        variable_list = getattr(node,"identifier")
+        variable_list = node.identifier
+        node.symtab = self.environment.peek()
         for item in variable_list:
-            variable = getattr(item,"identifier")
-            self.st.add(variable,None)
+            variable = item.identifier
+            node.symtab.add(variable,node.mode)
             print (variable)    
         
