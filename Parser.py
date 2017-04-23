@@ -257,15 +257,15 @@ class Parser:
 
     def p_integer_mode(self, p):
         'integer_mode : INT'
-        p[0] = IntegerMode(lineno=p.lineno(1))
+        p[0] = IntegerMode('int',lineno=p.lineno(1))
 
     def p_boolean_mode(self, p):
         'boolean_mode : BOOL'
-        p[0] = BooleanMode(lineno=p.lineno(1))
+        p[0] = BooleanMode('bool', lineno=p.lineno(1))
 
     def p_character_mode(self, p):
         'character_mode : CHAR'
-        p[0] = CharMode(lineno=p.lineno(1))
+        p[0] = CharMode('char', lineno=p.lineno(1))
 
     # </editor-fold>
 
@@ -306,7 +306,7 @@ class Parser:
 
     def p_string_mode(self, p):
         '''string_mode : CHARS LBRACKET string_length RBRACKET'''
-        p[0] = StringMode(p[3], lineno=p.lineno(1))
+        p[0] = StringMode(p[3], 'string',  lineno=p.lineno(1))
 
     def p_string_length(self, p):
         '''string_length : integer_literal'''
@@ -576,24 +576,24 @@ class Parser:
         
     def p_integer_literal(self,p):
         '''integer_literal : ICONST'''
-        p[0] = IntegerLiteral(p[1], lineno=p.lineno(1))
+        p[0] = IntegerLiteral(p[1], 'int', lineno=p.lineno(1))
 
     def p_boolean_literal(self, p):
         '''boolean_literal : TRUE
                            | FALSE'''
-        p[0] = BoolLiteral(p[1], lineno=p.lineno(1))
+        p[0] = BoolLiteral(p[1], 'bool' , lineno=p.lineno(1))
 
     def p_character_literal(self, p):
         '''character_literal : CCONST'''
-        p[0] = CharLiteral(p[1], lineno=p.lineno(1))
+        p[0] = CharLiteral(p[1], 'char', lineno=p.lineno(1))
 
     def p_empty_literal(self,p):
         '''empty_literal : NULL'''
-        p[0] = NullLiteral(lineno=p.lineno(1))
+        p[0] = NullLiteral('null', lineno=p.lineno(1))
 
     def p_character_string_literal(self, p):
         '''character_string_literal : SCONST'''
-        p[0] = StringLiteral(p[1], lineno=p.lineno(1))
+        p[0] = StringLiteral(p[1], 'string', lineno=p.lineno(1))
     # </editor-fold>
 
 

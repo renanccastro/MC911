@@ -2,11 +2,11 @@ from .AST import AST
 
 
 class IntegerMode(AST):
-    _fields = []
+    _fields = ['type']
 class CharMode(AST):
-    _fields = []
+    _fields = ['type']
 class BooleanMode(AST):
-    _fields = []
+    _fields = ['type']
 
 class DiscreteModeName(AST):
     _fields = ['name']

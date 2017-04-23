@@ -60,22 +60,38 @@ class NodeVisitor(object) :
         self.environment.push(node)
         node.environment = self.environment
         node.symtab = self.environment.peek()
-        # Visit all of the statements
+        # Visit all statements
         for statement in node.statements: self.visit(statement)
 
 
     def visit_NewModeStatement(self, node):
-        # TODO: AQUI DEVE PERCORRER E GUARDAR EM OUTRO MAPA OS NOVOS TIPOS DEFINIDOSa
+        # TODO: AQUI DEVE PERCORRER E GUARDAR EM OUTRO MAPA OS NOVOS TIPOS DEFINIDOS
         mode_definition_list = node.mode_definition_list
         for mode_definition in mode_definition_list:
-            for identifier in mode_definition.identifier_list:
-                self.environment.typeTable.add()
+            for obj in mode_definition.identifier_list:
+                self.typemap[obj.identifier] = ExprType(obj.identifier)
+
+    def visit_SynonymStatement(self, node):
+        # Visit all of the synonyms
+        for syn in node.synonym_list:
+            self.visit(syn)
+
+    def visit_SynonymDeclaration(self, node):
+        node.symtab = self.environment.peek()
+        for obj in node.identifiers:
+            node.symtab.add(obj.identifier,self.typemap[node.mode.type])
+
+    def visit_ProcedureStatement(self, node):
+
+        self.environment.peek().add(node.name, )
+
 
     def visit_Declaration(self,node):
         variable_list = node.identifier
         node.symtab = self.environment.peek()
         for item in variable_list:
             variable = item.identifier
-            node.symtab.add(variable,node.mode)
+            node.symtab.add(variable,self.typemap[node.mode.type])
             print (variable)    
         
+    def visit_Location
