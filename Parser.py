@@ -112,7 +112,7 @@ class Parser:
         if (len(p) > 2):
             p[0].append(p[3])
 
-            # Substituido constant_expression por expression, jah que eh igual
+        # Substituido constant_expression por expression, jah que eh igual
         # 'constante_expression : expression'
 
     def p_synonym_definition(self, p):
@@ -140,8 +140,8 @@ class Parser:
         if len(p) == 2:
             p[0] = [p[1]]
         elif len(p) == 4:
-            p[0] = [p[1]]
-            p[0].append(p[3])
+            p[0] = p[3]
+            p[0].append(p[1])
 
     def p_declaration(self, p):
         '''declaration : identifier_list mode initialization
@@ -156,15 +156,15 @@ class Parser:
         '''identifier_list : identifier
                            | identifier COMMA identifier_list'''
         if len(p) == 2:
-            p[0] = [Identifier(p[1], lineno=p.lineno(1))]
+            p[0] = [p[1]]
         elif len(p) > 3:
-            p[0] = [Identifier(p[1], lineno=p.lineno(1))] + p[3]
+            p[0] = [p[1]] + p[3]
 #            p[0] = p[3]
 #            p[0].append(Identifier(p[1]))
 
     def p_identifier(self, p):
         '''identifier : ID'''
-        p[0] = p[1]
+        p[0] = Identifier(p[1], lineno=p.lineno(1))
     # </editor-fold>
 
     # '''
