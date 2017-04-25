@@ -1,6 +1,6 @@
 /* Stack of integers */
 
-dcl x,y int;
+dcl x,y int = 2 + 3;
 
 x = 12;
 
@@ -15,7 +15,7 @@ push: proc (s stack loc, elem int);
 	s[s[top+1]] = elem;
     fi;
 end;
-s = 12;
+
 pop: proc (s stack loc) returns (int);
     if s[top+1] == 0 then
         print("empty stack");

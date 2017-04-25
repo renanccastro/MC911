@@ -7,6 +7,12 @@ from semantic.SymbolTable import SymbolTable
 
 k = 1
 
+
+def error(lineno, param):
+    print("{}, on line {}.".format(param, lineno))
+    exit()
+
+
 class NodeVisitor(object) :
 
     def __init__ (self):
@@ -23,6 +29,29 @@ class NodeVisitor(object) :
             return visitor(node)
         else:
             return None
+
+    def raw_type_unary(self, node, op, val):
+        if hasattr(val, "raw_type"):
+            if op not in val.raw_type.unary_ops:
+                error(node.lineno,
+                      "Unary operator {} not supported".format(op))
+            return val.raw_type
+
+    def raw_type_binary(self, node, op, left, right):
+        if hasattr(left, "raw_type") and hasattr(right, "raw_type"):
+            if left.raw_type != right.raw_type:
+                error(node.lineno,
+                      "Binary operator {} does not have matching types".format(op))
+                return left.raw_type
+            errside = None
+            if op not in left.raw_type.binary_ops:
+                errside = "LHS"
+            if op not in right.raw_type.binary_ops:
+                errside = "RHS"
+            if errside is not None:
+                error(node.lineno,
+                      "Binary operator {} not supported on {} of expression".format(op, errside))
+        return left.raw_type
 
     # comentei aqui pra n imprimir um monte de coisas...
     def generic_visit(self,node):
@@ -62,8 +91,12 @@ class NodeVisitor(object) :
         # TODO: AQUI DEVE PERCORRER E GUARDAR EM OUTRO MAPA OS NOVOS TIPOS DEFINIDOS
         mode_definition_list = node.mode_definition_list
         for mode_definition in mode_definition_list:
-            for obj in mode_definition.identifier_list:
-                self.environment.add_local(obj.identifier,ExprType(obj.identifier))
+            self.visit(mode_definition)
+
+    def visit_ModeDefinition(self, node):
+        self.visit(node.mode)
+        for obj in node.identifier_list:
+            self.environment.add_local(obj.identifier, node.mode.raw_type)
 
     def visit_SynonymStatement(self, node):
         # Visit all of the synonyms
@@ -71,8 +104,9 @@ class NodeVisitor(object) :
             self.visit(syn)
 
     def visit_SynonymDeclaration(self, node):
+        self.visit(node.mode)
         for obj in node.identifiers:
-            self.environment.add_local(obj.identifier, ExprType(node.mode.type))
+            self.environment.add_local(obj.identifier, node.mode.raw_type)
 
     def visit_DeclarationStatement(self, node):
         for declaration in node.declaration_list:
@@ -81,22 +115,39 @@ class NodeVisitor(object) :
 
     def visit_Declaration(self, node):
         variable_list = node.identifier
+        self.visit(node.mode)
         for item in variable_list:
             variable = item.identifier
-            self.environment.add_local(variable,self.environment.lookup(self.visit(node.mode)))
+            self.environment.add_local(variable,node.mode.raw_type)
             print (variable)
+        # TODO: VERIFICAR SE A INICIALIZACAO EH DO MESMO TIPO QUE A DECLARACAO
+        self.visit(node.initialization)
 
     def visit_IntegerMode(self, node):
-        return 'int'
+        node.raw_type = self.environment.lookup('int')
+    def visit_CharLiteral(self, node):
+        node.raw_type = self.environment.lookup('char')
+    def visit_BoolLiteral(self, node):
+        node.raw_type = self.environment.lookup('bool')
+    def visit_IntegerLiteral(self, node):
+        node.raw_type = self.environment.lookup('int')
+    def visit_NullLiteral(self, node):
+        node.raw_type = self.environment.lookup('null')
+    def visit_StringLiteral(self, node):
+        node.raw_type = self.environment.lookup('string')
 
     def visit_Location(self, node):
         self.visit(node.location)
+        node.raw_type = node.location.raw_type
+
+    def visit_StringElement(self, node):
+        self.visit(node.location)
+        node.raw_type = node.location.raw_type
 
     def visit_Identifier(self, node):
         if self.environment.lookup(node.identifier) == None:
-            print("Erro! Identificador '{}' não definido na linha {}".format(node.identifier, node.lineno))
-            exit()
-        return node.identifier
+            error(node.lineno, "Identifier '{}' not defined".format(node.identifier))
+        node.raw_type = self.environment.lookup(node.identifier)
 
     def visit_ProcedureStatement(self, node):
         self.environment.push(node)
@@ -115,14 +166,53 @@ class NodeVisitor(object) :
         return self.visit(node.mode)
 
     def visit_ProcedureParameter(self, node):
+        self.visit(node.mode)
         for identifierObj in node.identifier_list:
-            self.environment.add_local(identifierObj.identifier,self.environment.lookup(self.visit(node.mode)))
+            self.environment.add_local(identifierObj.identifier, node.mode.raw_type)
 
     def visit_ModeName(self, node):
-        return self.visit(node.type)
+        self.visit(node.type)
+        node.raw_type = node.type.raw_type
 
     def visit_ActionStatement(self, node):
         self.visit(node.action)
 
     def visit_AssigmentAction(self, node):
         self.visit(node.location)
+        self.visit(node.expression)
+        # TODO: VERIFICAR SE O LHS TEM O MESMO TIPO DO RHS
+        node.raw_type = node.expression.raw_type
+
+    def visit_Expression(self, node):
+        self.visit(node.value)
+        node.raw_type = node.value.raw_type
+
+    def visit_Operation(self, node):
+        self.visit(node.operand0)
+        self.visit(node.operand1)
+        node.raw_type = self.raw_type_binary(node, node.operation, node.operand0, node.operand1)
+
+    def visit_MonadicOperation(self, node):
+        self.visit(node.operand)
+        node.raw_type = self.raw_type_unary(node, node.operation, node.operand)
+
+    def visit_Operand(self, node):
+        self.visit(node.value)
+        node.raw_type = node.value.raw_type
+
+    def visit_CallAction(self, node):
+        self.visit(node.call)
+        node.raw_type = node.call.raw_type
+
+    def visit_ProcedureCall(self, node):
+        node.raw_type = self.environment.lookup(node.name)
+
+        # TODO: DEVE VERIFICAR TAMBÉM SE OS PARAMETROS SAO DOS TIPOS CERTOS
+        # self.visit(node.parameters)
+
+    def visit_BuiltinCall(self, node):
+        node.raw_type = null_type
+
+        # TODO: DEVE VERIFICAR TAMBÉM SE OS PARAMETROS SAO DOS TIPOS CERTOS
+        # self.visit(node.parameters)
+

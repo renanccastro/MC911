@@ -1,4 +1,4 @@
-from semantic.ExprType import int_type, char_type, string_type, bool_type
+from semantic.ExprType import *
 from semantic.SymbolTable import SymbolTable
 
 
@@ -11,7 +11,8 @@ class Environment(object):
             "int": int_type,
             "char": char_type,
             "string": string_type,
-            "bool": bool_type
+            "bool": bool_type,
+            "null": null_type
         })
     def push(self, enclosure):
         self.stack.append(SymbolTable(decl=enclosure))
