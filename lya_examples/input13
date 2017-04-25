@@ -1,3 +1,7 @@
 /* Stack of integers */
 
-dcl x,y int = -"asda";
+dcl x,y,a int = "asda" + "asd";
+
+if a == 2 then
+ a = "a";
+fi;

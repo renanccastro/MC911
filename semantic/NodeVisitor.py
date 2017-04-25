@@ -187,6 +187,12 @@ class NodeVisitor(object) :
         self.visit(node.value)
         node.raw_type = node.value.raw_type
 
+    def visit_ConditionalExpression(self, node):
+        self.visit(node.boolean_expression)
+        self.visit(node.then_expression)
+        self.visit(node.elsif_expression)
+        self.visit(node.else_expression)
+
     def visit_Operation(self, node):
         self.visit(node.operand0)
         self.visit(node.operand1)
@@ -207,12 +213,14 @@ class NodeVisitor(object) :
     def visit_ProcedureCall(self, node):
         node.raw_type = self.environment.lookup(node.name)
 
-        # TODO: DEVE VERIFICAR TAMBÉM SE OS PARAMETROS SAO DOS TIPOS CERTOS
-        # self.visit(node.parameters)
+        # TODO: DEVE VERIFICAR TAMBÉM SE OS PARAMETROS SAO DOS TIPOS CERTOS COM A FUNCAO
+        for parameter in node.parameters:
+            self.visit(parameter)
 
     def visit_BuiltinCall(self, node):
         node.raw_type = null_type
 
-        # TODO: DEVE VERIFICAR TAMBÉM SE OS PARAMETROS SAO DOS TIPOS CERTOS
-        # self.visit(node.parameters)
+        # TODO: DEVE VERIFICAR TAMBÉM SE OS PARAMETROS SAO DOS TIPOS CERTOS COM A FUNCAO
+        for parameter in node.parameters:
+            self.visit(parameter)
 
