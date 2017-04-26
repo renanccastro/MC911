@@ -8,5 +8,6 @@ class ExprType(object):
 int_type = ExprType("int", ['+', '-' , '*', '/', '%', '==', '!=', '>', '>=', '<', '>=', '<', '<='], ['-'])
 bool_type = ExprType("bool", ['==', '!='], ['!'])
 char_type = ExprType("char", ['==', '!='], [])
-string_type = ExprType("string", ['+', '==', '!='], [])
+string_type = ExprType("string", ['+', '==', '!=', '&'], [])
 null_type = ExprType("null", [], [])
+array_type = ExprType("array", [], [])

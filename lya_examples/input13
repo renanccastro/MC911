@@ -1,7 +1,7 @@
 /* Stack of integers */
 
-dcl x,y,a int = "asda" + "asd";
+dcl x,y,a int = 2 + 5;
+dcl z array [1:2] int;
 
-if a == 2 then
- a = "a";
-fi;
+
+x = a + 2;

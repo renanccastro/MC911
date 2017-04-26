@@ -12,6 +12,7 @@ class Environment(object):
             "char": char_type,
             "string": string_type,
             "bool": bool_type,
+            "array": array_type,
             "null": null_type
         })
     def push(self, enclosure):

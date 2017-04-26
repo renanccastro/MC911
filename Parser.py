@@ -306,7 +306,7 @@ class Parser:
 
     def p_string_mode(self, p):
         '''string_mode : CHARS LBRACKET string_length RBRACKET'''
-        p[0] = StringMode(p[3], 'string',  lineno=p.lineno(1))
+        p[0] = StringMode(p[3], lineno=p.lineno(1))
 
     def p_string_length(self, p):
         '''string_length : integer_literal'''

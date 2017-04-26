@@ -106,18 +106,21 @@ class NodeVisitor(object) :
     def visit_SynonymDeclaration(self, node):
         self.visit(node.mode)
         for obj in node.identifiers:
+            if self.environment.find(obj.identifier):
+                error(obj.lineno, "Duplicate definition of symbol {} on same scope".format(obj.identifier))
             self.environment.add_local(obj.identifier, node.mode.raw_type)
 
     def visit_DeclarationStatement(self, node):
         for declaration in node.declaration_list:
             self.visit(declaration)
 
-
     def visit_Declaration(self, node):
         variable_list = node.identifier
         self.visit(node.mode)
         for item in variable_list:
             variable = item.identifier
+            if self.environment.find(variable):
+                error(item.lineno, "Duplicate definition of symbol {} on same scope".format(variable))
             self.environment.add_local(variable,node.mode.raw_type)
             print (variable)
         # TODO: VERIFICAR SE A INICIALIZACAO EH DO MESMO TIPO QUE A DECLARACAO
@@ -169,6 +172,21 @@ class NodeVisitor(object) :
         self.visit(node.mode)
         for identifierObj in node.identifier_list:
             self.environment.add_local(identifierObj.identifier, node.mode.raw_type)
+
+    def visit_CompositeMode(self, node):
+        self.visit(node.mode)
+        node.raw_type = node.mode.raw_type
+
+    def visit_StringMode(self, node):
+        node.raw_type = self.environment.root["string"]
+
+    def visit_ArrayMode(self, node):
+        node.raw_type = self.environment.root["array"]
+        self.visit(node.element_mode)
+        node.array_type = node.element_mode.raw_type
+        #   TODO: FALTA o index_mode_list
+
+
 
     def visit_ModeName(self, node):
         self.visit(node.type)
@@ -224,3 +242,11 @@ class NodeVisitor(object) :
         for parameter in node.parameters:
             self.visit(parameter)
 
+
+
+# TODO: VERIFICAR AS OPERACOES DE ASSIGNMENT SE OS OPERADORES ESTAO CERTO
+
+# IF SEMPRE EH UMA EXPRESSAO BOOLEANA, PQ TEM QUE TER COMPARADOR RELACIONAL
+# ARRAY CRIA UM NOVO TIPO ARRAY E COLOCA COMO OUTRO ATRIBUTO O INT, por ex
+# NAO VERIFICA A CHAMADA DE FUNCAO, mas da pra salvar em um mapa seguindo o mesmo esquema de stack, so que guardando a lista dos parametros
+# declaracao de funcao interna nao da erro
