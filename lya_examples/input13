@@ -3,5 +3,16 @@
 dcl x,y,a int = 2 + 5;
 dcl z array [1:2] int;
 
+pop: proc (s int, elem int);
+    push: proc (s int, elem int);
+        s = 3;
+    end;
+    s = 2;
+end;
+
+
+push(y,x);
+
+
 
 x = a + 2;

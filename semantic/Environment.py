@@ -5,6 +5,7 @@ from semantic.SymbolTable import SymbolTable
 class Environment(object):
     def __init__(self):
         self.stack = []
+        self.functionsParameters = SymbolTable()
         self.root = SymbolTable()
         self.stack.append(self.root)
         self.root.update({
@@ -13,7 +14,7 @@ class Environment(object):
             "string": string_type,
             "bool": bool_type,
             "array": array_type,
-            "null": null_type
+            "void": null_type
         })
     def push(self, enclosure):
         self.stack.append(SymbolTable(decl=enclosure))

@@ -117,9 +117,8 @@ class NodeVisitor(object) :
         self.visit(node.mode)
         decl_type = node.mode.raw_type.type
         self.visit(node.initialization)
-        init_type = node.initialization.raw_type.type
-        if (decl_type != init_type) :
-            error(node.lineno, "Cannot convert \"{}\" type to \"{}\" type".format(init_type,decl_type))                
+        if node.initialization is not None and (decl_type != node.initialization.raw_type.type) :
+            error(node.lineno, "Cannot convert \"{}\" type to \"{}\" type".format(init_type,decl_type))
         # adiciona variaveis
         for item in variable_list:
             variable = item.identifier
@@ -143,7 +142,7 @@ class NodeVisitor(object) :
     def visit_IntegerLiteral(self, node):
         node.raw_type = self.environment.lookup('int')
     def visit_NullLiteral(self, node):
-        node.raw_type = self.environment.lookup('null')
+        node.raw_type = self.environment.lookup('void')
     def visit_StringLiteral(self, node):
         node.raw_type = self.environment.lookup('string')
 
@@ -162,24 +161,35 @@ class NodeVisitor(object) :
 
     def visit_ProcedureStatement(self, node):
         self.environment.push(node)
-        func_type = self.visit(node.definition)
+        self.visit(node.definition)
         self.environment.pop()
-        self.environment.add_local(node.name, func_type)
+        self.environment.add_local(node.name, node.definition.raw_type)
+        self.environment.functionsParameters.add(node.name, node.definition.parameters)
 
     def visit_ProcedureDefinition(self, node):
         for parameter in node.parameters:
             self.visit(parameter)
+
+        if node.body is None or len(node.body) == 0:
+            error(node.lineno, "No function body")
         for stmt in node.body:
             self.visit(stmt)
-        return self.environment.lookup(self.visit(node.returns))
+        if node.returns is not None:
+            self.visit(node.returns)
+            node.raw_type = node.returns.raw_type
+        else:
+            node.raw_type = self.environment.root["void"]
+
 
     def visit_ProcedureReturn(self, node):
-        return self.visit(node.mode)
+        self.visit(node.mode)
+        node.raw_type = node.mode.raw_type
 
     def visit_ProcedureParameter(self, node):
         self.visit(node.mode)
         for identifierObj in node.identifier_list:
             self.environment.add_local(identifierObj.identifier, node.mode.raw_type)
+        node.raw_type = node.mode.raw_type
 
     def visit_CompositeMode(self, node):
         self.visit(node.mode)
@@ -238,13 +248,29 @@ class NodeVisitor(object) :
 
     def visit_ProcedureCall(self, node):
         node.raw_type = self.environment.lookup(node.name)
+        if node.raw_type is None:
+            error(node.lineno, "Call to undefined function '{}'".format(node.name))
+
 
         # TODO: DEVE VERIFICAR TAMBÉM SE OS PARAMETROS SAO DOS TIPOS CERTOS COM A FUNCAO
-        for parameter in node.parameters:
-            self.visit(parameter)
+        funcParameters = self.environment.functionsParameters[node.name]
 
+        # VERIFICA QUANTIDADE DE PARAMETROS
+        if node.parameters is None:
+            node.parameters = []
+        if len(node.parameters) != len(funcParameters):
+            error(node.lineno, "Wrong call to '{}'. Expected {} parameters, got {}".format(node.name, len(funcParameters), len(node.parameters)))
+
+        # VERIFICA TIPOS DOS PARAMETROS
+        for index, parameter in enumerate(node.parameters):
+            self.visit(parameter)
+            if parameter.raw_type.type != funcParameters[index].raw_type.type:
+                error(node.lineno,
+                      "Wrong call to '{}'. Expected {} parameter, got {} on parameter number {}".format(node.name, funcParameters[index].raw_type.type,
+                                                                                  parameter.raw_type.type, index))
     def visit_BuiltinCall(self, node):
-        node.raw_type = null_type
+        # TODO: PARA CADA FUNCAO TEM UM TIPO DE RETORNO
+        # node.raw_type = null_type
 
         # TODO: DEVE VERIFICAR TAMBÉM SE OS PARAMETROS SAO DOS TIPOS CERTOS COM A FUNCAO
         for parameter in node.parameters:
