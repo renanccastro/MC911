@@ -14,7 +14,7 @@ from nodes.NewModeStatement import NewModeStatement
 from nodes.AST import AST
 from nodes.DeclarationStatement import DeclarationStatement
 from nodes.Declaration import Declaration
-from nodes.DiscreteMode import IntegerMode, BooleanMode, CharMode, DiscreteModeName
+from nodes.DiscreteMode import IntegerMode, BooleanMode, CharacterMode, DiscreteModeName
 from nodes.DiscreteRangeMode import DiscreteRangeMode
 from nodes.Expression import Expression
 from nodes.Literal import IntegerLiteral, BoolLiteral, CharLiteral, NullLiteral, StringLiteral
@@ -265,7 +265,7 @@ class Parser:
 
     def p_character_mode(self, p):
         'character_mode : CHAR'
-        p[0] = CharMode('char', lineno=p.lineno(1))
+        p[0] = CharacterMode('char', lineno=p.lineno(1))
 
     # </editor-fold>
 

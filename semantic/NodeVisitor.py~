@@ -116,11 +116,13 @@ class NodeVisitor(object) :
         variable_list = node.identifier
         self.visit(node.mode)
         decl_type = node.mode.raw_type.type
+        # inicializacao
         self.visit(node.initialization)
         init_type = node.initialization.value.value.raw_type.type
+        # verifica os tipos
         if (decl_type != init_type) :
             error(node.lineno, "Cannot convert \"{}\" type to \"{}\" type implicit".format(init_type,decl_type))                
-        # adiciona variaveis
+        # variaveis
         for item in variable_list:
             variable = item.identifier
             if self.environment.find(variable):
