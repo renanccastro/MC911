@@ -60,7 +60,7 @@ class NodeVisitor(object) :
         This examines the node to see if it has _fields, is a list,
         or can be further traversed.
         """
-        global k
+#        global k
         for field in getattr(node,"_fields"):
 #            sys.stdout.write('-- '*k)
             value = getattr(node,field,None)
@@ -117,9 +117,9 @@ class NodeVisitor(object) :
         self.visit(node.mode)
         decl_type = node.mode.raw_type.type
         self.visit(node.initialization)
-        init_type = node.initialization.value.value.raw_type.type
+        init_type = node.initialization.raw_type.type
         if (decl_type != init_type) :
-            error(node.lineno, "Cannot convert \"{}\" type to \"{}\" type implicit".format(init_type,decl_type))                
+            error(node.lineno, "Cannot convert \"{}\" type to \"{}\" type".format(init_type,decl_type))                
         # adiciona variaveis
         for item in variable_list:
             variable = item.identifier
