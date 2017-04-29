@@ -115,7 +115,7 @@ class NodeVisitor(object) :
     def visit_Declaration(self, node):
         variable_list = node.identifier
         self.visit(node.mode)
-        decl_type = node.mode.raw_type
+        decl_type = node.mode.raw_type.type
         self.visit(node.initialization)
         init_type = node.initialization.raw_type.type
         if (decl_type != init_type) :

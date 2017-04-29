@@ -126,10 +126,7 @@ class NodeVisitor(object) :
             if self.environment.find(variable):
                 error(item.lineno, "Duplicate definition of symbol {} on same scope".format(variable))
             self.environment.add_local(variable,node.mode.raw_type)
-            
-        
-# TODO: VERIFICAR SE A INICIALIZACAO EH DO MESMO TIPO QUE A DECLARACAO
-        
+             
     def visit_IntegerMode(self, node):
         node.raw_type = self.environment.lookup('int')
     def visit_CharacterMode(self, node):
