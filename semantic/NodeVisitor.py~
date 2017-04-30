@@ -5,8 +5,6 @@ from semantic.Environment import Environment
 from semantic.ExprType import *
 from semantic.SymbolTable import SymbolTable
 
-# k = 1
-
 
 def error(lineno, param):
     print("{}, on line {}.".format(param, lineno))
@@ -53,31 +51,21 @@ class NodeVisitor(object) :
                       "Binary operator '{}' not supported on {} of expression".format(op, errside))
         return left.raw_type
 
-    # comentei aqui pra n imprimir um monte de coisas...
     def generic_visit(self,node):
         """
         Method executed if no applicable visit_ method can be found.
         This examines the node to see if it has _fields, is a list,
         or can be further traversed.
         """
-#        global k
         for field in getattr(node,"_fields"):
-#            sys.stdout.write('-- '*k)
             value = getattr(node,field,None)
-#            if str(value)[0] != '<' and str(value)[-1] != '>' :
-#                print(str(field) + ' : ' + str(value))
-#            else :
-#                print(field)
             if isinstance(value, list):
                 for item in value:
-#                    print(item,value)
                     if isinstance(item,AST):
-#                        k = k + 1
                         self.visit(item)
             elif isinstance(value, AST):
-#                k = k + 1
                 self.visit(value)
-#        k = k - 1
+
 
     def visit_Program(self, node):
         self.environment.push(node)
@@ -253,7 +241,6 @@ class NodeVisitor(object) :
         node.raw_type = self.environment.lookup(node.name)
         if node.raw_type is None:
             error(node.lineno, "Call to undefined function '{}'".format(node.name))
-
 
         # TODO: DEVE VERIFICAR TAMBÉM SE OS PARAMETROS SAO DOS TIPOS CERTOS COM A FUNCAO
         funcParameters = self.environment.functionsParameters[node.name]
