@@ -14,7 +14,17 @@ class Environment(object):
             "string": string_type,
             "bool": bool_type,
             "array": array_type,
-            "void": null_type
+            "void": null_type,
+
+            # bultin_functions
+            "abs" : int_type,
+            "asc" : int_type,
+            "num" : int_type,
+            "upper" : int_type,
+            "lower" : int_type,
+            "length" : int_type,
+            "read" : null_type,
+            "print" : null_type
         })
     def push(self, enclosure):
         self.stack.append(SymbolTable(decl=enclosure))

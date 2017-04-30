@@ -49,13 +49,22 @@ from nodes.AssigmentAction import AssigmentAction
 from nodes.AssigningOperator import AssigningOperator
 from nodes.ConditionalClause import ConditionalClause
 from nodes.DoAction import DoAction
-from nodes.ControlPart import ControlPart 
+from nodes.ControlPart import ControlPart
+from nodes.BooleanExpression import BooleanExpression
 from nodes.StepEnumeration import StepEnumeration
 from nodes.RangeEnumeration import RangeEnumeration
 
 class Parser:
     tokens = Tokenizer.tokens
     reserved = Tokenizer.reserved
+    precedence = (
+        ('left', 'AND', 'OR'),
+        ('left', 'EQUAL', 'NOTEQ'),
+        ('left', 'LTEQUAL', 'LESS', 'GREATER', 'GTEQUAL'),
+        ('left', 'PLUS', 'MINUS'),
+        ('left', 'TIMES', 'DIVIDE', 'MODULO'),
+        ('right', 'UMINUS', 'UNOT'),            # Unary minus operator
+    )
 
     # Program and Statement
 
@@ -404,6 +413,7 @@ class Parser:
 
     def p_expression(self, p):
         '''expression : operand0
+                      | boolean_expression
                       | conditional_expression'''
         p[0] = Expression(p[1], lineno=p.lineno(1))
         
@@ -411,13 +421,24 @@ class Parser:
         '''parenthesized_expression : LPAREN expression RPAREN'''
         p[0] = p[2]
 
+    def p_boolean_expression(self, p):
+        '''boolean_expression : expression AND expression
+                              | expression OR expression
+                              | expression EQUAL expression
+                              | expression NOTEQ expression
+                              | expression GREATER expression
+                              | expression GTEQUAL expression
+                              | expression LESS expression
+                              | expression LTEQUAL expression'''
+        p[0] = BooleanExpression(p[1], p[2], p[3], lineno=p.lineno(1))
+
     # '''
     # Conditional Expression
     # '''
     # <editor-fold desc="conditional_expression">
     def p_conditional_expression(self, p):
-        '''conditional_expression : IF expression then_expression else_expression FI
-                                  | IF expression then_expression elsif_expression else_expression FI'''
+        '''conditional_expression : IF boolean_expression then_expression else_expression FI
+                                  | IF boolean_expression then_expression elsif_expression else_expression FI'''
         p[0] = ConditionalExpression(p[2], p[3], p[4] if len(p) > 6 else None, p[4] if len(p) <= 6 else p[5], lineno=p.lineno(1))
 
     def p_then_expression(self, p):
@@ -429,8 +450,8 @@ class Parser:
         p[0] = p[2]
 
     def p_elsif_expression(self, p):
-        '''elsif_expression : ELSIF expression then_expression
-                            | elsif_expression ELSIF expression then_expression'''
+        '''elsif_expression : ELSIF boolean_expression then_expression
+                            | elsif_expression ELSIF boolean_expression then_expression'''
         if len(p) <= 4:
             p[0] = [ElsifExpression(p[2], p[3], lineno=p.lineno(1))]
         else:
@@ -497,8 +518,8 @@ class Parser:
         p[0] = p[1]
 
     def p_monadic_operator(self, p):
-        '''monadic_operator : MINUS
-                            | NOT'''
+        '''monadic_operator : MINUS %prec UMINUS
+                            | NOT %prec UNOT'''
         p[0] = p[1]
 
     def p_referenced_location(self, p):
@@ -506,8 +527,7 @@ class Parser:
         p[0] = ReferencedLocation(p[1], lineno=p.lineno(1))
 
     def p_operator1(self, p):
-        '''operator1 : relational_operator
-                     | membership_operator'''
+        '''operator1 : membership_operator'''
         p[0] = p[1]
 
     def p_operator2(self, p):
@@ -524,16 +544,6 @@ class Parser:
         '''string_concatenation_operator : CONCAT'''
         p[0] = p[1]
 
-    def p_relational_operator(self, p):
-        '''relational_operator : AND
-                               | OR
-                               | EQUAL
-                               | NOTEQ
-                               | GREATER
-                               | GTEQUAL
-                               | LESS
-                               | LTEQUAL'''
-        p[0] = p[1]
 
     def p_membership_operator(self, p):
         '''membership_operator : IN'''
@@ -638,8 +648,8 @@ class Parser:
         p[0] = p[1]
         
     def p_if_action(self,p):
-        '''if_action : IF expression then_clause else_clause FI
-                     | IF expression then_clause FI'''
+        '''if_action : IF boolean_expression then_clause else_clause FI
+                     | IF boolean_expression then_clause FI'''
         p[0] = ConditionalClause(p[2],p[3], p[4] if len(p) == 6 else None, lineno=p.lineno(1))
     
     def p_then_clause(self,p):
@@ -648,8 +658,8 @@ class Parser:
 
     def p_else_clause(self,p):
         '''else_clause : ELSE action_statement_list
-                       | ELSIF expression then_clause else_clause
-                       | ELSIF expression then_clause'''    
+                       | ELSIF boolean_expression then_clause else_clause
+                       | ELSIF boolean_expression then_clause'''
         if len(p) == 3:
             p[0] = p[2]
         elif len(p) == 4:

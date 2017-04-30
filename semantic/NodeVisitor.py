@@ -35,6 +35,13 @@ class NodeVisitor(object) :
                       "Unary operator '{}' not supported".format(op))
             return val.raw_type
 
+    def raw_type_boolean(self, node, op, left, right):
+        if hasattr(left, "raw_type") and hasattr(right, "raw_type"):
+            if left.raw_type != right.raw_type:
+                error(node.lineno,
+                      "Binary operator '{}' does not have matching types".format(op))
+            return self.environment.root["bool"]
+
     def raw_type_binary(self, node, op, left, right):
         if hasattr(left, "raw_type") and hasattr(right, "raw_type"):
             if left.raw_type != right.raw_type:
@@ -119,7 +126,6 @@ class NodeVisitor(object) :
         node.raw_type = self.environment.lookup('char')
     def visit_BooleanMode(self, node):
         node.raw_type = self.environment.lookup('bool')
-
     def visit_IntegerLiteral(self, node):
         node.raw_type = self.environment.lookup('int')
     def visit_CharLiteral(self, node):
@@ -192,7 +198,6 @@ class NodeVisitor(object) :
         #   TODO: FALTA o index_mode_list
 
 
-
     def visit_ModeName(self, node):
         self.visit(node.type)
         node.raw_type = node.type.raw_type
@@ -220,6 +225,12 @@ class NodeVisitor(object) :
         self.visit(node.elsif_expression)
         self.visit(node.else_expression)
 
+    def visit_BooleanExpression(self, node):
+        self.visit(node.left)
+        self.visit(node.right)
+        node.raw_type = self.raw_type_boolean(node, node.operator, node.left, node.right)
+
+
     def visit_Operation(self, node):
         self.visit(node.operand0)
         self.visit(node.operand1)
@@ -242,7 +253,6 @@ class NodeVisitor(object) :
         if node.raw_type is None:
             error(node.lineno, "Call to undefined function '{}'".format(node.name))
 
-        # TODO: DEVE VERIFICAR TAMBÉM SE OS PARAMETROS SAO DOS TIPOS CERTOS COM A FUNCAO
         funcParameters = self.environment.functionsParameters[node.name]
 
         # VERIFICA QUANTIDADE DE PARAMETROS
@@ -260,7 +270,7 @@ class NodeVisitor(object) :
                                                                                   parameter.raw_type.type, index))
     def visit_BuiltinCall(self, node):
         # TODO: PARA CADA FUNCAO TEM UM TIPO DE RETORNO
-        # node.raw_type = null_type
+        node.raw_type = self.environment.root[node.name]
 
         # TODO: DEVE VERIFICAR TAMBÉM SE OS PARAMETROS SAO DOS TIPOS CERTOS COM A FUNCAO
         for parameter in node.parameters:
@@ -270,7 +280,11 @@ class NodeVisitor(object) :
 
 # TODO: VERIFICAR AS OPERACOES DE ASSIGNMENT SE OS OPERADORES ESTAO CERTO
 
-# IF SEMPRE EH UMA EXPRESSAO BOOLEANA, PQ TEM QUE TER COMPARADOR RELACIONAL
-# ARRAY CRIA UM NOVO TIPO ARRAY E COLOCA COMO OUTRO ATRIBUTO O INT, por ex
-# NAO VERIFICA A CHAMADA DE FUNCAO, mas da pra salvar em um mapa seguindo o mesmo esquema de stack, so que guardando a lista dos parametros
-# declaracao de funcao interna nao da erro
+# NOVOS TODO:
+# TODO: VERIFICAR NOS FORS SE A INICIALIZACAO EH DO MESMO TIPO QUE A VARIAVEL DE CONTROLE
+
+
+# IF SEMPRE EH UMA EXPRESSAO BOOLEANA, PQ TEM QUE TER COMPARADOR RELACIONAL !OK!
+# ARRAY CRIA UM NOVO TIPO ARRAY E COLOCA COMO OUTRO ATRIBUTO O INT, por ex !OK!
+# NAO VERIFICA A CHAMADA DE FUNCAO, mas da pra salvar em um mapa seguindo o mesmo esquema de stack, so que guardando a lista dos parametros !OK!
+# declaracao de funcao interna nao da erro !OK!
