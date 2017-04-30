@@ -34,14 +34,14 @@ class NodeVisitor(object) :
         if hasattr(val, "raw_type"):
             if op not in val.raw_type.unary_ops:
                 error(node.lineno,
-                      "Unary operator {} not supported".format(op))
+                      "Unary operator '{}' not supported".format(op))
             return val.raw_type
 
     def raw_type_binary(self, node, op, left, right):
         if hasattr(left, "raw_type") and hasattr(right, "raw_type"):
             if left.raw_type != right.raw_type:
                 error(node.lineno,
-                      "Binary operator {} does not have matching types".format(op))
+                      "Binary operator '{}' does not have matching types".format(op))
                 return left.raw_type
             errside = None
             if op not in left.raw_type.binary_ops:
@@ -50,7 +50,7 @@ class NodeVisitor(object) :
                 errside = "RHS"
             if errside is not None:
                 error(node.lineno,
-                      "Binary operator {} not supported on {} of expression".format(op, errside))
+                      "Binary operator '{}' not supported on {} of expression".format(op, errside))
         return left.raw_type
 
     # comentei aqui pra n imprimir um monte de coisas...
@@ -105,7 +105,7 @@ class NodeVisitor(object) :
         self.visit(node.mode)
         for obj in node.identifiers:
             if self.environment.find(obj.identifier):
-                error(obj.lineno, "Duplicate definition of symbol {} on same scope".format(obj.identifier))
+                error(obj.lineno, "Duplicate definition of symbol '{}' on same scope".format(obj.identifier))
             self.environment.add_local(obj.identifier, node.mode.raw_type)
 
     def visit_DeclarationStatement(self, node):
@@ -118,12 +118,11 @@ class NodeVisitor(object) :
         decl_type = node.mode.raw_type.type
         self.visit(node.initialization)
         if node.initialization is not None and (decl_type != node.initialization.raw_type.type) :
-            error(node.lineno, "Cannot convert \"{}\" type to \"{}\" type".format(init_type,decl_type))
-        # adiciona variaveis
+            error(node.lineno, "Cannot convert '{}' type to '{}' type".format(init_type,decl_type))
         for item in variable_list:
             variable = item.identifier
             if self.environment.find(variable):
-                error(item.lineno, "Duplicate definition of symbol {} on same scope".format(variable))
+                error(item.lineno, "Duplicate definition of symbol '{}' on same scope".format(variable))
             self.environment.add_local(variable,node.mode.raw_type)
              
     def visit_IntegerMode(self, node):
@@ -216,8 +215,12 @@ class NodeVisitor(object) :
     def visit_AssigmentAction(self, node):
         self.visit(node.location)
         self.visit(node.expression)
-        # TODO: VERIFICAR SE O LHS TEM O MESMO TIPO DO RHS
+        loct_type = self.environment.lookup(node.location.location.identifier).type
+        expr_type = node.expression.raw_type.type
         node.raw_type = node.expression.raw_type
+        if loct_type != expr_type :         
+            error(node.lineno, "Cannot assign '{}' expression to '{}' type".format(expr_type,loct_type))
+        
 
     def visit_Expression(self, node):
         self.visit(node.value)
@@ -259,14 +262,14 @@ class NodeVisitor(object) :
         if node.parameters is None:
             node.parameters = []
         if len(node.parameters) != len(funcParameters):
-            error(node.lineno, "Wrong call to '{}'. Expected {} parameters, got {}".format(node.name, len(funcParameters), len(node.parameters)))
+            error(node.lineno, "Wrong call to '{}'. Expected '{}' parameters, got '{}'".format(node.name, len(funcParameters), len(node.parameters)))
 
         # VERIFICA TIPOS DOS PARAMETROS
         for index, parameter in enumerate(node.parameters):
             self.visit(parameter)
             if parameter.raw_type.type != funcParameters[index].raw_type.type:
                 error(node.lineno,
-                      "Wrong call to '{}'. Expected {} parameter, got {} on parameter number {}".format(node.name, funcParameters[index].raw_type.type,
+                      "Wrong call to '{}'. Expected '{}' parameter, got '{}' on parameter number {}".format(node.name, funcParameters[index].raw_type.type,
                                                                                   parameter.raw_type.type, index))
     def visit_BuiltinCall(self, node):
         # TODO: PARA CADA FUNCAO TEM UM TIPO DE RETORNO
