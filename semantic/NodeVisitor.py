@@ -80,7 +80,6 @@ class NodeVisitor(object) :
         node.symtab = self.environment.peek()
         for statement in node.statements: self.visit(statement)
 
-
     def visit_NewModeStatement(self, node):
         # TODO: AQUI DEVE PERCORRER E GUARDAR EM OUTRO MAPA OS NOVOS TIPOS DEFINIDOS
         mode_definition_list = node.mode_definition_list
@@ -98,27 +97,29 @@ class NodeVisitor(object) :
 
     def visit_SynonymDeclaration(self, node):
         self.visit(node.mode)
+        self.visit(node.initialization)
+        if node.mode is not None and (node.mode.raw_type.type != node.initialization.raw_type.type) :
+            error(node.lineno, "Cannot assign '{}' expression to '{}' type"
+                .format(node.initialization.raw_type.type, node.mode.raw_type.type))
         for obj in node.identifiers:
             if self.environment.find(obj.identifier):
                 error(obj.lineno, "Duplicate definition of symbol '{}' on same scope".format(obj.identifier))
-            self.environment.add_local(obj.identifier, node.mode.raw_type)
+            self.environment.add_local(obj.identifier, node.initialization.raw_type)
 
     def visit_DeclarationStatement(self, node):
         for declaration in node.declaration_list:
             self.visit(declaration)
 
     def visit_Declaration(self, node):
-        variable_list = node.identifier
         self.visit(node.mode)
-        decl_type = node.mode.raw_type.type
         self.visit(node.initialization)
-        if node.initialization is not None and (decl_type != node.initialization.raw_type.type) :
-            error(node.lineno, "Cannot convert '{}' type to '{}' type".format(init_type,decl_type))
-        for item in variable_list:
-            variable = item.identifier
-            if self.environment.find(variable):
-                error(item.lineno, "Duplicate definition of symbol '{}' on same scope".format(variable))
-            self.environment.add_local(variable,node.mode.raw_type)
+        if node.initialization is not None and (node.mode.raw_type.type != node.initialization.raw_type.type) :
+            error(node.lineno, "Cannot assign '{}' expression to '{}' type"
+                .format(node.initialization.raw_type.type, node.mode.raw_type.type))
+        for obj in node.identifier:
+            if self.environment.find(obj.identifier):
+                error(item.lineno, "Duplicate definition of symbol '{}' on same scope".format(obj.identifier))
+            self.environment.add_local(obj.identifier,node.mode.raw_type)
              
     def visit_IntegerMode(self, node):
         node.raw_type = self.environment.lookup('int')
@@ -173,7 +174,6 @@ class NodeVisitor(object) :
         else:
             node.raw_type = self.environment.root["void"]
 
-
     def visit_ProcedureReturn(self, node):
         self.visit(node.mode)
         node.raw_type = node.mode.raw_type
@@ -214,7 +214,6 @@ class NodeVisitor(object) :
         if loct_type != expr_type :         
             error(node.lineno, "Cannot assign '{}' expression to '{}' type".format(expr_type,loct_type))
         
-
     def visit_Expression(self, node):
         self.visit(node.value)
         node.raw_type = node.value.raw_type
@@ -229,7 +228,6 @@ class NodeVisitor(object) :
         self.visit(node.left)
         self.visit(node.right)
         node.raw_type = self.raw_type_boolean(node, node.operator, node.left, node.right)
-
 
     def visit_Operation(self, node):
         self.visit(node.operand0)
@@ -252,15 +250,12 @@ class NodeVisitor(object) :
         node.raw_type = self.environment.lookup(node.name)
         if node.raw_type is None:
             error(node.lineno, "Call to undefined function '{}'".format(node.name))
-
         funcParameters = self.environment.functionsParameters[node.name]
-
         # VERIFICA QUANTIDADE DE PARAMETROS
         if node.parameters is None:
             node.parameters = []
         if len(node.parameters) != len(funcParameters):
             error(node.lineno, "Wrong call to '{}'. Expected '{}' parameters, got '{}'".format(node.name, len(funcParameters), len(node.parameters)))
-
         # VERIFICA TIPOS DOS PARAMETROS
         for index, parameter in enumerate(node.parameters):
             self.visit(parameter)
@@ -278,9 +273,6 @@ class NodeVisitor(object) :
 
 
 
-# TODO: VERIFICAR AS OPERACOES DE ASSIGNMENT SE OS OPERADORES ESTAO CERTO
-
-# NOVOS TODO:
 # TODO: VERIFICAR NOS FORS SE A INICIALIZACAO EH DO MESMO TIPO QUE A VARIAVEL DE CONTROLE
 
 
