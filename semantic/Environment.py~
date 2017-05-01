@@ -15,6 +15,13 @@ class Environment(object):
             "bool": bool_type,
             "array": array_type,
             "void": null_type,
+            # const
+            "const_int": const_int_type,
+            "const_char": const_char_type,
+            "const_string": const_string_type,
+            "const_bool": const_bool_type,
+            "const_array": const_array_type,
+            "const_void": const_null_type,
             # bultin_functions
             "abs" : int_type,
             "asc" : int_type,

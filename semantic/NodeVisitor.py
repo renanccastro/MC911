@@ -37,24 +37,22 @@ class NodeVisitor(object) :
 
     def raw_type_boolean(self, node, op, left, right):
         if hasattr(left, "raw_type") and hasattr(right, "raw_type"):
-            if left.raw_type != right.raw_type:
+            if left.raw_type.type != right.raw_type.type:
                 error(node.lineno,
                       "Binary operator '{}' does not have matching types".format(op))
-            return self.environment.root["bool"]
+            return left.raw_type
 
     def raw_type_binary(self, node, op, left, right):
         if hasattr(left, "raw_type") and hasattr(right, "raw_type"):
             left_type = left.raw_type
             right_type = right.raw_type
-            if left.raw_type == self.environment.root["array"]:
+            if left_type.type == 'array':
                 left_type = left.array_type
-            if right.raw_type == self.environment.root["array"]:
+            if right_type.type == 'array':
                 right_type = right.array_type
-
-            if left_type != right_type:
+            if left_type.type != right_type.type:
                 error(node.lineno,
                       "Binary operator '{}' does not have matching types".format(op))
-                return left_type
             errside = None
             if op not in left_type.binary_ops:
                 errside = "LHS"
@@ -63,7 +61,7 @@ class NodeVisitor(object) :
             if errside is not None:
                 error(node.lineno,
                       "Binary operator '{}' not supported on {} of expression".format(op, errside))
-        return left_type
+        return left.raw_type
 
     def generic_visit(self,node):
         """
@@ -102,24 +100,20 @@ class NodeVisitor(object) :
         for syn in node.synonym_list:
             self.visit(syn)
 
+# TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO #
+
     def visit_SynonymDeclaration(self, node):
         self.visit(node.mode)
         self.visit(node.initialization)
-
-        # TODO: tem que poder fazer syn i int = 2+5;
-        if 'Literal' not in repr(type(node.initialization.value.value)) :
+        if 'const' not in repr(node.initialization.raw_type.true_type) :
             error(node.lineno, "Assignment value is not a constante expression")
         if node.mode is not None and (node.mode.raw_type.type != node.initialization.raw_type.type) :
             error(node.lineno, "Cannot assign '{}' expression to '{}' type"
                 .format(node.initialization.raw_type.type, node.mode.raw_type.type))
-
         for obj in node.identifiers:
             if self.environment.find(obj.identifier):
                 error(obj.lineno, "Duplicate definition of symbol '{}' on same scope".format(obj.identifier))
-            if node.mode is not None:
-                self.environment.add_local(obj.identifier, node.mode)
-            else:
-                self.environment.add_local(obj.identifier, node.initialization)
+            self.environment.add_local(obj.identifier, node.initialization)
 
     def visit_DeclarationStatement(self, node):
         for declaration in node.declaration_list:
@@ -142,18 +136,19 @@ class NodeVisitor(object) :
         node.raw_type = self.environment.root['char']
     def visit_BooleanMode(self, node):
         node.raw_type = self.environment.root['bool']
-    def visit_IntegerLiteral(self, node):
-        node.raw_type = self.environment.root['int']
-    def visit_CharLiteral(self, node):
-        node.raw_type = self.environment.root['char']
-    def visit_BoolLiteral(self, node):
-        node.raw_type = self.environment.root['bool']
-    def visit_IntegerLiteral(self, node):
-        node.raw_type = self.environment.root['int']
-    def visit_NullLiteral(self, node):
+    def visit_NullMode(self, node):
         node.raw_type = self.environment.root['void']
+        
+    def visit_IntegerLiteral(self, node):
+        node.raw_type = self.environment.root['const_int']
+    def visit_CharacterLiteral(self, node):
+        node.raw_type = self.environment.root['const_char']
+    def visit_BooleanLiteral(self, node):
+        node.raw_type = self.environment.root['const_bool']
+    def visit_NullLiteral(self, node):
+        node.raw_type = self.environment.root['const_void']
     def visit_StringLiteral(self, node):
-        node.raw_type = self.environment.root['string']
+        node.raw_type = self.environment.root['const_string']
 
     def visit_Location(self, node):
         self.visit(node.location)
@@ -208,7 +203,7 @@ class NodeVisitor(object) :
     def visit_CompositeMode(self, node):
         self.visit(node.mode)
         node.raw_type = node.mode.raw_type
-        if node.raw_type == self.environment.root["array"]:
+        if node.raw_type.type == 'array':
             node.array_type = node.mode.array_type
 
     def visit_StringMode(self, node):
@@ -229,7 +224,7 @@ class NodeVisitor(object) :
     def visit_ModeName(self, node):
         self.visit(node.type)
         node.raw_type = node.type.raw_type
-        if node.type.raw_type == self.environment.root["array"]:
+        if node.type.raw_type.type == 'array':
             node.array_type = node.type._node.array_type
 
     def visit_ActionStatement(self, node):
@@ -263,6 +258,10 @@ class NodeVisitor(object) :
         self.visit(node.operand0)
         self.visit(node.operand1)
         node.raw_type = self.raw_type_binary(node, node.operation, node.operand0, node.operand1)
+        if (node.operand0.raw_type.true_type == node.operand1.raw_type.true_type):
+            node.raw_type.true_type = node.operand0.raw_type.true_type
+        else:
+            node.raw_type.true_type = None 
 
     def visit_MonadicOperation(self, node):
         self.visit(node.operand)
@@ -312,5 +311,15 @@ class NodeVisitor(object) :
 # NAO VERIFICA A CHAMADA DE FUNCAO, mas da pra salvar em um mapa seguindo o mesmo esquema de stack, so que guardando a lista dos parametros !OK!
 # declaracao de funcao interna nao da erro !OK!
 
-
 # TODO: NAO DEIXAR ALTERAR CONSTANTES DEFINIDAS COM SYN
+
+# TODO Ow verifica aí plz se eu faço na hora de setar uma declaração de strings se eu seto ela como um array de char
+# dcl m,n,s int, x int = 3;
+# dcl str chars[20];
+# dcl a array[0:20] int;
+# m = n + s;
+# a[0] = 12;
+# a[1] = 13;
+# Vê se isso rola fazer
+# str[2]='b'
+
