@@ -282,3 +282,7 @@ class NodeVisitor(object) :
 # ARRAY CRIA UM NOVO TIPO ARRAY E COLOCA COMO OUTRO ATRIBUTO O INT, por ex !OK!
 # NAO VERIFICA A CHAMADA DE FUNCAO, mas da pra salvar em um mapa seguindo o mesmo esquema de stack, so que guardando a lista dos parametros !OK!
 # declaracao de funcao interna nao da erro !OK!
+
+
+# TODO: NAO DEIXAR ALTERAR CONSTANTES DEFINIDAS COM SYN
+# TODO: Verificar casos de used but value not assigned
