@@ -285,4 +285,3 @@ class NodeVisitor(object) :
 
 
 # TODO: NAO DEIXAR ALTERAR CONSTANTES DEFINIDAS COM SYN
-# TODO: Verificar casos de used but value not assigned
