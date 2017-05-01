@@ -214,6 +214,8 @@ class NodeVisitor(object) :
         #   TODO: FALTA o index_mode_list
 
     # TODO: ArrayElement
+    # ja n ta feito aqui ?
+    
     def visit_ArrayElement(self, node):
         self.visit(node.location)
         self.visit(node.expression)
@@ -293,6 +295,7 @@ class NodeVisitor(object) :
                 error(node.lineno,
                       "Wrong call to '{}'. Expected '{}' parameter, got '{}' on parameter number {}"
                       .format(node.name, funcParameters[index].raw_type.type, parameter.raw_type.type, index))
+
     def visit_BuiltinCall(self, node):
         # TODO: PARA CADA FUNCAO TEM UM TIPO DE RETORNO
         node.raw_type = self.environment.root[node.name]
