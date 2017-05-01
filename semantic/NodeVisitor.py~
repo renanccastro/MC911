@@ -61,7 +61,7 @@ class NodeVisitor(object) :
             if errside is not None:
                 error(node.lineno,
                       "Binary operator '{}' not supported on {} of expression".format(op, errside))
-        return left.raw_type
+        return left_type
 
     def generic_visit(self,node):
         """
@@ -99,8 +99,6 @@ class NodeVisitor(object) :
     def visit_SynonymStatement(self, node):
         for syn in node.synonym_list:
             self.visit(syn)
-
-# TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO # TODO #
 
     def visit_SynonymDeclaration(self, node):
         self.visit(node.mode)
@@ -236,8 +234,10 @@ class NodeVisitor(object) :
         loct_type = node.location.raw_type
         expr_type = node.expression.raw_type
         node.raw_type = node.expression.raw_type
-        if loct_type != expr_type :         
-            error(node.lineno, "Cannot assign '{}' expression to '{}' type".format(expr_type.type,loct_type.type))
+        if 'const' in repr(loct_type.true_type) :
+            error(node.lineno, "Cannot assign expression to constante type")
+        if loct_type.type != expr_type.type :         
+            error(node.lineno, "Cannot assign '{}' expression to '{}' type".format(expr_type.type,loct_type.type))        
         
     def visit_Expression(self, node):
         self.visit(node.value)
@@ -305,13 +305,10 @@ class NodeVisitor(object) :
 
 # TODO: VERIFICAR NOS FORS SE A INICIALIZACAO EH DO MESMO TIPO QUE A VARIAVEL DE CONTROLE
 
-
 # IF SEMPRE EH UMA EXPRESSAO BOOLEANA, PQ TEM QUE TER COMPARADOR RELACIONAL !OK!
 # ARRAY CRIA UM NOVO TIPO ARRAY E COLOCA COMO OUTRO ATRIBUTO O INT, por ex !OK!
 # NAO VERIFICA A CHAMADA DE FUNCAO, mas da pra salvar em um mapa seguindo o mesmo esquema de stack, so que guardando a lista dos parametros !OK!
 # declaracao de funcao interna nao da erro !OK!
-
-# TODO: NAO DEIXAR ALTERAR CONSTANTES DEFINIDAS COM SYN
 
 # TODO Ow verifica aí plz se eu faço na hora de setar uma declaração de strings se eu seto ela como um array de char
 # dcl m,n,s int, x int = 3;
