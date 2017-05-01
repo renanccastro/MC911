@@ -316,10 +316,8 @@ class NodeVisitor(object) :
         if node.end_value is not None and (counter_type != node.end_value.raw_type.type) :
             error(node.lineno, "Cannot compare '{}' expression with '{}' expression".format(node.end_value.raw_type.type, counter_type))     
             
-    # TODO: VERIFICAR NOS FORS SE A INICIALIZACAO EH DO MESMO TIPO QUE A VARIAVEL DE CONTROLE
-    # TODO : discrete mode
- 
-# on going ...            
+# TODO: VERIFICAR NOS FORS SE A INICIALIZACAO EH DO MESMO TIPO QUE A VARIAVEL DE CONTROLE (falta RangeEnumeration) 
+# TODO aqui precisa do discrete mode
 #    def visit_RangeEnumeration(self, node):
 #        self.visit(node.loop_counter)
 #        self.visit(mode)
