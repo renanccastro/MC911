@@ -55,7 +55,7 @@ class NodeVisitor(object) :
                 errside = "RHS"
             if errside is not None:
                 error(node.lineno,
-                      "Binary operator '{}' not supported on {} of expression".format(op, errside))
+                      "Binary operator '{}' not supported on '{}' of expression".format(op, errside))
         return left.raw_type
 
     def generic_visit(self,node):
@@ -98,6 +98,8 @@ class NodeVisitor(object) :
     def visit_SynonymDeclaration(self, node):
         self.visit(node.mode)
         self.visit(node.initialization)
+        if 'Literal' not in repr(type(node.initialization.value.value)) :
+            error(node.lineno, "Assignment value is not a constante expression")
         if node.mode is not None and (node.mode.raw_type.type != node.initialization.raw_type.type) :
             error(node.lineno, "Cannot assign '{}' expression to '{}' type"
                 .format(node.initialization.raw_type.type, node.mode.raw_type.type))
