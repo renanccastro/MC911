@@ -44,19 +44,26 @@ class NodeVisitor(object) :
 
     def raw_type_binary(self, node, op, left, right):
         if hasattr(left, "raw_type") and hasattr(right, "raw_type"):
-            if left.raw_type != right.raw_type:
+            left_type = left.raw_type
+            right_type = right.raw_type
+            if left.raw_type == self.environment.root["array"]:
+                left_type = left.array_type
+            if right.raw_type == self.environment.root["array"]:
+                right_type = right.array_type
+
+            if left_type != right_type:
                 error(node.lineno,
                       "Binary operator '{}' does not have matching types".format(op))
-                return left.raw_type
+                return left_type
             errside = None
-            if op not in left.raw_type.binary_ops:
+            if op not in left_type.binary_ops:
                 errside = "LHS"
-            if op not in right.raw_type.binary_ops:
+            if op not in right_type.binary_ops:
                 errside = "RHS"
             if errside is not None:
                 error(node.lineno,
                       "Binary operator '{}' not supported on {} of expression".format(op, errside))
-        return left.raw_type
+        return left_type
 
     def generic_visit(self,node):
         """
@@ -89,7 +96,7 @@ class NodeVisitor(object) :
     def visit_ModeDefinition(self, node):
         self.visit(node.mode)
         for obj in node.identifier_list:
-            self.environment.add_local(obj.identifier, node.mode.raw_type)
+            self.environment.add_local(obj.identifier, node.mode)
 
     def visit_SynonymStatement(self, node):
         for syn in node.synonym_list:
@@ -98,13 +105,18 @@ class NodeVisitor(object) :
     def visit_SynonymDeclaration(self, node):
         self.visit(node.mode)
         self.visit(node.initialization)
+
         if node.mode is not None and (node.mode.raw_type.type != node.initialization.raw_type.type) :
             error(node.lineno, "Cannot assign '{}' expression to '{}' type"
                 .format(node.initialization.raw_type.type, node.mode.raw_type.type))
+
         for obj in node.identifiers:
             if self.environment.find(obj.identifier):
                 error(obj.lineno, "Duplicate definition of symbol '{}' on same scope".format(obj.identifier))
-            self.environment.add_local(obj.identifier, node.initialization.raw_type)
+            if node.mode is not None:
+                self.environment.add_local(obj.identifier, node.mode)
+            else:
+                self.environment.add_local(obj.identifier, node.initialization)
 
     def visit_DeclarationStatement(self, node):
         for declaration in node.declaration_list:
@@ -119,26 +131,26 @@ class NodeVisitor(object) :
         for obj in node.identifier:
             if self.environment.find(obj.identifier):
                 error(item.lineno, "Duplicate definition of symbol '{}' on same scope".format(obj.identifier))
-            self.environment.add_local(obj.identifier,node.mode.raw_type)
+            self.environment.add_local(obj.identifier,node.mode)
              
     def visit_IntegerMode(self, node):
-        node.raw_type = self.environment.lookup('int')
+        node.raw_type = self.environment.root['int']
     def visit_CharacterMode(self, node):
-        node.raw_type = self.environment.lookup('char')
+        node.raw_type = self.environment.root['char']
     def visit_BooleanMode(self, node):
-        node.raw_type = self.environment.lookup('bool')
+        node.raw_type = self.environment.root['bool']
     def visit_IntegerLiteral(self, node):
-        node.raw_type = self.environment.lookup('int')
+        node.raw_type = self.environment.root['int']
     def visit_CharLiteral(self, node):
-        node.raw_type = self.environment.lookup('char')
+        node.raw_type = self.environment.root['char']
     def visit_BoolLiteral(self, node):
-        node.raw_type = self.environment.lookup('bool')
+        node.raw_type = self.environment.root['bool']
     def visit_IntegerLiteral(self, node):
-        node.raw_type = self.environment.lookup('int')
+        node.raw_type = self.environment.root['int']
     def visit_NullLiteral(self, node):
-        node.raw_type = self.environment.lookup('void')
+        node.raw_type = self.environment.root['void']
     def visit_StringLiteral(self, node):
-        node.raw_type = self.environment.lookup('string')
+        node.raw_type = self.environment.root['string']
 
     def visit_Location(self, node):
         self.visit(node.location)
@@ -146,19 +158,29 @@ class NodeVisitor(object) :
 
     def visit_StringElement(self, node):
         self.visit(node.location)
-        node.raw_type = node.location.raw_type
+        node.raw_type = node.location._node.array_type
 
     def visit_Identifier(self, node):
         if self.environment.lookup(node.identifier) == None:
             error(node.lineno, "Identifier '{}' not defined".format(node.identifier))
-        node.raw_type = self.environment.lookup(node.identifier)
+        node._node = self.environment.lookup(node.identifier)
+        node.raw_type = node._node.raw_type
 
     def visit_ProcedureStatement(self, node):
+
+        # SETA AS COISAS AQUI POR CAUSA DAS CHAMADAS RECURSIVAS
+        self.environment.add_local(node.name, node.definition)
+        self.environment.functionsParameters.add(node.name, node.definition.parameters)
+        if node.definition.returns is not None:
+            self.visit(node.definition.returns)
+            node.definition.raw_type = node.definition.returns.raw_type
+        else:
+            node.definition.raw_type = self.environment.root["void"]
+
         self.environment.push(node)
         self.visit(node.definition)
         self.environment.pop()
-        self.environment.add_local(node.name, node.definition.raw_type)
-        self.environment.functionsParameters.add(node.name, node.definition.parameters)
+
 
     def visit_ProcedureDefinition(self, node):
         for parameter in node.parameters:
@@ -168,11 +190,7 @@ class NodeVisitor(object) :
             error(node.lineno, "No function body")
         for stmt in node.body:
             self.visit(stmt)
-        if node.returns is not None:
-            self.visit(node.returns)
-            node.raw_type = node.returns.raw_type
-        else:
-            node.raw_type = self.environment.root["void"]
+
 
     def visit_ProcedureReturn(self, node):
         self.visit(node.mode)
@@ -181,12 +199,14 @@ class NodeVisitor(object) :
     def visit_ProcedureParameter(self, node):
         self.visit(node.mode)
         for identifierObj in node.identifier_list:
-            self.environment.add_local(identifierObj.identifier, node.mode.raw_type)
+            self.environment.add_local(identifierObj.identifier, node.mode)
         node.raw_type = node.mode.raw_type
 
     def visit_CompositeMode(self, node):
         self.visit(node.mode)
         node.raw_type = node.mode.raw_type
+        if node.raw_type == self.environment.root["array"]:
+            node.array_type = node.mode.array_type
 
     def visit_StringMode(self, node):
         node.raw_type = self.environment.root["string"]
@@ -197,10 +217,17 @@ class NodeVisitor(object) :
         node.array_type = node.element_mode.raw_type
         #   TODO: FALTA o index_mode_list
 
+    # TODO: ArrayElement
+    def visit_ArrayElement(self, node):
+        self.visit(node.location)
+        self.visit(node.expression)
+        node.raw_type = node.location._node.array_type
 
     def visit_ModeName(self, node):
         self.visit(node.type)
         node.raw_type = node.type.raw_type
+        if node.type.raw_type == self.environment.root["array"]:
+            node.array_type = node.type._node.array_type
 
     def visit_ActionStatement(self, node):
         self.visit(node.action)
@@ -208,11 +235,11 @@ class NodeVisitor(object) :
     def visit_AssigmentAction(self, node):
         self.visit(node.location)
         self.visit(node.expression)
-        loct_type = self.environment.lookup(node.location.location.identifier).type
-        expr_type = node.expression.raw_type.type
+        loct_type = node.location.raw_type
+        expr_type = node.expression.raw_type
         node.raw_type = node.expression.raw_type
         if loct_type != expr_type :         
-            error(node.lineno, "Cannot assign '{}' expression to '{}' type".format(expr_type,loct_type))
+            error(node.lineno, "Cannot assign '{}' expression to '{}' type".format(expr_type.type,loct_type.type))
         
     def visit_Expression(self, node):
         self.visit(node.value)
@@ -247,7 +274,8 @@ class NodeVisitor(object) :
         node.raw_type = node.call.raw_type
 
     def visit_ProcedureCall(self, node):
-        node.raw_type = self.environment.lookup(node.name)
+        node._node = self.environment.lookup(node.name)
+        node.raw_type = node._node.raw_type
         if node.raw_type is None:
             error(node.lineno, "Call to undefined function '{}'".format(node.name))
         funcParameters = self.environment.functionsParameters[node.name]
