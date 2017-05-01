@@ -105,6 +105,8 @@ class NodeVisitor(object) :
     def visit_SynonymDeclaration(self, node):
         self.visit(node.mode)
         self.visit(node.initialization)
+
+        # TODO: tem que poder fazer syn i int = 2+5;
         if 'Literal' not in repr(type(node.initialization.value.value)) :
             error(node.lineno, "Assignment value is not a constante expression")
         if node.mode is not None and (node.mode.raw_type.type != node.initialization.raw_type.type) :
