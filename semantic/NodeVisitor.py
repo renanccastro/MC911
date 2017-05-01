@@ -291,8 +291,8 @@ class NodeVisitor(object) :
             self.visit(parameter)
             if parameter.raw_type.type != funcParameters[index].raw_type.type:
                 error(node.lineno,
-                      "Wrong call to '{}'. Expected '{}' parameter, got '{}' on parameter number {}".format(node.name, funcParameters[index].raw_type.type,
-                                                                                  parameter.raw_type.type, index))
+                      "Wrong call to '{}'. Expected '{}' parameter, got '{}' on parameter number {}"
+                      .format(node.name, funcParameters[index].raw_type.type, parameter.raw_type.type, index))
     def visit_BuiltinCall(self, node):
         # TODO: PARA CADA FUNCAO TEM UM TIPO DE RETORNO
         node.raw_type = self.environment.root[node.name]
@@ -301,10 +301,33 @@ class NodeVisitor(object) :
         for parameter in node.parameters:
             self.visit(parameter)
 
-
-
-# TODO: VERIFICAR NOS FORS SE A INICIALIZACAO EH DO MESMO TIPO QUE A VARIAVEL DE CONTROLE
-
+    def visit_StepEnumeration(self, node):
+        self.visit(node.loop_counter)
+        self.visit(node.start_value)
+        self.visit(node.step_value)
+        self.visit(node.end_value)
+        counter_type = node.loop_counter.raw_type.type
+        if self.environment.lookup(node.loop_counter) == None :
+            error(node.lineno, "Identifier '{}' not defined".format(node.loop_counter))
+        if counter_type != node.start_value.raw_type.type :
+            error(node.lineno, "Cannot assign '{}' expression to '{}' type".format(node.start_value.raw_type.type, counter_type))        
+        if node.step_value is not None and (counter_type != node.step_value.raw_type.type) :
+            error(node.lineno, "Cannot assign '{}' expression to '{}' type".format(node.step_value.raw_type.type, counter_type))        
+        if node.end_value is not None and (counter_type != node.end_value.raw_type.type) :
+            error(node.lineno, "Cannot compare '{}' expression with '{}' expression".format(node.end_value.raw_type.type, counter_type))     
+            
+    # TODO: VERIFICAR NOS FORS SE A INICIALIZACAO EH DO MESMO TIPO QUE A VARIAVEL DE CONTROLE
+    # TODO : discrete mode
+ 
+# on going ...            
+#    def visit_RangeEnumeration(self, node):
+#        self.visit(node.loop_counter)
+#        self.visit(mode)
+#        counter_type = node.loop_counter.raw_type.type
+#        if counter_type != node.mode.raw_type.type :            
+#            error(node.lineno, "Cannot compare '{}' expression with '{}' expression".format(node.end_value.raw_type.type, counter_type))     
+                
+    
 # IF SEMPRE EH UMA EXPRESSAO BOOLEANA, PQ TEM QUE TER COMPARADOR RELACIONAL !OK!
 # ARRAY CRIA UM NOVO TIPO ARRAY E COLOCA COMO OUTRO ATRIBUTO O INT, por ex !OK!
 # NAO VERIFICA A CHAMADA DE FUNCAO, mas da pra salvar em um mapa seguindo o mesmo esquema de stack, so que guardando a lista dos parametros !OK!
