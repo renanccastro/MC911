@@ -1,4 +1,15 @@
-/* Stack of integers */
+
+
+dcl m,n,s int, x int = 3;
+dcl str chars[20];
+dcl a array[0:20] int;
+m = n + s;
+a[0] = 12;
+a[1] = 13;
+str = "asdasda";
+
+
+/* Stack of integers
 
 dcl x,y,a int = (2 + 5) * 2 / -3;
 dcl z array [1:2] int;
@@ -7,7 +18,7 @@ pop: proc (s int, elem int);
     push: proc (s int, elem int);
         s = 3;
     end;
-    if !(x==y) == (x==y) then
+    if 2 == 2 then
         print("equals");
     else
         print("not equals");
@@ -28,3 +39,4 @@ print (soma);
 
 
 x = a + 2;
+*/

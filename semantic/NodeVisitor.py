@@ -40,7 +40,7 @@ class NodeVisitor(object) :
             if left.raw_type.type != right.raw_type.type:
                 error(node.lineno,
                       "Binary operator '{}' does not have matching types".format(op))
-            return left.raw_type
+            return self.environment.root["bool"]
 
     def raw_type_binary(self, node, op, left, right):
         if hasattr(left, "raw_type") and hasattr(right, "raw_type"):
@@ -196,11 +196,12 @@ class NodeVisitor(object) :
     def visit_CompositeMode(self, node):
         self.visit(node.mode)
         node.raw_type = node.mode.raw_type
-        if node.raw_type.type == 'array':
+        if hasattr(node.mode, "array_type"):
             node.array_type = node.mode.array_type
 
     def visit_StringMode(self, node):
         node.raw_type = self.environment.root["string"]
+        node.array_type = self.environment.root["char"]
 
     def visit_ArrayMode(self, node):
         node.raw_type = self.environment.root["array"]
