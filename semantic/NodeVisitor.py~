@@ -207,7 +207,7 @@ class NodeVisitor(object) :
             node.array_type = node.mode.array_type
 
     def visit_StringMode(self, node):
-        visit(node.length)
+        self.visit(node.length)
         if (node.length.raw_type.true_type) != 'const_int' :
             error(node.lineno, "String length '{}' value is not a constant integer expression".format(node.length))
         node.raw_type = self.environment.root["string"]
@@ -240,7 +240,7 @@ class NodeVisitor(object) :
         expr_type = node.expression.raw_type
         node.raw_type = node.expression.raw_type
         if 'const' in repr(loct_type.true_type) :
-            error(node.lineno, "Cannot assign '{}' expression to '{}' type".format(expr_type.type,loct_type.true_type)
+            error(node.lineno, "Cannot assign '{}' expression to '{}' type".format(expr_type.type,loct_type.true_type))
         if loct_type.type != expr_type.type :         
             error(node.lineno, "Cannot assign '{}' expression to '{}' type".format(expr_type.type,loct_type.type))        
         
@@ -367,19 +367,19 @@ class NodeVisitor(object) :
     def visit_ActionStatement(self, node):
         self.visit(node.identifier)
         self.visit(node.action)
-        if (node.identifier is not None) and (self.environment.lookup(node.identifier) != None):
+        if (node.identifier is not None) and (self.environment.lookup(node.identifier) != None) :
             error(obj.lineno, "Duplicate definition of symbol '{}' on same scope".format(node.identifier))
         self.environment.add_local(node.identifier, node.action)
                     
     def visit_ExitAction(self, node):
         self.visit(node.call)
-        if self.environment.lookup(node.call) == None):
+        if self.environment.lookup(node.call) == None :
             error(obj.lineno, "Identifier '{}' not defined".format(node.identifier))
             
     def visit_StringSlice(self, node):
-        visit(node.location)
-        visit(node.left)
-        visit(node.right)
+        self.visit(node.location)
+        self.visit(node.left)
+        self.visit(node.right)
         if node.left.raw_type.type != 'int' :
             error(node.lineno, "String index '{}' value is not a integer expression".format(node.left))
         if node.right.raw_type.type != 'int' :
