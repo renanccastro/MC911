@@ -614,8 +614,8 @@ class Parser:
     def p_action_statement(self,p):
         '''action_statement : identifier COLON action SEMI
                             | action SEMI'''
-        p[0] = ActionStatement(p[1] if len(p) == 4 else None,
-                               p[3] if len(p) == 4 else p[1], lineno=p.lineno(1))
+        p[0] = ActionStatement(p[1] if len(p) == 5 else None,
+                               p[3] if len(p) == 5 else p[1], lineno=p.lineno(1))
 
     def p_action(self,p):
         '''action : bracketed_action

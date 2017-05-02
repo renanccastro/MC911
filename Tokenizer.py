@@ -133,6 +133,7 @@ class Tokenizer:
 
     def t_COMMENT(self, t):
         r'(/\*(.|\n)*?\*/)|(//.*)'
+        # TODO: VERIFICAR A QUANTIDADE DE \n AQUI E SOMAR NO t.lexer.lineno
         pass
 
     def t_ICONST(self, t):
