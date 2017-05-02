@@ -40,7 +40,7 @@ class NodeVisitor(object) :
             if left.raw_type.type != right.raw_type.type:
                 error(node.lineno,
                       "Binary operator '{}' does not have matching types".format(op))
-            return left.raw_type
+            return self.environment.root["bool"]
 
     def raw_type_binary(self, node, op, left, right):
         if hasattr(left, "raw_type") and hasattr(right, "raw_type"):
@@ -69,6 +69,11 @@ class NodeVisitor(object) :
         This examines the node to see if it has _fields, is a list,
         or can be further traversed.
         """
+        if type(node) is list:
+            for obj in node:
+                self.visit(obj)
+            return
+
         for field in getattr(node,"_fields"):
             value = getattr(node,field,None)
             if isinstance(value, list):
@@ -86,7 +91,6 @@ class NodeVisitor(object) :
         for statement in node.statements: self.visit(statement)
 
     def visit_NewModeStatement(self, node):
-        # TODO: AQUI DEVE PERCORRER E GUARDAR EM OUTRO MAPA OS NOVOS TIPOS DEFINIDOS
         mode_definition_list = node.mode_definition_list
         for mode_definition in mode_definition_list:
             self.visit(mode_definition)
@@ -154,7 +158,10 @@ class NodeVisitor(object) :
 
     def visit_StringElement(self, node):
         self.visit(node.location)
+        self.visit(node.start)
         node.raw_type = node.location._node.array_type
+        if node.start.raw_type.type != 'int' :
+            error(node.lineno, "String index '{}' value is not a integer expression".format(node.start))            
 
     def visit_Identifier(self, node):
         if self.environment.lookup(node.identifier) == None:
@@ -196,24 +203,26 @@ class NodeVisitor(object) :
     def visit_CompositeMode(self, node):
         self.visit(node.mode)
         node.raw_type = node.mode.raw_type
-        if node.raw_type.type == 'array':
+        if hasattr(node.mode, "array_type"):
             node.array_type = node.mode.array_type
 
     def visit_StringMode(self, node):
+        visit(node.length)
+        if (node.length.raw_type.true_type) != 'const_int' :
+            error(node.lineno, "String length '{}' value is not a constant integer expression".format(node.length))
         node.raw_type = self.environment.root["string"]
+        node.array_type = self.environment.root["char"]
 
     def visit_ArrayMode(self, node):
         node.raw_type = self.environment.root["array"]
         self.visit(node.element_mode)
         node.array_type = node.element_mode.raw_type
-        # TODO: FALTA o index_mode_list
-
-    # TODO: ArrayElement
+        self.visit(node.index_mode_list)
     
     def visit_ArrayElement(self, node):
         self.visit(node.location)
         self.visit(node.expression)
-        node.raw_type = node.location._node.array_type
+        node.raw_type = node.location._node.array_type        
 
     def visit_ModeName(self, node):
         self.visit(node.type)
@@ -231,7 +240,7 @@ class NodeVisitor(object) :
         expr_type = node.expression.raw_type
         node.raw_type = node.expression.raw_type
         if 'const' in repr(loct_type.true_type) :
-            error(node.lineno, "Cannot assign expression to constante type")
+            error(node.lineno, "Cannot assign '{}' expression to '{}' type".format(expr_type.type,loct_type.true_type)
         if loct_type.type != expr_type.type :         
             error(node.lineno, "Cannot assign '{}' expression to '{}' type".format(expr_type.type,loct_type.type))        
         
@@ -244,6 +253,21 @@ class NodeVisitor(object) :
         self.visit(node.then_expression)
         self.visit(node.elsif_expression)
         self.visit(node.else_expression)
+        if node.boolean_expression.raw_type.true_type != self.environment.root["bool"].true_type:
+            error(node.lineno, "Should have a boolean clausule on if")
+
+    def visit_ElsifExpression(self, node):
+        self.visit(node.boolean_expression)
+        self.visit(node.then_expression)
+        if node.boolean_expression.raw_type.true_type != self.environment.root["bool"].true_type:
+            error(node.lineno, "Should have a boolean clausule on if")
+
+    def visit_ConditionalClause(self, node):
+        self.visit(node.boolean_expression)
+        self.visit(node.then_clause)
+        self.visit(node.else_clause)
+        if node.boolean_expression.raw_type.true_type != self.environment.root["bool"].true_type:
+            error(node.lineno, "Should have a boolean clausule on if")
 
     def visit_BooleanExpression(self, node):
         self.visit(node.left)
@@ -291,7 +315,6 @@ class NodeVisitor(object) :
                       .format(node.name, funcParameters[index].raw_type.type, parameter.raw_type.type, index))
 
     def visit_BuiltinCall(self, node):
-        # TODO: PARA CADA FUNCAO TEM UM TIPO DE RETORNO
         node.raw_type = self.environment.root[node.name]
         for parameter in node.parameters:
             self.visit(parameter)
@@ -340,19 +363,32 @@ class NodeVisitor(object) :
         if ('const' not in repr(node.lower.raw_type.true_type)) or ('const' not in repr(node.lower.raw_type.true_type)) :
             error(node.lineno, "Range bounds must be constante value expressions")
         node.raw_type = node.lower.raw_type
-    
+        
+    def visit_ActionStatement(self, node):
+        self.visit(node.identifier)
+        self.visit(node.action)
+        if (node.identifier is not None) and (self.environment.lookup(node.identifier) != None):
+            error(obj.lineno, "Duplicate definition of symbol '{}' on same scope".format(node.identifier))
+        self.environment.add_local(node.identifier, node.action)
+                    
+    def visit_ExitAction(self, node):
+        self.visit(node.call)
+        if self.environment.lookup(node.call) == None):
+            error(obj.lineno, "Identifier '{}' not defined".format(node.identifier))
+            
+    def visit_StringSlice(self, node):
+        visit(node.location)
+        visit(node.left)
+        visit(node.right)
+        if node.left.raw_type.type != 'int' :
+            error(node.lineno, "String index '{}' value is not a integer expression".format(node.left))
+        if node.right.raw_type.type != 'int' :
+            error(node.lineno, "String index '{}' value is not a integer expression".format(node.right))
+
+
+        
 # IF SEMPRE EH UMA EXPRESSAO BOOLEANA, PQ TEM QUE TER COMPARADOR RELACIONAL !OK!
 # ARRAY CRIA UM NOVO TIPO ARRAY E COLOCA COMO OUTRO ATRIBUTO O INT, por ex !OK!
 # NAO VERIFICA A CHAMADA DE FUNCAO, mas da pra salvar em um mapa seguindo o mesmo esquema de stack, so que guardando a lista dos parametros !OK!
 # declaracao de funcao interna nao da erro !OK!
-
-# TODO Ow verifica aí plz se eu faço na hora de setar uma declaração de strings se eu seto ela como um array de char
-# dcl m,n,s int, x int = 3;
-# dcl str chars[20];
-# dcl a array[0:20] int;
-# m = n + s;
-# a[0] = 12;
-# a[1] = 13;
-# Vê se isso rola fazer
-# str[2]='b'
 
