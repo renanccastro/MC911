@@ -227,8 +227,9 @@ class NodeVisitor(object) :
     def visit_ModeName(self, node):
         self.visit(node.type)
         node.raw_type = node.type.raw_type
-        if node.type.raw_type.type == 'array':
-            node.array_type = node.type._node.array_type
+        if node.type._node is not None:
+            if hasattr(node.type._node, "array_type"):
+                node.array_type = node.type._node.array_type
 
     def visit_ActionStatement(self, node):
         self.visit(node.action)

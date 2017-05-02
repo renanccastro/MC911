@@ -1,4 +1,16 @@
 
+syn top int = 10;
+type stack = array [1:top+1] int;
+dcl x stack;
+x[0] = 2;
+
+type twentystring = chars[20];
+
+dcl str twentystring;
+str[0] = 'a';
+str = "asdasd";
+
+
 /*
 dcl m,n,s int, x int = 3;
 dcl str chars[20];
@@ -9,7 +21,7 @@ a[1] = 13;
 str = "asdasda";
 
 */
-/* Stack of integers */
+/* Stack of integers
 
 dcl x,y,a int = (2 + 5) * 2 / -3;
 dcl z array [1:2] int;
@@ -39,3 +51,4 @@ print (soma);
 
 
 x = a + 2;
+*/
