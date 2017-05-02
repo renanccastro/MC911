@@ -69,6 +69,11 @@ class NodeVisitor(object) :
         This examines the node to see if it has _fields, is a list,
         or can be further traversed.
         """
+        if type(node) is list:
+            for obj in node:
+                self.visit(obj)
+            return
+
         for field in getattr(node,"_fields"):
             value = getattr(node,field,None)
             if isinstance(value, list):
@@ -245,6 +250,23 @@ class NodeVisitor(object) :
         self.visit(node.then_expression)
         self.visit(node.elsif_expression)
         self.visit(node.else_expression)
+        if node.boolean_expression.raw_type.true_type != self.environment.root["bool"].true_type:
+            error(node.lineno, "Should have a boolean clausule on if")
+
+
+    def visit_ElsifExpression(self, node):
+        self.visit(node.boolean_expression)
+        self.visit(node.then_expression)
+        if node.boolean_expression.raw_type.true_type != self.environment.root["bool"].true_type:
+            error(node.lineno, "Should have a boolean clausule on if")
+
+
+    def visit_ConditionalClause(self, node):
+        self.visit(node.boolean_expression)
+        self.visit(node.then_clause)
+        self.visit(node.else_clause)
+        if node.boolean_expression.raw_type.true_type != self.environment.root["bool"].true_type:
+            error(node.lineno, "Should have a boolean clausule on if")
 
     def visit_BooleanExpression(self, node):
         self.visit(node.left)

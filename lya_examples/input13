@@ -1,5 +1,5 @@
 
-
+/*
 dcl m,n,s int, x int = 3;
 dcl str chars[20];
 dcl a array[0:20] int;
@@ -8,8 +8,8 @@ a[0] = 12;
 a[1] = 13;
 str = "asdasda";
 
-
-/* Stack of integers
+*/
+/* Stack of integers */
 
 dcl x,y,a int = (2 + 5) * 2 / -3;
 dcl z array [1:2] int;
@@ -39,4 +39,3 @@ print (soma);
 
 
 x = a + 2;
-*/
