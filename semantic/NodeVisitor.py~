@@ -163,7 +163,6 @@ class NodeVisitor(object) :
         node.raw_type = node._node.raw_type
 
     def visit_ProcedureStatement(self, node):
-
         # SETA AS COISAS AQUI POR CAUSA DAS CHAMADAS RECURSIVAS
         self.environment.add_local(node.name, node.definition)
         self.environment.functionsParameters.add(node.name, node.definition.parameters)
@@ -172,21 +171,17 @@ class NodeVisitor(object) :
             node.definition.raw_type = node.definition.returns.raw_type
         else:
             node.definition.raw_type = self.environment.root["void"]
-
         self.environment.push(node)
         self.visit(node.definition)
         self.environment.pop()
 
-
     def visit_ProcedureDefinition(self, node):
         for parameter in node.parameters:
             self.visit(parameter)
-
         if node.body is None or len(node.body) == 0:
             error(node.lineno, "No function body")
         for stmt in node.body:
             self.visit(stmt)
-
 
     def visit_ProcedureReturn(self, node):
         self.visit(node.mode)
@@ -211,10 +206,9 @@ class NodeVisitor(object) :
         node.raw_type = self.environment.root["array"]
         self.visit(node.element_mode)
         node.array_type = node.element_mode.raw_type
-        #   TODO: FALTA o index_mode_list
+        # TODO: FALTA o index_mode_list
 
     # TODO: ArrayElement
-    # ja n ta feito aqui ?
     
     def visit_ArrayElement(self, node):
         self.visit(node.location)
@@ -299,8 +293,6 @@ class NodeVisitor(object) :
     def visit_BuiltinCall(self, node):
         # TODO: PARA CADA FUNCAO TEM UM TIPO DE RETORNO
         node.raw_type = self.environment.root[node.name]
-
-        # TODO: DEVE VERIFICAR TAMBÉM SE OS PARAMETROS SAO DOS TIPOS CERTOS COM A FUNCAO
         for parameter in node.parameters:
             self.visit(parameter)
 
@@ -318,9 +310,7 @@ class NodeVisitor(object) :
             error(node.lineno, "Cannot assign '{}' expression to '{}' type".format(node.step_value.raw_type.type, counter_type))        
         if node.end_value is not None and (counter_type != node.end_value.raw_type.type) :
             error(node.lineno, "Cannot compare '{}' expression with '{}' expression".format(node.end_value.raw_type.type, counter_type))     
-            
-# TODO: VERIFICAR NOS FORS SE A INICIALIZACAO EH DO MESMO TIPO QUE A VARIAVEL DE CONTROLE (falta RangeEnumeration) 
-
+ 
     def visit_RangeEnumeration(self, node):
         self.visit(node.loop_counter)
         self.visit(node.mode)
