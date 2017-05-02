@@ -1,13 +1,13 @@
-from AST import AST
+from .AST import AST
 
 
-class CharLiteral(AST):
-    _fields = ['value']
-class BoolLiteral(AST):
-    _fields = ['value']
+class CharacterLiteral(AST):
+    _fields = ['value','type']
+class BooleanLiteral(AST):
+    _fields = ['value','type']
 class IntegerLiteral(AST):
-    _fields = ['value']
+    _fields = ['value','type']
 class NullLiteral(AST):
     _fields = []
 class StringLiteral(AST):
-    _fields = ['value']
+    _fields = ['value','type']

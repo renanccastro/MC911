@@ -17,7 +17,7 @@ from nodes.Declaration import Declaration
 from nodes.DiscreteMode import IntegerMode, BooleanMode, CharacterMode, DiscreteModeName
 from nodes.DiscreteRangeMode import DiscreteRangeMode
 from nodes.Expression import Expression
-from nodes.Literal import IntegerLiteral, BoolLiteral, CharLiteral, NullLiteral, StringLiteral
+from nodes.Literal import IntegerLiteral, BooleanLiteral, CharacterLiteral, NullLiteral, StringLiteral
 from nodes.ModeDefinition import ModeDefinition
 from nodes.ModeName import ModeName
 from nodes.Modes.CompositeMode import CompositeMode, StringMode, ArrayMode
@@ -591,11 +591,11 @@ class Parser:
     def p_boolean_literal(self, p):
         '''boolean_literal : TRUE
                            | FALSE'''
-        p[0] = BoolLiteral(p[1], 'bool' , lineno=p.lineno(1))
+        p[0] = BooleanLiteral(p[1], 'bool' , lineno=p.lineno(1))
 
     def p_character_literal(self, p):
         '''character_literal : CCONST'''
-        p[0] = CharLiteral(p[1], 'char', lineno=p.lineno(1))
+        p[0] = CharacterLiteral(p[1], 'char', lineno=p.lineno(1))
 
     def p_empty_literal(self,p):
         '''empty_literal : NULL'''
@@ -809,7 +809,7 @@ class Parser:
     def p_range_enumeration(self,p):
         '''range_enumeration : identifier DOWN IN discrete_mode
                              | identifier IN discrete_mode'''
-        if len(p) == 4:
+        if len(p) == 5:
             p[0] = RangeEnumeration(p[1], 'DOWN', p[4], lineno=p.lineno(1))
         else:
             p[0] = RangeEnumeration(p[1], None, p[3], lineno=p.lineno(1))

@@ -310,24 +310,44 @@ class NodeVisitor(object) :
         self.visit(node.step_value)
         self.visit(node.end_value)
         counter_type = node.loop_counter.raw_type.type
-        if self.environment.lookup(node.loop_counter) == None :
-            error(node.lineno, "Identifier '{}' not defined".format(node.loop_counter))
+        if self.environment.lookup(node.loop_counter.identifier) == None :
+            error(node.lineno, "Identifier '{}' not defined".format(node.loop_counter.identifier))
         if counter_type != node.start_value.raw_type.type :
             error(node.lineno, "Cannot assign '{}' expression to '{}' type".format(node.start_value.raw_type.type, counter_type))        
         if node.step_value is not None and (counter_type != node.step_value.raw_type.type) :
             error(node.lineno, "Cannot assign '{}' expression to '{}' type".format(node.step_value.raw_type.type, counter_type))        
         if node.end_value is not None and (counter_type != node.end_value.raw_type.type) :
             error(node.lineno, "Cannot compare '{}' expression with '{}' expression".format(node.end_value.raw_type.type, counter_type))     
-            
-# TODO: VERIFICAR NOS FORS SE A INICIALIZACAO EH DO MESMO TIPO QUE A VARIAVEL DE CONTROLE (falta RangeEnumeration) 
-# TODO aqui precisa do discrete mode
-#    def visit_RangeEnumeration(self, node):
-#        self.visit(node.loop_counter)
-#        self.visit(mode)
-#        counter_type = node.loop_counter.raw_type.type
-#        if counter_type != node.mode.raw_type.type :            
-#            error(node.lineno, "Cannot compare '{}' expression with '{}' expression".format(node.end_value.raw_type.type, counter_type))     
-                
+ 
+    def visit_RangeEnumeration(self, node):
+        self.visit(node.loop_counter)
+        self.visit(node.mode)
+        counter_type = node.loop_counter.raw_type.type
+        if counter_type != node.mode.raw_type.type :            
+            error(node.lineno, "Cannot compare '{}' expression with '{}' expression".format(node.end_value.raw_type.type, counter_type))     
+    
+    def visit_DiscreteMode(self, node):
+        self.visit(node.mode)
+        node.raw_type = node.mode.raw_type
+        
+    def visit_DiscreteRangeMode(self, node):
+        self.visit(node.mode)
+        self.visit(node.range)
+        if node.mode.type != node.range.raw_type.type :
+            error(node.lineno, "Range mode and bounds do not have matching types. Mode type is '{}' and bound type is '{}'"
+            .format(node.mode.type, node.range.raw_type.type))
+        node.raw_type = node.mode.raw_type
+    
+    def visit_Range(self, node):
+        self.visit(node.lower)
+        self.visit(node.upper)
+        lower_type = node.lower.raw_type.type
+        upper_type = node.upper.raw_type.type 
+        if  lower_type != upper_type :
+            error(node.lineno, "Range bounds do not have matching types. Bound types are '{}' and '{}'".format(lower_type, upper_type))
+        if ('const' not in repr(node.lower.raw_type.true_type)) or ('const' not in repr(node.lower.raw_type.true_type)) :
+            error(node.lineno, "Range bounds must be constante value expressions")
+        node.raw_type = node.lower.raw_type
     
 # IF SEMPRE EH UMA EXPRESSAO BOOLEANA, PQ TEM QUE TER COMPARADOR RELACIONAL !OK!
 # ARRAY CRIA UM NOVO TIPO ARRAY E COLOCA COMO OUTRO ATRIBUTO O INT, por ex !OK!

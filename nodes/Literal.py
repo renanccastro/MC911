@@ -1,9 +1,9 @@
 from .AST import AST
 
 
-class CharLiteral(AST):
+class CharacterLiteral(AST):
     _fields = ['value','type']
-class BoolLiteral(AST):
+class BooleanLiteral(AST):
     _fields = ['value','type']
 class IntegerLiteral(AST):
     _fields = ['value','type']
