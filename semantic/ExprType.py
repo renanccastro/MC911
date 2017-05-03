@@ -8,6 +8,7 @@ class ExprType(object):
 
 int_type = ExprType("int", ['+', '-' , '*', '/', '%', '==', '!=', '>', '>=', '<', '>=', '<', '<='], ['-'], "int")
 bool_type = ExprType("bool", ['==', '!='], ['!'], "bool")
+pointer_type = ExprType("ref", ['==', '!='], [], "ref")
 char_type = ExprType("char", ['==', '!='], [], "char")
 string_type = ExprType("string", ['+', '==', '!=', '&'], [], "string")
 null_type = ExprType("null", [], [], "null")

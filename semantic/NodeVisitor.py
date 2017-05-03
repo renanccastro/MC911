@@ -1,3 +1,5 @@
+import sys
+
 from nodes.AST import AST
 from nodes.DiscreteMode import *
 from nodes.Literal import StringLiteral
@@ -5,16 +7,47 @@ from semantic.Environment import Environment
 from semantic.ExprType import *
 from semantic.SymbolTable import SymbolTable
 
-
+k = 1
 def error(lineno, param):
     print("{}, on line {}.".format(param, lineno))
-    exit()
 
 
 class NodeVisitor(object) :
 
     def __init__ (self):
         self.environment = Environment()
+
+    def visit_print(self, node):
+        global k
+        for field in dir(node):
+            if field[0] == "_":
+                continue
+            sys.stdout.write('-- '*k)
+            value = getattr(node, field, None)
+
+            if type(value) in (int, float, bool, str):
+                print(str(field) + ' : ' + str(value))
+            else:
+                print(field)
+            if isinstance(value, list):
+                sys.stdout.write('-- ' * k)
+                print('[')
+                for item in value:
+                    if isinstance(item, AST):
+                        k = k + 1
+                        self.visit_print(item)
+                    sys.stdout.write('-- ' * k)
+                    print(',')
+                sys.stdout.write('-- ' * k)
+                print(']')
+            elif isinstance(value, AST):
+                k = k + 1
+                self.visit_print(value)
+            elif isinstance(value, ExprType):
+                sys.stdout.write('-- ' * (k+1))
+                print("type = {}".format(value.type))
+
+        k = k - 1
 
     def visit(self,node):
         """
@@ -46,10 +79,19 @@ class NodeVisitor(object) :
         if hasattr(left, "raw_type") and hasattr(right, "raw_type"):
             left_type = left.raw_type
             right_type = right.raw_type
-            if left_type.type == 'array':
+            if hasattr(left,"array_type"):
                 left_type = left.array_type
-            if right_type.type == 'array':
+            if hasattr(right, "array_type"):
                 right_type = right.array_type
+
+            # TODO: VERIFICAR SE OS PONTEIROS APONTAM PRO MESMO TIPO!
+
+            # if left.raw_type.type == 'ref' and right.raw_type.type == 'ref':
+            #     if left_type.type != right_type.type:
+            #         error(node.lineno,
+            #               "Binary operator '{}' does not have matching types".format(op))
+            #     return
+
             if left_type.type != right_type.type:
                 error(node.lineno,
                       "Binary operator '{}' does not have matching types".format(op))
@@ -87,7 +129,7 @@ class NodeVisitor(object) :
     def visit_Program(self, node):
         self.environment.push(node)
         node.environment = self.environment
-        node.symtab = self.environment.peek()
+        # node.symtab = self.environment.peek()
         for statement in node.statements: self.visit(statement)
 
     def visit_NewModeStatement(self, node):
@@ -98,7 +140,10 @@ class NodeVisitor(object) :
     def visit_ModeDefinition(self, node):
         self.visit(node.mode)
         for obj in node.identifier_list:
-            self.environment.add_local(obj.identifier, node.mode)
+            if self.environment.find(obj.identifier):
+                error(obj.lineno, "Duplicate definition of type '{}' on same scope".format(obj.identifier))
+            else:
+                self.environment.add_local(obj.identifier, node.mode)
 
     def visit_SynonymStatement(self, node):
         for syn in node.synonym_list:
@@ -118,20 +163,21 @@ class NodeVisitor(object) :
             self.environment.add_local(obj.identifier, node.initialization)
 
     def visit_DeclarationStatement(self, node):
-        for declaration in node.declaration_list:
+        for declaration in reversed(node.declaration_list):
             self.visit(declaration)
 
     def visit_Declaration(self, node):
         self.visit(node.mode)
         self.visit(node.initialization)
+        for obj in node.identifier:
+            if self.environment.find(obj.identifier):
+                error(node.lineno, "Duplicate definition of symbol '{}' on same scope".format(obj.identifier))
+            self.environment.add_local(obj.identifier,node.mode)
+
         if node.initialization is not None and (node.mode.raw_type.type != node.initialization.raw_type.type) :
             error(node.lineno, "Cannot assign '{}' expression to '{}' type"
                 .format(node.initialization.raw_type.type, node.mode.raw_type.type))
-        for obj in node.identifier:
-            if self.environment.find(obj.identifier):
-                error(item.lineno, "Duplicate definition of symbol '{}' on same scope".format(obj.identifier))
-            self.environment.add_local(obj.identifier,node.mode)
-             
+
     def visit_IntegerMode(self, node):
         node.raw_type = self.environment.root['int']
     def visit_CharacterMode(self, node):
@@ -155,22 +201,45 @@ class NodeVisitor(object) :
     def visit_Location(self, node):
         self.visit(node.location)
         node.raw_type = node.location.raw_type
+        if hasattr(node.location, "_node"):
+            node._node = node.location._node
+
+    def visit_DereferencedLocation(self, node):
+        self.visit(node.location)
+        if hasattr(node.location, "_node"):
+            node._node = node.location._node
+
+        node.raw_type = node._node.array_type
+
+
+    def visit_ReferencedLocation(self, node):
+        self.visit(node.location)
+        node.raw_type = self.environment.root["ref"]
+        node.array_type = node.location.raw_type
+        if hasattr(node.location, "_node"):
+            node._node = node.location._node
 
     def visit_StringElement(self, node):
         self.visit(node.location)
         self.visit(node.start)
         node.raw_type = node.location._node.array_type
+        node._node = node.location._node
         if node.start.raw_type.type != 'int' :
-            error(node.lineno, "String index '{}' value is not a integer expression".format(node.start))            
+            error(node.lineno, "index value is not a integer expression")
 
     def visit_Identifier(self, node):
         if self.environment.lookup(node.identifier) == None:
             error(node.lineno, "Identifier '{}' not defined".format(node.identifier))
-        node._node = self.environment.lookup(node.identifier)
-        node.raw_type = node._node.raw_type
+            node.raw_type = self.environment.root["void"]
+        else:
+            node._node = self.environment.lookup(node.identifier)
+            node.raw_type = node._node.raw_type
 
     def visit_ProcedureStatement(self, node):
         # SETA AS COISAS AQUI POR CAUSA DAS CHAMADAS RECURSIVAS
+        if self.environment.find(node.name):
+            error(node.lineno, "Duplicate definition of function '{}'".format(node.name))
+
         self.environment.add_local(node.name, node.definition)
         self.environment.functionsParameters.add(node.name, node.definition.parameters)
         if node.definition.returns is not None:
@@ -183,6 +252,7 @@ class NodeVisitor(object) :
         self.environment.pop()
 
     def visit_ProcedureDefinition(self, node):
+
         for parameter in node.parameters:
             self.visit(parameter)
         if node.body is None or len(node.body) == 0:
@@ -222,7 +292,9 @@ class NodeVisitor(object) :
     def visit_ArrayElement(self, node):
         self.visit(node.location)
         self.visit(node.expression)
-        node.raw_type = node.location._node.array_type        
+        node.raw_type = node.location._node.array_type
+        if hasattr(node.location, "_node"):
+            node._node = node.location._node
 
     def visit_ModeName(self, node):
         self.visit(node.type)
@@ -237,15 +309,20 @@ class NodeVisitor(object) :
         self.visit(node.expression)
         loct_type = node.location.raw_type
         expr_type = node.expression.raw_type
-        node.raw_type = node.expression.raw_type
+        node.raw_type = node.location.raw_type
         if 'const' in repr(loct_type.true_type) :
             error(node.lineno, "Cannot assign '{}' expression to '{}' type".format(expr_type.type,loct_type.true_type))
         if loct_type.type != expr_type.type :         
-            error(node.lineno, "Cannot assign '{}' expression to '{}' type".format(expr_type.type,loct_type.type))        
+            error(node.lineno, "Cannot assign '{}' expression to '{}' type".format(expr_type.type,loct_type.type))
+        if node.assigning_operator.operator is not None:
+            self.raw_type_binary(node, node.assigning_operator.operator, node.location, node.expression)
         
     def visit_Expression(self, node):
         self.visit(node.value)
         node.raw_type = node.value.raw_type
+        if hasattr(node.value, "array_type"):
+                node.array_type = node.value.array_type
+
 
     def visit_ConditionalExpression(self, node):
         self.visit(node.boolean_expression)
@@ -254,12 +331,22 @@ class NodeVisitor(object) :
         self.visit(node.else_expression)
         if node.boolean_expression.raw_type.true_type != self.environment.root["bool"].true_type:
             error(node.lineno, "Should have a boolean clausule on if")
+        if not (node.then_expression.raw_type.type == node.else_expression.raw_type.type):
+            error(node.lineno, "Conflicting types on conditional expression")
+
+        node.raw_type = node.then_expression.raw_type
+        if hasattr(node.then_expression, "array_type"):
+                node.array_type = node.then_expression.array_type
+
 
     def visit_ElsifExpression(self, node):
         self.visit(node.boolean_expression)
         self.visit(node.then_expression)
         if node.boolean_expression.raw_type.true_type != self.environment.root["bool"].true_type:
             error(node.lineno, "Should have a boolean clausule on if")
+        if hasattr(node.then_expression, "array_type"):
+                node.array_type = node.then_expression.array_type
+        node.raw_type = node.then_expression.raw_type
 
     def visit_ConditionalClause(self, node):
         self.visit(node.boolean_expression)
@@ -289,6 +376,10 @@ class NodeVisitor(object) :
     def visit_Operand(self, node):
         self.visit(node.value)
         node.raw_type = node.value.raw_type
+        if hasattr(node.value, "array_type"):
+                node.array_type = node.value.array_type
+
+
 
     def visit_CallAction(self, node):
         self.visit(node.call)
@@ -296,15 +387,20 @@ class NodeVisitor(object) :
 
     def visit_ProcedureCall(self, node):
         node._node = self.environment.lookup(node.name)
-        node.raw_type = node._node.raw_type
-        if node.raw_type is None:
+        if node._node is None:
             error(node.lineno, "Call to undefined function '{}'".format(node.name))
+            node.raw_type = self.environment.root["void"]
+            return
+        else:
+            node.raw_type = node._node.raw_type
+
         funcParameters = self.environment.functionsParameters[node.name]
         # VERIFICA QUANTIDADE DE PARAMETROS
         if node.parameters is None:
             node.parameters = []
         if len(node.parameters) != len(funcParameters):
             error(node.lineno, "Wrong call to '{}'. Expected '{}' parameters, got '{}'".format(node.name, len(funcParameters), len(node.parameters)))
+            return
         # VERIFICA TIPOS DOS PARAMETROS
         for index, parameter in enumerate(node.parameters):
             self.visit(parameter)
@@ -338,12 +434,17 @@ class NodeVisitor(object) :
         self.visit(node.mode)
         counter_type = node.loop_counter.raw_type.type
         if counter_type != node.mode.raw_type.type :            
-            error(node.lineno, "Cannot compare '{}' expression with '{}' expression".format(node.end_value.raw_type.type, counter_type))     
+            error(node.lineno, "Cannot compare '{}' expression with '{}' expression".format(node.loop_counter.raw_type.type, counter_type))     
     
     def visit_DiscreteMode(self, node):
         self.visit(node.mode)
         node.raw_type = node.mode.raw_type
-        
+
+    def visit_ReferenceMode(self, node):
+        self.visit(node.mode)
+        node.raw_type = self.environment.root["ref"]
+        node.array_type = node.mode.raw_type
+
     def visit_DiscreteRangeMode(self, node):
         self.visit(node.mode)
         self.visit(node.range)
@@ -366,31 +467,20 @@ class NodeVisitor(object) :
     def visit_ActionStatement(self, node):
         if (node.identifier is not None):
             if (self.environment.lookup(node.identifier.identifier) != None) :
-                error(obj.lineno, "Duplicate definition of symbol '{}' on same scope".format(node.identifier.identifier))
+                error(node.lineno, "Duplicate definition of symbol '{}' on same scope".format(node.identifier.identifier))
             node.raw_type = self.environment.root["void"]
             self.environment.add_local(node.identifier.identifier, node)
         self.visit(node.identifier)
         self.visit(node.action)
 
                     
-    # def visit_ExitAction(self, node):
-    #     self.visit(node.call)
-    #     if self.environment.lookup(node.call) == None :
-    #         error(obj.lineno, "Identifier '{}' not defined".format(node.identifier))
-            
+
     def visit_StringSlice(self, node):
         self.visit(node.location)
         self.visit(node.left)
         self.visit(node.right)
         if node.left.raw_type.type != 'int' :
-            error(node.lineno, "String index '{}' value is not a integer expression".format(node.left))
+            error(node.lineno, "Index value is not a integer expression")
         if node.right.raw_type.type != 'int' :
-            error(node.lineno, "String index '{}' value is not a integer expression".format(node.right))
-
-
-        
-# IF SEMPRE EH UMA EXPRESSAO BOOLEANA, PQ TEM QUE TER COMPARADOR RELACIONAL !OK!
-# ARRAY CRIA UM NOVO TIPO ARRAY E COLOCA COMO OUTRO ATRIBUTO O INT, por ex !OK!
-# NAO VERIFICA A CHAMADA DE FUNCAO, mas da pra salvar em um mapa seguindo o mesmo esquema de stack, so que guardando a lista dos parametros !OK!
-# declaracao de funcao interna nao da erro !OK!
+            error(node.lineno, "Index value is not a integer expression")
 

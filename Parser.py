@@ -212,8 +212,19 @@ class Parser:
 
     def p_procedure_definition(self, p):
         '''procedure_definition : PROC LPAREN formal_parameter_list RPAREN result_spec SEMI statement_nullable END SEMI
-                                | PROC LPAREN formal_parameter_list RPAREN SEMI statement_nullable END SEMI'''
-        p[0] = ProcedureDefinition(p[3], p[5] if len(p) == 10 else None , p[7] if len(p) == 10 else p[6], lineno=p.lineno(1))
+                                | PROC LPAREN formal_parameter_list RPAREN SEMI statement_nullable END SEMI
+                                | PROC LPAREN  RPAREN result_spec SEMI statement_nullable END SEMI
+                                | PROC LPAREN  RPAREN SEMI statement_nullable END SEMI'''
+        if p[3] == ")":
+            p[0] = ProcedureDefinition([],
+                                       p[4] if len(p) == 9 else None,
+                                       p[len(p)-3],
+                                       lineno=p.lineno(1))
+        else:
+            p[0] = ProcedureDefinition(p[3],
+                                       p[5] if len(p) == 10 else None,
+                                       p[len(p)-3],
+                                       lineno=p.lineno(1))
 
     def p_formal_parameter_list(self, p):
         '''formal_parameter_list : formal_parameter
@@ -512,7 +523,7 @@ class Parser:
 
     def p_referenced_location(self, p):
         '''referenced_location : ARROW array_location'''
-        p[0] = ReferencedLocation(p[1], lineno=p.lineno(1))
+        p[0] = ReferencedLocation(p[2], lineno=p.lineno(1))
 
     def p_operator1(self, p):
         '''operator1 : membership_operator

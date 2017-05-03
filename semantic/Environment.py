@@ -15,6 +15,7 @@ class Environment(object):
             "bool": bool_type,
             "array": array_type,
             "void": null_type,
+            "ref": pointer_type,
             # const
             "const_int": const_int_type,
             "const_char": const_char_type,
