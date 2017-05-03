@@ -227,11 +227,10 @@ class NodeVisitor(object) :
     def visit_ModeName(self, node):
         self.visit(node.type)
         node.raw_type = node.type.raw_type
-        if node.type.raw_type.type == 'array':
-            node.array_type = node.type._node.array_type
+        if node.type._node is not None:
+            if hasattr(node.type._node, "array_type"):
+                node.array_type = node.type._node.array_type
 
-    def visit_ActionStatement(self, node):
-        self.visit(node.action)
 
     def visit_AssigmentAction(self, node):
         self.visit(node.location)
@@ -365,16 +364,19 @@ class NodeVisitor(object) :
         node.raw_type = node.lower.raw_type
         
     def visit_ActionStatement(self, node):
+        if (node.identifier is not None):
+            if (self.environment.lookup(node.identifier.identifier) != None) :
+                error(obj.lineno, "Duplicate definition of symbol '{}' on same scope".format(node.identifier.identifier))
+            node.raw_type = self.environment.root["void"]
+            self.environment.add_local(node.identifier.identifier, node)
         self.visit(node.identifier)
         self.visit(node.action)
-        if (node.identifier is not None) and (self.environment.lookup(node.identifier) != None) :
-            error(obj.lineno, "Duplicate definition of symbol '{}' on same scope".format(node.identifier))
-        self.environment.add_local(node.identifier, node.action)
+
                     
-    def visit_ExitAction(self, node):
-        self.visit(node.call)
-        if self.environment.lookup(node.call) == None :
-            error(obj.lineno, "Identifier '{}' not defined".format(node.identifier))
+    # def visit_ExitAction(self, node):
+    #     self.visit(node.call)
+    #     if self.environment.lookup(node.call) == None :
+    #         error(obj.lineno, "Identifier '{}' not defined".format(node.identifier))
             
     def visit_StringSlice(self, node):
         self.visit(node.location)

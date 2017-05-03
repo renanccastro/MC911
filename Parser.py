@@ -593,8 +593,14 @@ class Parser:
         p[0] = BooleanLiteral(p[1], 'bool' , lineno=p.lineno(1))
 
     def p_character_literal(self, p):
-        '''character_literal : CCONST'''
-        p[0] = CharacterLiteral(p[1], 'char', lineno=p.lineno(1))
+        '''character_literal : CCONST
+                             | HAT LPAREN ICONST RPAREN'''
+        if len(p) == 2 :
+            p[0] = CharacterLiteral(p[1], 'char', lineno=p.lineno(1))
+        elif len(p) == 5 :
+            p[0] = CharacterLiteral(chr(p[3]), 'char', lineno=p.lineno(1))
+        else :
+            pass
 
     def p_empty_literal(self,p):
         '''empty_literal : NULL'''

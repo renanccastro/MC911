@@ -149,6 +149,7 @@ class Tokenizer:
         return t
 
     # C character literal 'char'
+    # TODO: TRATAR LITERAIS DO TIPO "^(12)"
     def t_CCONST(self, t):
         r'\'(\\.|[^\'])*\''
         return t
