@@ -1,6 +1,0 @@
-from .AST import AST
-
-
-class SynonymDeclaration(AST):
-    # TODO: falta 'initialization'
-    _fields = ['identifiers', 'mode', 'initialization']

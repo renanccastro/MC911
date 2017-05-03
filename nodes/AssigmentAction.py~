@@ -1,4 +1,0 @@
-from .AST import AST
-
-class AssigmentAction(AST):
-    _fields = ['array_location','assigning_operator','expression']
