@@ -19,6 +19,9 @@ class NodeVisitor(object) :
 
     def visit_print(self, node):
         global k
+        sys.stdout.write('-- '*k)
+        print(str(node.__class__.__name__) + ' : ')
+        k = k + 1
         for field in dir(node):
             if field[0] == "_":
                 continue
@@ -46,8 +49,7 @@ class NodeVisitor(object) :
             elif isinstance(value, ExprType):
                 sys.stdout.write('-- ' * (k+1))
                 print("type = {}".format(value.type))
-
-        k = k - 1
+        k = k - 2
 
     def visit(self,node):
         """
