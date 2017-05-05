@@ -311,6 +311,12 @@ class NodeVisitor(object) :
         if node.assigning_operator.operator is not None:
             self.raw_type_binary(node, node.assigning_operator.operator, node.location, node.expression)
                                 
+#                    print(obj.identifier + " mode = " + node.mode.raw_type.type)
+#                    print(obj.identifier + " mode = " + node.mode.array_type.type)
+#                    print(obj.identifier + " init = " + node.initialization.raw_type.type)
+#                    print(obj.identifier + " init = " + node.initialization.array_type.type)
+
+        
     def visit_Expression(self, node):
         self.visit(node.value)
         node.raw_type = node.value.raw_type
@@ -382,6 +388,7 @@ class NodeVisitor(object) :
             return
         else:
             node.raw_type = node._node.raw_type
+
         funcParameters = self.environment.functionsParameters[node.name]
         # VERIFICA QUANTIDADE DE PARAMETROS
         if node.parameters is None:
