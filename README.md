@@ -1,6 +1,13 @@
 # MC911
 
-Compilador para LYA em MC911
+
+Compilador para LYA em MC911.
+
+### Autores
+
+Renan Camargo de Castro    RA 147775
+
+Wendrey Lustosa Cardoso    RA 148234
 
 ### Modo de uso
 
