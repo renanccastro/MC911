@@ -41,9 +41,8 @@ fi;
 
 
 type ptr = ref int;
-dcl x, y int, p, rxxx, sxxx ptr = ->x;
+dcl x, y int, p ptr = ->x;
 q: proc () returns (int loc);
-  p = rxxx ;
   dcl z ref int;
   z = ->y;
   return z->;

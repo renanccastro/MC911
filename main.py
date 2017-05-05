@@ -16,10 +16,10 @@ if __name__ == "__main__" :
             content = content_file.read()
             tokenizer.build()
             parser.build()
-            print("Parser and Lexer ---------- ---------- ----------")
+            print("Parser and Lexer")
             result = parser.parser.parse(content, tracking=True)
             ast = visitor.visit(result)
-            print("Visiting and Decorating AST ---------- ---------- ---------")
+            print("Visiting and Decorating AST")
             visitor.visit_print(result)
 
     else :
@@ -32,10 +32,10 @@ if __name__ == "__main__" :
             if not s: continue
             tokenizer.tokenize(s)
             parser.build()
-            print("Parser and Lexer ---------- ---------- ----------")
+            print("Parser and Lexer")
             result = parser.parser.parse(s)
             print(result)
             ast = visitor.visit(result)
-            print("Visiting and Decorating AST ---------- ---------- ---------")
+            print("Visiting and Decorating AST")
             visitor.visit_print(result)
 
