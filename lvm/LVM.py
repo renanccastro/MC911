@@ -14,6 +14,8 @@ class LVM():
         self.M = Stack()
         self.D = []
         self.H = H
+        self.instructions = []
+        self.label = {}
 
     def print_stats(self):
         print()
@@ -31,6 +33,8 @@ class LVM():
         try:
             method = getattr(self, "run_{}".format(tuple[0]))
             method(tuple[1:])
+            self.instructions.append(tuple)
+            self.pc = self.pc + 1
             self.print_stats()
         except IncompleteInstruction as e:
             print(e.args[0])
@@ -70,10 +74,26 @@ class LVM():
         self.check_parameters(2, parameters)
         i = int(parameters[0])
         j = int(parameters[1])
-        self.M[self.D[i] + j] = self.M.peek()
+        self.M.items[self.D[i] + j] = self.M.peek()
         self.M.pop()
-        
+
     def run_add(self,parameters):
         self.check_parameters(0, parameters)
         j = self.M.pop()
         self.M.changeTop(j + self.M.peek())
+
+    def run_alc(self, parameters):
+        self.check_parameters(1, parameters)
+        i = int(parameters[0])
+        for a in range(0,i):
+            self.M.push(0)
+
+    def run_rdv(self, parameters):
+        # (’rdv’)  # Read single Value sp = sp + 1; M[sp] = input()
+        self.check_parameters(0, parameters)
+        self.M.push(int(input()))
+
+
+    def run_lbl(self, parameters):
+        self.check_parameters(1, parameters)
+        self.label[parameters[0]] = self.pc
