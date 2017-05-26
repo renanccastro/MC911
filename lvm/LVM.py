@@ -96,88 +96,166 @@ class LVM():
         # Add M[sp-1]=M[sp-1]+M[sp]; sp=sp-1
         self.check_parameters(0, parameters)
         k = self.M.pop()
-        self.M.changeTop(k + self.M.peek())
+        self.M.changeTop(self.M.peek() + k)
 
     def run_sub(self,parameters):
         # Subtract M[sp-1]=M[sp-1]-M[sp]; sp=sp-1
         self.check_parameters(0, parameters)
         k = self.M.pop()
-        self.M.changeTop(k - self.M.peek())
+        self.M.changeTop(self.M.peek() - k)
         
     def run_mul(self,parameters):
         # Multiply M[sp-1]=M[sp-1]*M[sp]; sp=sp-1
         self.check_parameters(0, parameters)
         k = self.M.pop()
-        self.M.changeTop(k * self.M.peek())
+        self.M.changeTop(self.M.peek() * k)
         
     def run_div(self,parameters):
         # Division M[sp-1]=M[sp-1]/M[sp]; sp=sp-1
         self.check_parameters(0, parameters)
         k = self.M.pop()
-        self.M.changeTop(k / self.M.peek())
+        self.M.changeTop(self.M.peek() / k)
 
     def run_mod(self,parameters):
         # Modulus M[sp-1]=M[sp-1]%M[sp]; sp=sp-1
         self.check_parameters(0, parameters)
         k = self.M.pop()
-        self.M.changeTop(k % self.M.peek())
+        self.M.changeTop(self.M.peek() % k)
 
     def run_neg(self,parameters):
-        pass
+        # Negate M[sp]=-M[sp]
+        self.check_parameters(0, parameters)
+        self.M.changeTop(-self.M.peek())
+
     def run_abs(self,parameters):
-        pass
+        # Absolute Value M[sp]=abs(M[sp])
+        self.check_parameters(0, parameters)
+        self.M.changeTop(abs(self.M.peek()))
+
     def run_and(self,parameters):
-        pass
+        # Logical And M[sp-1]=M[sp-1]andM[sp]; sp=sp-1
+        self.check_parameters(0, parameters)
+        k = self.M.pop()
+        self.M.changeTop(self.M.peek() and k)        
+
     def run_lor(self,parameters):
-        pass
+        # Logical Or M[sp-1]=M[sp-1]orM[sp]; sp=sp-1
+        self.check_parameters(0, parameters)
+        k = self.M.pop()
+        self.M.changeTop(self.M.peek() or k)        
+
     def run_not(self,parameters):
-        pass
+        # Logical Not M[sp]= notM[sp]
+        self.check_parameters(0, parameters)
+        self.M.changeTop(not self.M.peek())        
+
     def run_les(self,parameters):
-        pass
+        # Less M[sp-1]=M[sp-1]<M[sp]; sp=sp-1
+        self.check_parameters(0, parameters)
+        k = self.M.pop()
+        self.M.changeTop(self.M.peek() < k)        
+
     def run_leq(self,parameters):
-        pass       
+        # Less or Equal M[sp-1]=M[sp-1]<=M[sp]; sp=sp-1       
+        self.check_parameters(0, parameters)
+        k = self.M.pop()
+        self.M.changeTop(self.M.peek() <= k)        
+
     def run_grt(self,parameters):
-        pass        
+        # Greater M[sp-1]=M[sp-1]>M[sp]; sp=sp-1
+        self.check_parameters(0, parameters)
+        k = self.M.pop()
+        self.M.changeTop(self.M.peek() > k)        
+
     def run_gre(self,parameters):
-        pass        
+        # Greater or Equal M[sp-1]=M[sp-1]>=M[sp]; sp=sp-1
+        self.check_parameters(0, parameters)
+        k = self.M.pop()
+        self.M.changeTop(self.M.peek() >= k)        
+
     def run_equ(self,parameters):
-        pass        
+        # Equal M[sp-1]=M[sp-1]==M[sp]; sp=sp-1
+        self.check_parameters(0, parameters)
+        k = self.M.pop()
+        self.M.changeTop(self.M.peek() == k)            
+
     def run_neq(self,parameters):
-        pass        
+        # Not Equal M[sp-1]=M[sp-1]!=M[sp]; sp=sp-1
+        self.check_parameters(0, parameters)
+        k = self.M.pop()
+        self.M.changeTop(self.M.peek() != k)            
+
     def run_jmp(self,parameters):
+        # Jump pc=p 
+        self.check_parameters(1, parameters)
         pass        
+        
     def run_jop(self,parameters):
+        # Jum on False if not M[sp]: pc=p else: pc=pc+1; sp=sp-1
+        self.check_parameters(1, parameters)
         pass
 
     def run_alc(self, parameters):
+        # Allocate memory sp=sp+n
         self.check_parameters(1, parameters)
-        i = int(parameters[0])
-        for a in range(0,i):
+        n = int(parameters[0])
+        for a in range(0,n):
             self.M.push(0)
 
     def run_dlc(self,parameters):
-        pass
+        # Deallocate memory sp=sp-n
+        self.check_parameters(1, parameters)
+        n = int(parameters[0])
+        for a in range(0,n):
+            self.M.pop(0)
+
     def run_cfu(self,parameters):
+        # Call Function sp=sp+1; M[sp]=pc+1; pc=p
+        self.check_parameters(1, parameters)
         pass
+
     def run_enf(self,parameters):
+        # Enter Function sp=sp+1; M[sp]=D[k]; D[k]=sp+1
+        self.check_parameters(1, parameters)
         pass
+
     def run_ret(self,parameters):
+        self.check_parameters(2, parameters)
+        # Return from Function D[k]=M[sp]; pc=M[sp-1]; sp=sp-(n+2)
         pass
+        
     def run_idx(self,parameters):
+        # Index M[sp-1]=M[sp-1]+M[sp]*k; sp=sp-1
+        self.check_parameters(1, parameters)
         pass
+
     def run_grc(self,parameters):
+        # Get(Load) Reference Contents M[sp]=M[M[sp]]
+        self.check_parameters(0, parameters)
         pass
+
     def run_lmv(self,parameters):
+        # Load multiple values t=M[sp]; M[sp:sp+k]=M[t:t+k]; sp+=(k-1)
+        self.check_parameters(1, parameters)
         pass
+
     def run_smv(self,parameters):
+        # Store multiple Values t=M[sp-k]; M[t:t+k]=M[sp-k+1:sp+1]; sp-=(k+1)
+        self.check_parameters(1, parameters)
         pass
+
     def run_smr(self,parameters):
+        # Store multiple References t1=M[sp-1]; t2=M[sp]; M[t1:t1+k]=M[t2:t2+k]; sp-=1
+        self.check_parameters(1, parameters)
         pass
+    
     def run_sts(self,parameters):
+        # Store string constant on reference adr=M[sp]; M[adr]=len(H[k]); for c in H[k]: adr=adr+1 M[adr]=c; sp=sp-1
+        self.check_parameters(1, parameters)
         pass
 
     def run_rdv(self, parameters):
-        # (’rdv’)  # Read single Value sp=sp+1; M[sp]=input()
+        # Read single Value sp=sp+1; M[sp]=input()
         self.check_parameters(0, parameters)
         self.M.push(int(input()))
 
