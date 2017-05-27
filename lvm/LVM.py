@@ -95,31 +95,31 @@ class LVM():
     def run_add(self,parameters):
         # Add M[sp-1]=M[sp-1]+M[sp]; sp=sp-1
         self.check_parameters(0, parameters)
-        k = self.M.pop()
-        self.M.changeTop(self.M.peek() + k)
+        m = self.M.pop()
+        self.M.changeTop(self.M.peek() + m)
 
     def run_sub(self,parameters):
         # Subtract M[sp-1]=M[sp-1]-M[sp]; sp=sp-1
         self.check_parameters(0, parameters)
-        k = self.M.pop()
-        self.M.changeTop(self.M.peek() - k)
+        m = self.M.pop()
+        self.M.changeTop(self.M.peek() - m)
         
     def run_mul(self,parameters):
         # Multiply M[sp-1]=M[sp-1]*M[sp]; sp=sp-1
         self.check_parameters(0, parameters)
-        k = self.M.pop()
-        self.M.changeTop(self.M.peek() * k)
+        m = self.M.pop()
+        self.M.changeTop(self.M.peek() * m)
         
     def run_div(self,parameters):
         # Division M[sp-1]=M[sp-1]/M[sp]; sp=sp-1
         self.check_parameters(0, parameters)
-        k = self.M.pop()
-        self.M.changeTop(self.M.peek() / k)
+        m = self.M.pop()
+        self.M.changeTop(self.M.peek() / m)
 
     def run_mod(self,parameters):
         # Modulus M[sp-1]=M[sp-1]%M[sp]; sp=sp-1
         self.check_parameters(0, parameters)
-        k = self.M.pop()
+        m = self.M.pop()
         self.M.changeTop(self.M.peek() % k)
 
     def run_neg(self,parameters):
@@ -135,14 +135,14 @@ class LVM():
     def run_and(self,parameters):
         # Logical And M[sp-1]=M[sp-1]andM[sp]; sp=sp-1
         self.check_parameters(0, parameters)
-        k = self.M.pop()
-        self.M.changeTop(self.M.peek() and k)        
+        m = self.M.pop()
+        self.M.changeTop(self.M.peek() and m)        
 
     def run_lor(self,parameters):
         # Logical Or M[sp-1]=M[sp-1]orM[sp]; sp=sp-1
         self.check_parameters(0, parameters)
-        k = self.M.pop()
-        self.M.changeTop(self.M.peek() or k)        
+        m = self.M.pop()
+        self.M.changeTop(self.M.peek() or m)        
 
     def run_not(self,parameters):
         # Logical Not M[sp]= notM[sp]
@@ -152,48 +152,49 @@ class LVM():
     def run_les(self,parameters):
         # Less M[sp-1]=M[sp-1]<M[sp]; sp=sp-1
         self.check_parameters(0, parameters)
-        k = self.M.pop()
-        self.M.changeTop(self.M.peek() < k)        
+        m = self.M.pop()
+        self.M.changeTop(self.M.peek() < m)        
 
     def run_leq(self,parameters):
         # Less or Equal M[sp-1]=M[sp-1]<=M[sp]; sp=sp-1       
         self.check_parameters(0, parameters)
-        k = self.M.pop()
-        self.M.changeTop(self.M.peek() <= k)        
+        m = self.M.pop()
+        self.M.changeTop(self.M.peek() <= m)        
 
     def run_grt(self,parameters):
         # Greater M[sp-1]=M[sp-1]>M[sp]; sp=sp-1
         self.check_parameters(0, parameters)
-        k = self.M.pop()
-        self.M.changeTop(self.M.peek() > k)        
+        m = self.M.pop()
+        self.M.changeTop(self.M.peek() > m)        
 
     def run_gre(self,parameters):
         # Greater or Equal M[sp-1]=M[sp-1]>=M[sp]; sp=sp-1
         self.check_parameters(0, parameters)
-        k = self.M.pop()
-        self.M.changeTop(self.M.peek() >= k)        
+        m = self.M.pop()
+        self.M.changeTop(self.M.peek() >= m)        
 
     def run_equ(self,parameters):
         # Equal M[sp-1]=M[sp-1]==M[sp]; sp=sp-1
         self.check_parameters(0, parameters)
-        k = self.M.pop()
-        self.M.changeTop(self.M.peek() == k)            
+        m = self.M.pop()
+        self.M.changeTop(self.M.peek() == m)            
 
     def run_neq(self,parameters):
         # Not Equal M[sp-1]=M[sp-1]!=M[sp]; sp=sp-1
         self.check_parameters(0, parameters)
-        k = self.M.pop()
-        self.M.changeTop(self.M.peek() != k)            
+        m = self.M.pop()
+        self.M.changeTop(self.M.peek() != m)            
 
     def run_jmp(self,parameters):
         # Jump pc=p 
         self.check_parameters(1, parameters)
-        pass        
+        self.pc = int(parameters[0])-1
         
-    def run_jop(self,parameters):
+    def run_jof(self,parameters):
         # Jum on False if not M[sp]: pc=p else: pc=pc+1; sp=sp-1
         self.check_parameters(1, parameters)
-        pass
+        if not self.M.pop() :
+            self.pc = int(parameters[0])
 
     def run_alc(self, parameters):
         # Allocate memory sp=sp+n
@@ -207,52 +208,78 @@ class LVM():
         self.check_parameters(1, parameters)
         n = int(parameters[0])
         for a in range(0,n):
-            self.M.pop(0)
+            self.M.pop()
 
     def run_cfu(self,parameters):
         # Call Function sp=sp+1; M[sp]=pc+1; pc=p
         self.check_parameters(1, parameters)
-        pass
+        self.M.push(self.pc+1)
+        self.pc = int(parameters[0])-1
 
     def run_enf(self,parameters):
         # Enter Function sp=sp+1; M[sp]=D[k]; D[k]=sp+1
         self.check_parameters(1, parameters)
-        pass
+        k = int(parameters[0])
+        self.M.push(self.D[k])
+        self.D[k] = self.M.pointer()+1
 
     def run_ret(self,parameters):
-        self.check_parameters(2, parameters)
         # Return from Function D[k]=M[sp]; pc=M[sp-1]; sp=sp-(n+2)
-        pass
+        self.check_parameters(2, parameters)
+        k = int(parameters[0])
+        n = int(parameters[1])
+        self.D[k] = self.M.pop()
+        self.pc = self.M.pop()-1
+        for a in range(0,n):
+            self.M.pop()
         
     def run_idx(self,parameters):
         # Index M[sp-1]=M[sp-1]+M[sp]*k; sp=sp-1
         self.check_parameters(1, parameters)
-        pass
+        k = int(parameters[0])
+        m = self.M.pop()
+        self.M.changeTop(self.M.peek() + m * k)
 
     def run_grc(self,parameters):
         # Get(Load) Reference Contents M[sp]=M[M[sp]]
         self.check_parameters(0, parameters)
-        pass
+        self.M.changeTop(self.M[self.M[self.M.peek()]])
 
     def run_lmv(self,parameters):
         # Load multiple values t=M[sp]; M[sp:sp+k]=M[t:t+k]; sp+=(k-1)
         self.check_parameters(1, parameters)
-        pass
+        k = int(parameters[0])
+        m = self.M.pop()
+        for a in range(0,k):
+            self.M.push(self.M[m+a])
 
     def run_smv(self,parameters):
         # Store multiple Values t=M[sp-k]; M[t:t+k]=M[sp-k+1:sp+1]; sp-=(k+1)
         self.check_parameters(1, parameters)
-        pass
+        k = int(parameters[0])
+        m = self.M[self.M.pointer()-k]
+        for a in reversed(range(0,k)):
+            self.M[m+a] = self.M.pop()        
+        self.M.pop()
 
     def run_smr(self,parameters):
         # Store multiple References t1=M[sp-1]; t2=M[sp]; M[t1:t1+k]=M[t2:t2+k]; sp-=1
         self.check_parameters(1, parameters)
-        pass
+        k = int(parameters[0])
+        m2 = self.M.pop()
+        m1 = self.M.peek()
+        for a in range(0,k):
+            self.M[m1+k] = self.M[m2+k]
     
     def run_sts(self,parameters):
         # Store string constant on reference adr=M[sp]; M[adr]=len(H[k]); for c in H[k]: adr=adr+1 M[adr]=c; sp=sp-1
         self.check_parameters(1, parameters)
-        pass
+        k = int(parameters[0])
+        m = self.M.pop()
+        self.M[m] = len(self.H[k])
+        for c in self.H[k] :
+            m = m+1
+            self.M[m] = c
 
     def run_rdv(self, parameters):
         # Read single Value sp=sp+1; M[sp]=input()
