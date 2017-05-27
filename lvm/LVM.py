@@ -1,5 +1,5 @@
+import sys
 from lvm.Stack import Stack
-
 
 class IncompleteInstruction(Exception):
     pass
@@ -7,6 +7,7 @@ class IncompleteInstruction(Exception):
 
 
 class LVM():
+
     def __init__(self, H):
         super().__init__()
         self.pc = 0
@@ -44,11 +45,17 @@ class LVM():
             print(e)
 
     def run_stp(self, parameters):
+        # Start Program sp=-1; D[0]=0
+        self.check_parameters(0,parameters)
         self.sp = -1
         self.M = Stack()
         self.D = [0]
         print(parameters)
-
+        
+    def run_end(self,parameters):
+        # Stop execution
+        self.check_parameters(0,parameters)
+        sys.exit(1)
 
     def run_ldc(self, parameters):
         # Load constant sp=sp+1; M[sp]=k
@@ -277,7 +284,7 @@ class LVM():
         k = int(parameters[0])
         m = self.M.pop()
         self.M[m] = len(self.H[k])
-        for c in self.H[k] :
+        for c in self.H[k]:
             m = m+1
             self.M[m] = c
 
@@ -287,24 +294,52 @@ class LVM():
         self.M.push(int(input()))
 
     def run_rds(self,parameters):
-        pass
+        # Read String and store it on stack reference str=input(); adr=M[sp]; M[adr]=len(str); for k in str: adr=adr+1 M[adr]=k; sp=sp-1
+        self.check_parameters(0, parameters)
+        string = input()
+        m = self.M.pop()
+        self.M[m] = len(string)
+        for k in string:
+            m = m+1
+            self.M[m] = k
+
     def run_prv(self,parameters):
-        pass
+        # Print Value (char or int) if ischar: print(chr(M[sp]) else: print(M[sp]); sp=sp-1        
+        self.check_parameters(1, parameters)
+        if bool(parameters[0]) :
+            print(repr(chr(self.M.pop())))
+        else :
+            print(repr(int(self.M.pop())))
+
     def run_prt(self,parameters):
-        pass
+        # Print Multiple Values print(M[sp-k+1:sp+1]); sp-=(k-1)
+        self.check_parameters(1, parameters)
+        k = int(parameters[0])
+        v = []
+        for a in range(0,k):
+            v.append(self.M.pop())
+        for a in reversed(v):
+            print(a)
+
     def run_prc(self,parameters):
-        pass
+        # Print String constant print(H(i),end="")
+        self.check_parameters(1, parameters)
+        i = int(parameters[0])        
+        print(self.H[i],end="")
+
     def run_prs(self,parameters):
-        pass
-    def run_stp(self,parameters):
-        pass
+        # Print contents of a string location adr=M[sp]; len=M[adr]; for i in range(0,len): adr=adr+1 print(M(adr),end=""); sp=sp-1        
+        self.check_parameters(0, parameters)
+        m = self.M.pop()
+        for k in range(1,self.M[m]+1):
+            print(self.M[m+k],end="")
 
     def run_lbl(self, parameters):
+        # No operation (define the label index i)        
         self.check_parameters(1, parameters)
         self.label[parameters[0]] = self.pc
         
     def run_nop(self,parameters):
-        pass
-    def run_end(self,parameters):
-        pass
+        # No operation
+        self.check_parameters(0, parameters)
 
