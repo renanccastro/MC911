@@ -1,6 +1,6 @@
 import sys
 from lvm.Stack import Stack
-
+import traceback
 class IncompleteInstruction(Exception):
     pass
 
@@ -18,11 +18,12 @@ class LVM():
         self.instructions = []
         self.label = {}
 
-    def print_stats(self):
+    def print_stats(self, last_instruction):
         print()
         print(":::::::::: :::::::::::::::: ::::::::::")
+        print("LAST INSTRUCTION: ", last_instruction)
         print("REGISTERS: SP: {}    PC: {}".format(self.M.pointer(),self.pc))
-        print("STACK:     P:  {}    M:  {}    D:  {}     H: {}".format(self.P,self.M,self.D,self.H))
+        print("STACK:     P:  {}    M:  {}    D:  {}     H: {}     label: {}".format(self.P,self.M,self.D,self.H,self.label))
         print(":::::::::: :::::::::::::::: ::::::::::")
         print()
 
@@ -30,19 +31,37 @@ class LVM():
         if len(array) != number:
             raise IncompleteInstruction("ERROR: expected {} parameters, got {}".format(number, len(array)))
 
+    def create_labels(self, instructions):
+        for pc, tuple in enumerate(instructions):
+            if tuple[0] == "lbl":
+                self.label[int(tuple[1])] = pc
+
+    def run_program(self, instructions, heap):
+        # deve criar os labels antes de executar as instrucoes
+        self.create_labels(instructions)
+        # array deve ser um array de tuplas de instrucoes
+        limit = len(instructions)
+        while self.pc != limit:
+            self.run_instruction(instructions[self.pc])
+        else:
+            print("Program ended")
+
+
     def run_instruction(self, tuple):
         try:
             method = getattr(self, "run_{}".format(tuple[0]))
             method(tuple[1:])
             self.instructions.append(tuple)
             self.pc = self.pc + 1
-            self.print_stats()
+            self.print_stats(tuple)
         except IncompleteInstruction as e:
             print(e.args[0])
         except AttributeError:
             print("Not supported instruction: {}".format(tuple[0]))
         except Exception as e:
             print(e)
+            traceback.print_exc()
+            sys.exit(1)
 
     def run_stp(self, parameters):
         # Start Program sp=-1; D[0]=0
@@ -67,7 +86,7 @@ class LVM():
         self.check_parameters(2, parameters)
         i = int(parameters[0])
         j = int(parameters[1])
-        self.M.push(self.M[self.D[i]+j])
+        self.M.push(self.M.items[self.D[i]+j])
 
     def run_ldr(self, parameters):
         # Load reference sp=sp+1; M[sp]=D[i]+j
@@ -195,13 +214,13 @@ class LVM():
     def run_jmp(self,parameters):
         # Jump pc=p 
         self.check_parameters(1, parameters)
-        self.pc = int(parameters[0])-1
+        self.pc = self.label[int(parameters[0])]
         
     def run_jof(self,parameters):
         # Jum on False if not M[sp]: pc=p else: pc=pc+1; sp=sp-1
         self.check_parameters(1, parameters)
         if not self.M.pop() :
-            self.pc = int(parameters[0])
+            self.pc = self.label[int(parameters[0])]
 
     def run_alc(self, parameters):
         # Allocate memory sp=sp+n
@@ -337,7 +356,7 @@ class LVM():
     def run_lbl(self, parameters):
         # No operation (define the label index i)        
         self.check_parameters(1, parameters)
-        self.label[parameters[0]] = self.pc
+        # self.label[int(parameters[0])] = self.pc
         
     def run_nop(self,parameters):
         # No operation
