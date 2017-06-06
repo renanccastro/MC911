@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="786f6f0e-fbfe-4040-b0b0-26d9b823001b" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lvm.py" afterPath="$PROJECT_DIR$/lvm.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lvm/LVM.py" afterPath="$PROJECT_DIR$/lvm/LVM.py" />
     </list>
     <ignored path="MC911.iws" />
@@ -48,8 +47,8 @@
       <file leaf-file-name="LVM.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lvm/LVM.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="493">
-              <caret line="39" column="8" lean-forward="false" selection-start-line="39" selection-start-column="8" selection-end-line="39" selection-end-column="8" />
+            <state relative-caret-position="306">
+              <caret line="55" column="24" lean-forward="false" selection-start-line="55" selection-start-column="24" selection-end-line="55" selection-end-column="24" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
               </folding>
@@ -1439,8 +1438,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lvm/LVM.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="493">
-          <caret line="39" column="8" lean-forward="false" selection-start-line="39" selection-start-column="8" selection-end-line="39" selection-end-column="8" />
+        <state relative-caret-position="306">
+          <caret line="55" column="24" lean-forward="false" selection-start-line="55" selection-start-column="24" selection-end-line="55" selection-end-column="24" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
           </folding>

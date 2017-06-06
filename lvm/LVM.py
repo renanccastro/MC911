@@ -356,7 +356,7 @@ class LVM():
     def run_lbl(self, parameters):
         # No operation (define the label index i)        
         self.check_parameters(1, parameters)
-        # self.label[int(parameters[0])] = self.pc
+        self.label[int(parameters[0])] = self.pc
         
     def run_nop(self,parameters):
         # No operation
