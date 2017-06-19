@@ -52,6 +52,14 @@ class Environment(object):
             if hit is not None:
                 return hit
         return None
+
+    def lookupWithScope(self, name):
+        for scope in reversed(self.stack):
+            hit = scope.lookup(name)
+            if hit is not None:
+                return (hit, self.stack.index(scope))
+        return None
+
     def find(self, name):
         if name in self.stack[-1]:
             return True

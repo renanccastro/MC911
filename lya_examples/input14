@@ -1,0 +1,9 @@
+dcl a int = 2, b int = 5;
+dcl i int = 2, j int = 5;
+read(i);
+
+print("teste");
+print(i);
+print(2);
+
+print(i+j*4-5);

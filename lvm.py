@@ -11,7 +11,7 @@ if __name__ == "__main__":
     print(":::::::::: :::::::::::::::: ::::::::::")
     print()
 
-    lvm = LVM([])
+    lvm = LVM(True)
     while True:
         try:
             if filename == 'lvm.py':

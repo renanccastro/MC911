@@ -2,6 +2,8 @@ import sys
 
 from Parser import Parser
 from Tokenizer import Tokenizer
+from lvm.LVM import LVM
+from semantic.CodeGenerator import CodeGenerator
 from semantic.NodeVisitor import NodeVisitor
 
 if __name__ == "__main__" :
@@ -9,7 +11,8 @@ if __name__ == "__main__" :
     tokenizer = Tokenizer()
     parser = Parser()
     visitor = NodeVisitor()
-
+    generator = CodeGenerator()
+    lvm = LVM(False)
     if filename != 'main.py' :
 
         with open(filename, 'r') as content_file:
@@ -22,13 +25,32 @@ if __name__ == "__main__" :
             print(":::::::::: :::::::::::::::: ::::::::::")
             print()
             result = parser.parser.parse(content, tracking=True)
-            ast = visitor.visit(result)
             print()
             print(":::::::::: ::::::::::::::::::::::::::: ::::::::::")
             print(":::::::::: Visiting and Decorating AST ::::::::::")
             print(":::::::::: ::::::::::::::::::::::::::: ::::::::::")
             print()
+            visitor.visit(result)
             visitor.visit_print(result)
+            print()
+            print(":::::::::: ::::::::::: ::::::::::")
+            print(":::::::::: MAKING CODE ::::::::::")
+            print(":::::::::: ::::::::::: ::::::::::")
+            print()
+
+            generator.generate(result)
+            print(generator.environment.stack)
+            print(generator.environment.H)
+            print(generator.environment.code)
+
+            print()
+            print(":::::::::: ::::::::::: ::::::::::")
+            print(":::::::::: RUN    CODE ::::::::::")
+            print(":::::::::: ::::::::::: ::::::::::")
+            print()
+
+            lvm.run_program(generator.environment.code,
+                            generator.environment.H)
 
     else :
     

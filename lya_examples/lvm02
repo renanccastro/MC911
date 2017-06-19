@@ -1,0 +1,16 @@
+{
+  "heap" : [
+    "teste"
+  ],
+  "instructions" : [
+   ["stp"],
+   ["alc", 1],
+   ["alc", 1],
+   ["rdv"],
+   ["stv", 0, 0],
+   ["prc", 0],
+   ["ldv", 0, 0],
+   ["prv", 0],
+   ["end"]
+  ]
+}

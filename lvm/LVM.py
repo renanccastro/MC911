@@ -8,13 +8,14 @@ class IncompleteInstruction(Exception):
 
 class LVM():
 
-    def __init__(self, H):
+    def __init__(self, debug):
         super().__init__()
+        self.DEBUG = debug
         self.pc = 0
         self.P = []
         self.M = Stack()
         self.D = []
-        self.H = H
+        self.H = []
         self.instructions = []
         self.label = {}
 
@@ -37,6 +38,7 @@ class LVM():
                 self.label[int(tuple[1])] = pc
 
     def run_program(self, instructions, heap):
+        self.H = heap
         # deve criar os labels antes de executar as instrucoes
         self.create_labels(instructions)
         # array deve ser um array de tuplas de instrucoes
@@ -53,7 +55,8 @@ class LVM():
             method(tuple[1:])
             self.instructions.append(tuple)
             self.pc = self.pc + 1
-            self.print_stats(tuple)
+            if self.DEBUG:
+                self.print_stats(tuple)
         except IncompleteInstruction as e:
             print(e.args[0])
         except AttributeError:
@@ -69,7 +72,7 @@ class LVM():
         self.sp = -1
         self.M = Stack()
         self.D = [0]
-        print(parameters)
+
         
     def run_end(self,parameters):
         # Stop execution
