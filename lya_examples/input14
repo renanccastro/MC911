@@ -5,7 +5,7 @@ a[i] = j;
 a[j] = b [i];
 */
 
-dcl c, d array[1:10, 1:10] int;
+dcl c, d array[1:10] int;
 dcl a int = 2, b int = 5;
 dcl i int = 2, j int = 5;
 read(i);
