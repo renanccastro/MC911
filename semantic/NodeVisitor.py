@@ -175,12 +175,16 @@ class NodeVisitor(object) :
                 .format(node.initialization.raw_type.type, node.mode.raw_type.type))
 
     def visit_IntegerMode(self, node):
+        node.size = 1
         node.raw_type = self.environment.root['int']
     def visit_CharacterMode(self, node):
+        node.size = 1
         node.raw_type = self.environment.root['char']
     def visit_BooleanMode(self, node):
+        node.size = 1
         node.raw_type = self.environment.root['bool']
     def visit_NullMode(self, node):
+        node.size = 1
         node.raw_type = self.environment.root['void']
         
     def visit_IntegerLiteral(self, node):
@@ -266,6 +270,8 @@ class NodeVisitor(object) :
 
     def visit_CompositeMode(self, node):
         self.visit(node.mode)
+        if node.mode.size:
+            node.size = node.mode.size
         node.raw_type = node.mode.raw_type
         if hasattr(node.mode, "array_type"):
             node.array_type = node.mode.array_type
@@ -282,7 +288,11 @@ class NodeVisitor(object) :
         self.visit(node.element_mode)
         node.array_type = node.element_mode.raw_type
         self.visit(node.index_mode_list)
-    
+        size = 1
+        for mode in node.index_mode_list:
+            size = size * mode.size
+        node.size = size
+
     def visit_ArrayElement(self, node):
         self.visit(node.location)
         self.visit(node.expression)
@@ -451,8 +461,9 @@ class NodeVisitor(object) :
         if  lower_type != upper_type :
             error(node.lineno, "Range bounds do not have matching types. Bound types are '{}' and '{}'".format(lower_type, upper_type))
         if ('const' not in repr(node.lower.raw_type.true_type)) or ('const' not in repr(node.lower.raw_type.true_type)) :
-            error(node.lineno, "Range bounds must be constante value expressions")
+            error(node.lineno, "Range bounds must be constant value expressions")
         node.raw_type = node.lower.raw_type
+        node.size = (node.upper.value.value.value - node.lower.value.value.value) + 1
         
     def visit_ActionStatement(self, node):
         if (node.identifier is not None):

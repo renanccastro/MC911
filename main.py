@@ -5,6 +5,7 @@ from Tokenizer import Tokenizer
 from lvm.LVM import LVM
 from semantic.CodeGenerator import CodeGenerator
 from semantic.NodeVisitor import NodeVisitor
+from pprint import pprint
 
 if __name__ == "__main__" :
     filename = sys.argv[-1]
@@ -39,9 +40,9 @@ if __name__ == "__main__" :
             print()
 
             generator.generate(result)
-            print(generator.environment.stack)
-            print(generator.environment.H)
-            print(generator.environment.code)
+            pprint(generator.environment.stack)
+            pprint(generator.environment.H)
+            pprint(generator.environment.code)
 
             print()
             print(":::::::::: ::::::::::: ::::::::::")

@@ -72,11 +72,16 @@ class CodeGenerator(object) :
     def visit_Declaration(self, node):
         for idObj in node.identifier:
             # tratar inicializacao de array alocando o tamanho dele
-            self.environment.peek().addWithSize(idObj.identifier, 1)
-            self.environment.code.append(('alc', 1))
-            self.generate(node.initialization)
-            hit, scope = self.environment.lookupWithScope(idObj.identifier)
-            self.environment.code.append(('stv', scope, hit))
+            size = 1
+            if node.mode.size:
+                size = node.mode.size
+
+            self.environment.peek().addWithSize(idObj.identifier, size)
+            self.environment.code.append(('alc', size))
+            if node.initialization is not None:
+                self.generate(node.initialization)
+                hit, scope = self.environment.lookupWithScope(idObj.identifier)
+                self.environment.code.append(('stv', scope, hit))
 
 
     def visit_Operation(self, node):
