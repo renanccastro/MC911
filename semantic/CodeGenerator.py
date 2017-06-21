@@ -87,8 +87,9 @@ class CodeGenerator(object) :
         self.environment.add_label("jumpafter_" + node.name)
 
         self.environment.code.append(('jmp', self.environment.label_index("jumpafter_" + node.name)))
-
         self.environment.code.append(('lbl', self.environment.label_index(node.name)))
+        self.environment.code.append(('alc', node.symboltable.lastNumber))
+
         self.generate(node.definition)
         self.environment.code.append(('lbl', self.environment.label_index("jumpafter_" + node.name)))
 

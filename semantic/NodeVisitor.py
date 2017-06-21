@@ -171,7 +171,7 @@ class NodeVisitor(object) :
                                        size=node.mode.size,
                                        offset=node.offset,
                                        scope=node.scope)
-            if node.initialization is not None and (node.mode.raw_type.type == 'ref') : 
+            if node.initialization is not None and (node.mode.raw_type.type == 'ref') :
                 if node.mode.array_type.type != node.initialization.array_type.type :
                     error(node.lineno, "Cannot assign '{}' ref type to '{}' ref type"
                         .format(node.initialization.array_type.type, node.mode.array_type.type))                        
@@ -253,6 +253,7 @@ class NodeVisitor(object) :
             node.definition.raw_type = self.environment.root["void"]
         self.environment.push(node)
         self.visit(node.definition)
+        node.symboltable = self.environment.peek()
         self.environment.pop()
 
     def visit_ProcedureDefinition(self, node):
@@ -270,7 +271,7 @@ class NodeVisitor(object) :
     def visit_ProcedureParameter(self, node):
         self.visit(node.mode)
         for identifierObj in node.identifier_list:
-            self.environment.add_local(identifierObj.identifier, node.mode)
+            self.environment.add_local(identifierObj.identifier,node.mode)
         node.raw_type = node.mode.raw_type
 
     def visit_CompositeMode(self, node):
