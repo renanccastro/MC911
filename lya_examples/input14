@@ -1,9 +1,12 @@
 dcl a array[2:3] int;
-dcl i int = 2, j int = 3;
+dcl i int;
 
-a[2] = 5;
+read(i);
 
-print(a[j]);
+read(a[3]);
+print(i);
+print(a[2]);
+print(a[3]);
 
 
 /*

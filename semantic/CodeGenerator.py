@@ -135,14 +135,22 @@ class CodeGenerator(object) :
             self.environment.code.append(('grc',))
 
     def read(self, node):
-        self.environment.code.append(('rdv',))
         for expression in node.parameters:
-            operand = expression.value
-            location = operand.value
-            identifierObj = location.location
-            identifier = identifierObj.identifier
-            (scope, offset) = self.environment.lookupWithScope(identifier)
-            self.environment.code.append(('stv', scope, offset))
+            if expression.raw_type.type == "array":
+                self.generate(expression)
+                # AQUI, EU TIRO O GRC que veio do load da expressao
+                self.environment.code.pop()
+                self.environment.code.append(('rdv',))
+                self.environment.code.append(('smv', 1))
+
+            else:
+                self.environment.code.append(('rdv',))
+                operand = expression.value
+                location = operand.value
+                identifierObj = location.location
+                identifier = identifierObj.identifier
+                (scope, offset) = self.environment.lookupWithScope(identifier)
+                self.environment.code.append(('stv', scope, offset))
 
     def print(self, node):
         for expression in node.parameters:
