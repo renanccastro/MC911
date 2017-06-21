@@ -272,7 +272,7 @@ class LVM():
     def run_grc(self,parameters):
         # Get(Load) Reference Contents M[sp]=M[M[sp]]
         self.check_parameters(0, parameters)
-        self.M.changeTop(self.M.items[self.M.items[self.M.peek()]])
+        self.M.changeTop(self.M.items[self.M.peek()])
 
     def run_lmv(self,parameters):
         # Load multiple values t=M[sp]; M[sp:sp+k]=M[t:t+k]; sp+=(k-1)
@@ -329,9 +329,9 @@ class LVM():
         # Print Value (char or int) if ischar: print(chr(M[sp]) else: print(M[sp]); sp=sp-1        
         self.check_parameters(1, parameters)
         if bool(parameters[0]) :
-            print(repr(chr(self.M.pop())))
+            print(repr(chr(self.M.pop())), end="")
         else :
-            print(repr(int(self.M.pop())))
+            print(repr(int(self.M.pop())), end="")
 
     def run_prt(self,parameters):
         # Print Multiple Values print(M[sp-k+1:sp+1]); sp-=(k-1)

@@ -224,14 +224,6 @@ class NodeVisitor(object) :
         if hasattr(node.location, "_node"):
             node._node = node.location._node
 
-    def visit_StringElement(self, node):
-        self.visit(node.location)
-        self.visit(node.start)
-        node.raw_type = node.location._node.raw_type
-        node.array_type = node.location._node.array_type
-        node._node = node.location._node
-        if node.start.raw_type.type != 'int' :
-            error(node.lineno, "Index value is not a integer expression")
 
     def visit_Identifier(self, node):
         if self.environment.lookup(node.identifier) == None:
@@ -295,17 +287,25 @@ class NodeVisitor(object) :
         self.visit(node.element_mode)
         node.array_type = node.element_mode.raw_type
         self.visit(node.index_mode_list)
+        node.sizeArray = []
         size = 1
+        node.sizeArray.append(size)
         for mode in node.index_mode_list:
             size = size * mode.size
+            node.sizeArray.append(size)
         node.size = size
+
 
     def visit_ArrayElement(self, node):
         self.visit(node.location)
-        self.visit(node.expression)
-        node.raw_type = node.location._node.array_type
+        node.raw_type = node.location._node.raw_type
+        node.array_type = node.location._node.array_type
         if hasattr(node.location, "_node"):
             node._node = node.location._node
+        for expression in node.expression_list:
+            self.visit(expression)
+            if expression.raw_type.type != 'int':
+                error(node.lineno, "Index value is not a integer expression")
 
     def visit_ModeName(self, node):
         self.visit(node.type)

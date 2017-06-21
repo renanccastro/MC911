@@ -110,12 +110,13 @@ class CodeGenerator(object) :
                 self.environment.code.append(('mod',))
 
 
-    def visit_StringElement(self, node):
+    def visit_ArrayElement(self, node):
         self.generate(node.location)
-        self.generate(node.start)
-        self.environment.code.append(('ldc', 1))
-        self.environment.code.append(('sub',))
-        self.environment.code.append(('idx', 1))
+        for i in reversed(range(len(node.expression_list))):
+            self.generate(node.expression_list[i])
+            self.generate(node._node.mode.index_mode_list[i].lower)
+            self.environment.code.append(('sub',))
+            self.environment.code.append(('idx', node._node.mode.sizeArray[i]))
 
 
     def visit_Identifier(self, node):
@@ -156,7 +157,7 @@ class CodeGenerator(object) :
                     self.environment.H.append(string)
                     index = len(self.environment.H) - 1
                 self.environment.code.append(('prc', index))
-            elif expression.raw_type.type == "int":
+            else:
                 self.generate(expression.value)
                 self.environment.code.append(('prv', 0))
 

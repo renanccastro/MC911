@@ -366,9 +366,7 @@ class Parser:
     def p_location(self, p):
         '''location : identifier
 				    | dereferenced_reference
-				    | string_element
-				    | string_slice
-				    | array_element
+                    | array_element
 				    | array_slice
 				    | call_action'''
         p[0] = Location(p[1], lineno=p.lineno(1))
@@ -377,25 +375,25 @@ class Parser:
         '''dereferenced_reference : array_location ARROW'''
         p[0] = DereferencedLocation(p[1], lineno=p.lineno(1))
 
-    def p_string_element(self, p):
-        '''string_element : identifier LBRACKET start_element RBRACKET'''
-        p[0] = StringElement(p[1], p[3], lineno=p.lineno(1))
+    # def p_string_element(self, p):
+    #     '''string_element : identifier LBRACKET start_element RBRACKET'''
+    #     p[0] = StringElement(p[1], p[3], lineno=p.lineno(1))
 
-    def p_start_element(self, p):
-        '''start_element : expression'''
-        p[0] = p[1]
+    # def p_start_element(self, p):
+    #     '''start_element : expression'''
+    #     p[0] = p[1]
 
-    def p_string_slice(self, p):
-        '''string_slice : identifier LBRACKET left_element COLON right_element RBRACKET'''
-        p[0] = StringSlice(p[1], p[3], p[5], lineno=p.lineno(1))
+    # def p_string_slice(self, p):
+    #     '''string_slice : identifier LBRACKET left_element COLON right_element RBRACKET'''
+    #     p[0] = StringSlice(p[1], p[3], p[5], lineno=p.lineno(1))
 
-    def p_left_element(self, p):
-        '''left_element : expression'''
-        p[0] = p[1]
-
-    def p_right_element(self, p):
-        '''right_element : expression'''
-        p[0] = p[1]
+    # def p_left_element(self, p):
+    #     '''left_element : expression'''
+    #     p[0] = p[1]
+    #
+    # def p_right_element(self, p):
+    #     '''right_element : expression'''
+    #     p[0] = p[1]
 
     def p_array_element(self, p):
         '''array_element : array_location LBRACKET expression_list RBRACKET'''
@@ -405,9 +403,10 @@ class Parser:
         '''expression_list : expression
     					   | expression COMMA expression_list'''
         if len(p) == 2:
-            p[0] = p[1]
+            p[0] = [p[1]]
         else:
-            p[0] = p[1] + [p[3]]
+            p[0] = p[3]
+            p[0].append(p[1])
 
     def p_array_slice(self, p):
         '''array_slice : array_location LBRACKET lower_bound COLON upper_bound RBRACKET'''
