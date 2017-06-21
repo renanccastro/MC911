@@ -10,8 +10,10 @@ class SymbolTable(dict):
         self.decl = decl
         self.lastNumber = 0
 
-    def add(self, name, value):
+    def add(self, name, value, *positional_parameters, **keyword_parameters):
         self[name] = value
+        if ('size' in keyword_parameters):
+            self.lastNumber = self.lastNumber + keyword_parameters["size"]
 
     def addWithSize(self, name, size):
         self[name] = self.lastNumber

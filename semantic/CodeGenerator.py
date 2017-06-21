@@ -14,18 +14,13 @@ def error(lineno, param):
 
 
 class GeneratorEnvironment(Environment):
-    def __init__(self):
+    def __init__(self, variablesScope):
         super()
-        self.stack = []
-        self.root = SymbolTable()
-        self.stack.append(self.root)
+        self.stack = variablesScope
         self.H = []
         self.code = []
 
 class CodeGenerator(object) :
-
-    def __init__ (self):
-        self.environment = GeneratorEnvironment()
 
     def generate(self,node):
         """
@@ -64,20 +59,16 @@ class CodeGenerator(object) :
 
 
     def visit_Program(self, node):
+        self.environment = GeneratorEnvironment(node.environment.variablesScope)
+        print(self.environment.stack)
         self.environment.code.append(('stp',))
+        self.environment.code.append(('alc', node.symboltable.lastNumber))
         for statement in node.statements: self.generate(statement)
         self.environment.code.append(('end',))
 
 
     def visit_Declaration(self, node):
         for idObj in node.identifier:
-            # tratar inicializacao de array alocando o tamanho dele
-            size = 1
-            if node.mode.size:
-                size = node.mode.size
-
-            self.environment.peek().addWithSize(idObj.identifier, size)
-            self.environment.code.append(('alc', size))
             if node.initialization is not None:
                 self.generate(node.initialization)
                 hit, scope = self.environment.lookupWithScope(idObj.identifier)
@@ -94,10 +85,14 @@ class CodeGenerator(object) :
                 self.environment.code.append(('add',))
             elif node.operation == "-":
                 self.environment.code.append(('sub',))
+            elif node.operation == "/":
+                self.environment.code.append(('div',))
+            elif node.operation == "%":
+                self.environment.code.append(('mod',))
 
     def visit_Identifier(self, node):
-        hit, scope = self.environment.lookupWithScope(node.identifier)
-        self.environment.code.append(('ldv', scope, hit))
+        obj = self.environment.lookupWithScope(node.identifier)
+        self.environment.code.append(('ldv', obj[0], obj[1]))
 
     def visit_IntegerLiteral(self, node):
         self.environment.code.append(('ldc', node.value))

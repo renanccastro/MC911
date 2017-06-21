@@ -7,6 +7,7 @@ class Environment(object):
         self.stack = []
         self.functionsParameters = SymbolTable()
         self.root = SymbolTable()
+        self.variablesScope = []
         self.stack.append(self.root)
         self.root.update({
             "int": int_type,
@@ -42,8 +43,17 @@ class Environment(object):
         return self.stack[-1]
     def scope_level(self):
         return len(self.stack)
-    def add_local(self, name, value):
-        self.peek().add(name, value)
+    def add_local(self, name, value, *positional_parameters, **keyword_parameters):
+        if ('size' in keyword_parameters):
+            self.peek().add(name, value, size=keyword_parameters["size"])
+        else:
+            self.peek().add(name, value)
+        if ('scope' in keyword_parameters and 'offset' in keyword_parameters):
+            scope = keyword_parameters["scope"]
+            if len(self.variablesScope) <  (scope + 1):
+                self.variablesScope.append({})
+            self.variablesScope[scope][name] = (scope , keyword_parameters["offset"])
+
     def add_root(self, name, value):
         self.root.add(name, value)
     def lookup(self, name):
@@ -55,9 +65,9 @@ class Environment(object):
 
     def lookupWithScope(self, name):
         for scope in reversed(self.stack):
-            hit = scope.lookup(name)
+            hit = scope.get(name)
             if hit is not None:
-                return (hit, self.stack.index(scope))
+                return hit
         return None
 
     def find(self, name):

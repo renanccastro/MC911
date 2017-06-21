@@ -122,7 +122,7 @@ class NodeVisitor(object) :
     def visit_Program(self, node):
         self.environment.push(node)
         node.environment = self.environment
-        # node.symtab = self.environment.peek()
+        node.symboltable = self.environment.peek()
         for statement in node.statements: self.visit(statement)
 
     def visit_NewModeStatement(self, node):
@@ -165,7 +165,12 @@ class NodeVisitor(object) :
         for obj in node.identifier:
             if self.environment.find(obj.identifier):
                 error(node.lineno, "Duplicate definition of symbol '{}' on same scope".format(obj.identifier))
-            self.environment.add_local(obj.identifier,node.mode)
+            node.scope  = len(self.environment.stack) - 2
+            node.offset = self.environment.peek().lastNumber
+            self.environment.add_local(obj.identifier,node.mode,
+                                       size=node.mode.size,
+                                       offset=node.offset,
+                                       scope=node.scope)
             if node.initialization is not None and (node.mode.raw_type.type == 'ref') : 
                 if node.mode.array_type.type != node.initialization.array_type.type :
                     error(node.lineno, "Cannot assign '{}' ref type to '{}' ref type"
