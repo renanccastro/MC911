@@ -18,7 +18,14 @@ class GeneratorEnvironment(Environment):
         super()
         self.stack = variablesScope
         self.H = []
+        self.labels = []
         self.code = []
+
+    def add_label(self, label):
+        self.labels.append(label)
+
+    def label_index(self, label):
+        return self.labels.index(label)
 
 class CodeGenerator(object) :
 
@@ -74,6 +81,16 @@ class CodeGenerator(object) :
                 hit, scope = self.environment.lookupWithScope(idObj.identifier)
                 self.environment.code.append(('stv', scope, hit))
 
+
+    def visit_ProcedureStatement(self, node):
+        self.environment.add_label(node.name)
+        self.environment.add_label("jumpafter_" + node.name)
+
+        self.environment.code.append(('jmp', self.environment.label_index("jumpafter_" + node.name)))
+
+        self.environment.code.append(('lbl', self.environment.label_index(node.name)))
+        self.generate(node.definition)
+        self.environment.code.append(('lbl', self.environment.label_index("jumpafter_" + node.name)))
 
     def visit_Operation(self, node):
         self.generate(node.operand0)
