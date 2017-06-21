@@ -71,6 +71,7 @@ class CodeGenerator(object) :
         self.environment.code.append(('stp',))
         self.environment.code.append(('alc', node.symboltable.lastNumber))
         for statement in node.statements: self.generate(statement)
+        self.environment.code.append(('dlc', node.symboltable.lastNumber))
         self.environment.code.append(('end',))
 
 
@@ -78,8 +79,8 @@ class CodeGenerator(object) :
         for idObj in node.identifier:
             if node.initialization is not None:
                 self.generate(node.initialization)
-                hit, scope = self.environment.lookupWithScope(idObj.identifier)
-                self.environment.code.append(('stv', scope, hit))
+                (scope, offset) = self.environment.lookupWithScope(idObj.identifier)
+                self.environment.code.append(('stv', scope, offset))
 
 
     def visit_ProcedureStatement(self, node):
@@ -89,8 +90,8 @@ class CodeGenerator(object) :
         self.environment.code.append(('jmp', self.environment.label_index("jumpafter_" + node.name)))
         self.environment.code.append(('lbl', self.environment.label_index(node.name)))
         self.environment.code.append(('alc', node.symboltable.lastNumber))
-
         self.generate(node.definition)
+        self.environment.code.append(('dlc', node.symboltable.lastNumber))
         self.environment.code.append(('lbl', self.environment.label_index("jumpafter_" + node.name)))
 
     def visit_Operation(self, node):
@@ -108,14 +109,29 @@ class CodeGenerator(object) :
             elif node.operation == "%":
                 self.environment.code.append(('mod',))
 
+
+    def visit_StringElement(self, node):
+        self.generate(node.location)
+        self.generate(node.start)
+        self.environment.code.append(('ldc', 1))
+        self.environment.code.append(('sub',))
+        self.environment.code.append(('idx', 1))
+
+
     def visit_Identifier(self, node):
-        obj = self.environment.lookupWithScope(node.identifier)
-        self.environment.code.append(('ldv', obj[0], obj[1]))
+        (scope, offset) = self.environment.lookupWithScope(node.identifier)
+        if node.raw_type.type == "array":
+            self.environment.code.append(('ldr', scope, offset))
+        else:
+            self.environment.code.append(('ldv', scope, offset))
 
     def visit_IntegerLiteral(self, node):
         self.environment.code.append(('ldc', node.value))
 
-
+    def visit_Operand(self, node):
+        self.generate(node.value)
+        if node.raw_type.type == "array":
+            self.environment.code.append(('grc',))
 
     def read(self, node):
         self.environment.code.append(('rdv',))
@@ -151,5 +167,20 @@ class CodeGenerator(object) :
         }[node.name](node)
 
 
+
+    def visit_AssigmentAction(self, node):
+        if node.raw_type.type == "array":
+            # TODO: POR ENQUANTO SO FAZ ASSIGNMENT DE 1 VALOR NO ARRAU
+            # VER SE HA POSSIBILIDADE DE FAZER COM MAIS
+            self.generate(node.location)
+            self.generate(node.expression)
+            self.environment.code.append(('smv', 1))
+        elif node.raw_type.type == "ref":
+            # TODO: assignment de ref
+            pass
+        else:
+            self.generate(node.expression)
+            (scope, offset) = self.environment.lookupWithScope(node.location.location.identifier)
+            self.environment.code.append(('stv', scope, offset))
 
 

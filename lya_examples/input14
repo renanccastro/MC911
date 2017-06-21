@@ -1,3 +1,11 @@
+dcl a, b array[1:10] int;
+dcl i int = 2, j int = 5;
+
+a[i] = j;
+a[j] = b [i];
+
+
+/*
 dcl a, b, c int;
 read(a);
 read(b);
@@ -5,12 +13,13 @@ g: proc ();
   dcl x,z int;
   x  = 2*x;
   dcl y int;
+  dcl h, j array[1:10] int;
   x  = x+1;
 end;
 
 read(c);
 print(a+b+c*4-5);
-
+*/
 
 /*
 dcl a, b array[1:10] int;

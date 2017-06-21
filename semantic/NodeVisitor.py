@@ -227,7 +227,8 @@ class NodeVisitor(object) :
     def visit_StringElement(self, node):
         self.visit(node.location)
         self.visit(node.start)
-        node.raw_type = node.location._node.array_type
+        node.raw_type = node.location._node.raw_type
+        node.array_type = node.location._node.array_type
         node._node = node.location._node
         if node.start.raw_type.type != 'int' :
             error(node.lineno, "Index value is not a integer expression")

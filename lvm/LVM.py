@@ -272,7 +272,7 @@ class LVM():
     def run_grc(self,parameters):
         # Get(Load) Reference Contents M[sp]=M[M[sp]]
         self.check_parameters(0, parameters)
-        self.M.changeTop(self.M[self.M[self.M.peek()]])
+        self.M.changeTop(self.M.items[self.M.items[self.M.peek()]])
 
     def run_lmv(self,parameters):
         # Load multiple values t=M[sp]; M[sp:sp+k]=M[t:t+k]; sp+=(k-1)
@@ -286,9 +286,9 @@ class LVM():
         # Store multiple Values t=M[sp-k]; M[t:t+k]=M[sp-k+1:sp+1]; sp-=(k+1)
         self.check_parameters(1, parameters)
         k = int(parameters[0])
-        m = self.M[self.M.pointer()-k]
+        m = self.M.items[self.M.pointer()-k]
         for a in reversed(range(0,k)):
-            self.M[m+a] = self.M.pop()        
+            self.M.items[m+a] = self.M.pop()
         self.M.pop()
 
     def run_smr(self,parameters):
