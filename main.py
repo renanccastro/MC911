@@ -39,10 +39,10 @@ if __name__ == "__main__" :
             print(":::::::::: ::::::::::: ::::::::::")
             print()
 
-            generator.generate(result)
-            pprint(generator.environment.stack)
-            pprint(generator.environment.H)
-            pprint(generator.environment.code)
+            # generator.generate(result)
+            # pprint(generator.environment.stack)
+            # pprint(generator.environment.H)
+            # pprint(generator.environment.code)
 
             print()
             print(":::::::::: ::::::::::: ::::::::::")
@@ -50,8 +50,8 @@ if __name__ == "__main__" :
             print(":::::::::: ::::::::::: ::::::::::")
             print()
 
-            lvm.run_program(generator.environment.code,
-                            generator.environment.H)
+            # lvm.run_program(generator.environment.code,
+            #                 generator.environment.H)
 
     else :
     

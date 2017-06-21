@@ -191,15 +191,20 @@ class NodeVisitor(object) :
     def visit_NullMode(self, node):
         node.size = 1
         node.raw_type = self.environment.root['void']
-        
+
     def visit_IntegerLiteral(self, node):
+        node.size = 1
         node.raw_type = self.environment.root['const_int']
     def visit_CharacterLiteral(self, node):
+        node.size = 1
         node.raw_type = self.environment.root['const_char']
     def visit_BooleanLiteral(self, node):
+        node.size = 1
         node.raw_type = self.environment.root['const_bool']
     def visit_NullLiteral(self, node):
+        node.size = 1
         node.raw_type = self.environment.root['const_void']
+
     def visit_StringLiteral(self, node):
         node.raw_type = self.environment.root['const_string']
 
@@ -280,6 +285,7 @@ class NodeVisitor(object) :
         if (node.length.raw_type.true_type) != 'const_int' :
             error(node.lineno, "String length '{}' value is not a constant integer expression".format(node.length))
         node.raw_type = self.environment.root["string"]
+        node.size = node.length.value
         node.array_type = self.environment.root["char"]
 
     def visit_ArrayMode(self, node):
@@ -309,6 +315,7 @@ class NodeVisitor(object) :
 
     def visit_ModeName(self, node):
         self.visit(node.type)
+        node.size = node.type._node.size
         node.raw_type = node.type.raw_type
         if node.type._node is not None:
             if hasattr(node.type._node, "array_type"):
@@ -451,6 +458,7 @@ class NodeVisitor(object) :
         self.visit(node.mode)
         node.raw_type = self.environment.root["ref"]
         node.array_type = node.mode.raw_type
+        node.size = node.mode.size
 
     def visit_DiscreteRangeMode(self, node):
         self.visit(node.mode)

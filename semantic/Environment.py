@@ -50,7 +50,7 @@ class Environment(object):
             self.peek().add(name, value)
         if ('scope' in keyword_parameters and 'offset' in keyword_parameters):
             scope = keyword_parameters["scope"]
-            if len(self.variablesScope) <  (scope + 1):
+            while len(self.variablesScope) <  (scope + 1):
                 self.variablesScope.append({})
             self.variablesScope[scope][name] = (scope , keyword_parameters["offset"])
 
