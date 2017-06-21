@@ -123,7 +123,8 @@ class CodeGenerator(object) :
             location = operand.value
             identifierObj = location.location
             identifier = identifierObj.identifier
-            self.environment.code.append(('stv', len(self.environment.stack) - 1, self.environment.lookup(identifier)))
+            (scope, offset) = self.environment.lookupWithScope(identifier)
+            self.environment.code.append(('stv', scope, offset))
 
     def print(self, node):
         for expression in node.parameters:
