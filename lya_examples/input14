@@ -1,14 +1,16 @@
 dcl a, b, c int;
 read(a);
 read(b);
+g: proc ();
+  dcl x,z int;
+  x  = 2*x;
+  dcl y int;
+  x  = x+1;
+end;
+
 read(c);
 print(a+b+c*4-5);
 
-g: proc ();
-  dcl x int;
-  x  = 2*x;
-  x  = x+1;
-end;
 
 /*
 dcl a, b array[1:10] int;
