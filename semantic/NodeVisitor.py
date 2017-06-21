@@ -288,7 +288,7 @@ class NodeVisitor(object) :
         node.array_type = node.element_mode.raw_type
         self.visit(node.index_mode_list)
         node.sizeArray = []
-        size = 1
+        size = node.element_mode.size
         node.sizeArray.append(size)
         for mode in node.index_mode_list:
             size = size * mode.size
