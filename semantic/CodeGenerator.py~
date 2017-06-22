@@ -138,8 +138,11 @@ class CodeGenerator(object) :
     def visit_BooleanLiteral(self, node):
         if node.value == "TRUE" :
             self.environment.code.append(('ldc', True)) 
-        if node.value == "FALSE" :
+        else node.value == "FALSE" :
             self.environment.code.append(('ldc', False)) 
+
+    def visit_CharacterLiteral(self, node):
+        self.enviroment.code.append(('ldc', node.value))
 
     def visit_Operand(self, node):
         self.generate(node.value)

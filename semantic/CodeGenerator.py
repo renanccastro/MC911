@@ -144,6 +144,8 @@ class CodeGenerator(object) :
     def visit_CharacterLiteral(self, node):
         self.enviroment.code.append(('ldc', node.value))
 
+    #TODO visit_StringLiteral    
+    
     def visit_Operand(self, node):
         self.generate(node.value)
         if node.raw_type.type == "array":
