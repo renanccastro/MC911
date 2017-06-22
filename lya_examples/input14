@@ -1,3 +1,8 @@
+dcl name chars[15] = "OU HAHAHA";
+read(name);
+print("NAME: ", name);
+
+/*
 dcl a array[2:3] int;
 dcl i int;
 
@@ -8,7 +13,7 @@ print(i);
 print(a[2]);
 print(a[3]);
 
-
+*/
 /*
 dcl a, b, c int;
 read(a);

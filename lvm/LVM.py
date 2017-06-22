@@ -305,10 +305,10 @@ class LVM():
         self.check_parameters(1, parameters)
         k = int(parameters[0])
         m = self.M.pop()
-        self.M[m] = len(self.H[k])
+        self.M.items[m] = len(self.H[k])
         for c in self.H[k]:
             m = m+1
-            self.M[m] = c
+            self.M.items[m] = c
 
     def run_rdv(self, parameters):
         # Read single Value sp=sp+1; M[sp]=input()
@@ -320,10 +320,10 @@ class LVM():
         self.check_parameters(0, parameters)
         string = input()
         m = self.M.pop()
-        self.M[m] = len(string)
+        self.M.items[m] = len(string)
         for k in string:
             m = m+1
-            self.M[m] = k
+            self.M.items[m] = k
 
     def run_prv(self,parameters):
         # Print Value (char or int) if ischar: print(chr(M[sp]) else: print(M[sp]); sp=sp-1        
@@ -353,8 +353,8 @@ class LVM():
         # Print contents of a string location adr=M[sp]; len=M[adr]; for i in range(0,len): adr=adr+1 print(M(adr),end=""); sp=sp-1        
         self.check_parameters(0, parameters)
         m = self.M.pop()
-        for k in range(1,self.M[m]+1):
-            print(self.M[m+k],end="")
+        for k in range(1,self.M.items[m]+1):
+            print(self.M.items[m+k],end="")
 
     def run_lbl(self, parameters):
         # No operation (define the label index i)        

@@ -10,7 +10,7 @@ int_type = ExprType("int", ['+', '-' , '*', '/', '%', '==', '!=', '>', '>=', '<'
 bool_type = ExprType("bool", ['==', '!='], ['!'], "bool")
 pointer_type = ExprType("ref", ['==', '!='], [], "ref")
 char_type = ExprType("char", ['==', '!='], [], "char")
-string_type = ExprType("string", ['+', '==', '!=', '&'], [], "string")
+string_type = ExprType("string", ['+', '==', '!=', '&'], [], "array")
 null_type = ExprType("null", [], [], "null")
 array_type = ExprType("array", [], [], "array")
 

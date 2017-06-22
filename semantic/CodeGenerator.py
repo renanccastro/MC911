@@ -80,7 +80,11 @@ class CodeGenerator(object) :
             if node.initialization is not None:
                 self.generate(node.initialization)
                 (scope, offset) = self.environment.lookupWithScope(idObj.identifier)
-                self.environment.code.append(('stv', scope, offset))
+                if node.initialization.raw_type.true_type == "const_string":
+                    self.environment.code.append(('ldr', scope, offset))
+                    self.environment.code.append(('sts', node.initialization.value.index))
+                else:
+                    self.environment.code.append(('stv', scope, offset))
 
 
     def visit_ProcedureStatement(self, node):
@@ -138,28 +142,39 @@ class CodeGenerator(object) :
     def visit_BooleanLiteral(self, node):
         if node.value == "TRUE" :
             self.environment.code.append(('ldc', True)) 
-        else node.value == "FALSE" :
+        elif node.value == "FALSE" :
             self.environment.code.append(('ldc', False)) 
 
     def visit_CharacterLiteral(self, node):
         self.enviroment.code.append(('ldc', node.value))
 
-    #TODO visit_StringLiteral    
-    
+    def visit_StringLiteral(self, node):
+        index = -1
+        try:
+            index = self.environment.H.index(node.value)
+        except ValueError:
+            self.environment.H.append(node.value)
+            index = len(self.environment.H) - 1
+        node.index = index
+
     def visit_Operand(self, node):
         self.generate(node.value)
-        if node.raw_type.type == "array":
+        if node.raw_type.true_type == "array":
             self.environment.code.append(('grc',))
+        elif node.raw_type.true_type == "const_string":
+            node.index = node.value.index
 
     def read(self, node):
         for expression in node.parameters:
-            if expression.raw_type.type == "array":
+            if expression.raw_type.true_type == "array":
                 self.generate(expression)
                 # AQUI, EU TIRO O GRC que veio do load da expressao
                 self.environment.code.pop()
                 self.environment.code.append(('rdv',))
                 self.environment.code.append(('smv', 1))
-
+            elif expression.raw_type.true_type == "string":
+                self.generate(expression)
+                self.environment.code.append(('rds',))
             else:
                 self.environment.code.append(('rdv',))
                 operand = expression.value
@@ -172,16 +187,11 @@ class CodeGenerator(object) :
     def print(self, node):
         for expression in node.parameters:
             if expression.raw_type.true_type == "const_string":
-                operand = expression.value
-                literal = operand.value
-                string = literal.value
-                index = -1
-                try:
-                    index = self.environment.H.index(string)
-                except ValueError:
-                    self.environment.H.append(string)
-                    index = len(self.environment.H) - 1
-                self.environment.code.append(('prc', index))
+                self.generate(expression.value)
+                self.environment.code.append(('prc', expression.value.index))
+            elif expression.raw_type.true_type == "string":
+                self.generate(expression.value)
+                self.environment.code.append(('prs',))
             else:
                 self.generate(expression.value)
                 self.environment.code.append(('prv', 0))
@@ -196,7 +206,7 @@ class CodeGenerator(object) :
 
     def visit_AssigmentAction(self, node):
         if node.raw_type.type == "array":
-            # TODO: POR ENQUANTO SO FAZ ASSIGNMENT DE 1 VALOR NO ARRAU
+            # TODO: POR ENQUANTO SO FAZ ASSIGNMENT DE 1 VALOR NO ARRAY
             # VER SE HA POSSIBILIDADE DE FAZER COM MAIS
             self.generate(node.location)
             self.generate(node.expression)
@@ -204,6 +214,9 @@ class CodeGenerator(object) :
         elif node.raw_type.type == "ref":
             # TODO: assignment de ref
             pass
+        elif node.raw_type.true_type == "const_string":
+            self.generate(node.expression)
+            self.environment.code.append(('sts', node.expression.index))
         else:
             self.generate(node.expression)
             (scope, offset) = self.environment.lookupWithScope(node.location.location.identifier)
