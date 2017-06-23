@@ -112,15 +112,14 @@ class CodeGenerator(object) :
                 self.environment.code.append(('div',))
             elif node.operation == "%":
                 self.environment.code.append(('mod',))
-        #TODO concat operation        
-        #if node.raw_type.type == "char" and node.operation == "&":
-            
+        #TODO concat operation   
+          
         
     def visit_MonadicOperation(self, node):
         self.generate(node.operand)
-        if node.raw_type.type == "int" and node.operation == "-":
+        if node.operation == "-":
             self.environment.code.append(('neg',))
-        if node.raw_type.type == "bool" and node.operation == "!":
+        elif node.operation == "!":
             self.environment.code.append(('not',))
 
     def visit_ArrayElement(self, node):
