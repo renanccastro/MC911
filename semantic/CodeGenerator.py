@@ -112,7 +112,10 @@ class CodeGenerator(object) :
                 self.environment.code.append(('div',))
             elif node.operation == "%":
                 self.environment.code.append(('mod',))
-                
+        #TODO concat operation        
+        #if node.raw_type.type == "char" and node.operation == "&":
+            
+        
     def visit_MonadicOperation(self, node):
         self.generate(node.operand)
         if node.raw_type.type == "int" and node.operation == "-":
@@ -221,5 +224,26 @@ class CodeGenerator(object) :
             self.generate(node.expression)
             (scope, offset) = self.environment.lookupWithScope(node.location.location.identifier)
             self.environment.code.append(('stv', scope, offset))
+
+
+    def visit_BooleanExpression(self, node):
+        self.generate(node.left)
+        self.generate(node.right)
+        if self.operator == '&&':
+            self.environment.code.append(('and',))
+        elif self.operator == '||':
+            self.environment.code.append(('lor',))
+        elif self.operator == '==':
+            self.environment.code.append(('equ',))
+        elif self.operator == '!=':
+            self.environment.code.append(('neq',))
+        elif self.operator == '>':
+            self.environment.code.append(('grt',))
+        elif self.operator == '>=':
+            self.environment.code.append(('gre',))
+        elif self.operator == '<':
+            self.environment.code.append(('les',))
+        elif self.operator == '<=':
+            self.environment.code.append(('leq',))
 
 
