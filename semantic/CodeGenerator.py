@@ -207,23 +207,42 @@ class CodeGenerator(object) :
 
 
     def visit_AssigmentAction(self, node):
-        if node.raw_type.type == "array":
-            # TODO: POR ENQUANTO SO FAZ ASSIGNMENT DE 1 VALOR NO ARRAY
-            # VER SE HA POSSIBILIDADE DE FAZER COM MAIS
-            self.generate(node.location)
-            self.generate(node.expression)
-            self.environment.code.append(('smv', 1))
-        elif node.raw_type.type == "ref":
-            # TODO: assignment de ref
-            pass
-        elif node.raw_type.true_type == "const_string":
-            self.generate(node.expression)
-            self.environment.code.append(('sts', node.expression.index))
-        else:
-            self.generate(node.expression)
+        self.generate(node.assigning_operator)
+       
+        if node.assigning_operator.operator == None:
+            if node.raw_type.type == "array":
+                # TODO: POR ENQUANTO SO FAZ ASSIGNMENT DE 1 VALOR NO ARRAY
+                # VER SE HA POSSIBILIDADE DE FAZER COM MAIS
+                self.generate(node.location)
+                self.generate(node.expression)
+                self.environment.code.append(('smv', 1))
+            elif node.raw_type.type == "ref":
+                # TODO: assignment de ref
+                pass
+            elif node.raw_type.true_type == "const_string":
+                self.generate(node.expression)
+                self.environment.code.append(('sts', node.expression.index))
+            else:
+                self.generate(node.expression)
+                (scope, offset) = self.environment.lookupWithScope(node.location.location.identifier)
+                self.environment.code.append(('stv', scope, offset))
+       
+        else : # assign operators: +=, -=, *=, /=, %=, &=
             (scope, offset) = self.environment.lookupWithScope(node.location.location.identifier)
-            self.environment.code.append(('stv', scope, offset))
-
+            self.environment.code.append(('ldv', scope, offset))    
+            self.generate(node.expression)
+            if node.assigning_operator.operator == '+' :
+                self.environment.code.append(('add',))
+            if node.assigning_operator.operator == '-' :
+                self.environment.code.append(('sub',))
+            if node.assigning_operator.operator == '*' :
+                self.environment.code.append(('mul',))
+            if node.assigning_operator.operator == '/' :
+                self.environment.code.append(('div',))
+            if node.assigning_operator.operator == '%' :
+                self.environment.code.append(('mod',))
+            #TODO if node.assigning_operator.operator == '&' :               
+            self.environment.code.append(('stv', scope, offset))                        
 
     def visit_BooleanExpression(self, node):
         self.generate(node.left)
@@ -244,5 +263,4 @@ class CodeGenerator(object) :
             self.environment.code.append(('les',))
         elif self.operator == '<=':
             self.environment.code.append(('leq',))
-
 
