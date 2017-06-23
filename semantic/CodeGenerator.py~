@@ -130,7 +130,6 @@ class CodeGenerator(object) :
             self.environment.code.append(('sub',))
             self.environment.code.append(('idx', node._node.mode.sizeArray[i]))
 
-
     def visit_Identifier(self, node):
         (scope, offset) = self.environment.lookupWithScope(node.identifier)
         if node.raw_type.type == "array":
@@ -204,8 +203,6 @@ class CodeGenerator(object) :
             'print': self.print,
         }[node.name](node)
 
-
-
     def visit_AssigmentAction(self, node):
         self.generate(node.assigning_operator)
        
@@ -263,4 +260,53 @@ class CodeGenerator(object) :
             self.environment.code.append(('les',))
         elif self.operator == '<=':
             self.environment.code.append(('leq',))
+            
+            
+    def visit_ElsifExpression(self, node):
+        else_label = "else_label_" + len(self.labels) 
+        self.environment.add_label(else_label)        
+        endif_label = "endif_label_" + len(self.labels) 
+        self.environment.add_label(endif_label)        
+
+        self.generate(node.boolean_expression)
+        self.environment.code.append(('jof', self.environment.label_index(else_label)))
+        self.generate(node.then_expression)
+        self.environment.code.append(('ldc', False))
+        self.environment.code.append(('jmp', self.environment.label_index(endif_label)))         
+        self.environment.code.append(('lbl', self.environment.label_index(else_label)))
+        self.environment.code.append(('ldc', True)) 
+        self.environment.code.append(('lbl', self.environment.label_index(endif_label)))            
+            
+    def visit_ConditionalClause(self, node):
+        else_label = "else_label_" + len(self.labels) 
+        self.environment.add_label(else_label)        
+        endif_label = "endif_label_" + len(self.labels) 
+        self.environment.add_label(endif_label)        
+
+        self.generate(node.boolean_expression)
+        self.environment.code.append(('jof', else_label))
+        self.generate(node.then_expression)
+        self.environment.code.append(('jmp', endif_label))
+        self.environment.code.append(('lbl', self.environment.label_index(else_label)))
+        self.generate(node.else_expression)
+        self.environment.code.append(('lbl', self.environment.label_index(endif_label)))
+
+    def visit_ConditionalExpression(self, node):
+        elsif_label = "elsif_label_" + len(self.labels) 
+        self.environment.add_label(elsif_label)
+        # else_label = "else_label_" + len(self.labels) 
+        # self.environment.add_label(else_label)
+        endif_label = "endif_label_" + len(self.labels) 
+        self.environment.add_label(endif_label)
+        
+        self.generate(node.boolean_expression)
+        self.environment.code.append(('jof', elsif_label))
+        self.generate(node.then_expression)
+        self.environment.code.append(('jmp', endif_label))
+        self.environment.code.append(('lbl', self.environment.label_index(elsif_label)))
+        self.generate(node.elsif_expression)
+        self.environment.code.append(('jof', endif_label))
+        # self.environment.code.append(('lbl', self.environment.label_index(else_label)))
+        self.generate(node.else_expression)
+        self.environment.code.append(('lbl', self.environment.label_index(endif_label)))
 
