@@ -2,6 +2,7 @@ import sys
 
 from nodes.AST import AST
 from nodes.ArrayElement import ArrayElement
+from nodes.DereferencedLocation import DereferencedLocation
 from nodes.DiscreteMode import *
 from nodes.Literal import StringLiteral
 from nodes.Operation import Operation
@@ -136,6 +137,15 @@ class CodeGenerator(object) :
 
     def visit_NewModeStatement(self, mode):
         pass
+
+    def visit_ReferencedLocation(self, node):
+        (scope, offset) = self.environment.lookupWithScope(node.location.location.identifier)
+        self.environment.code.append(('ldr', scope, offset))
+
+    def visit_DereferencedLocation(self, node):
+        (scope, offset) = self.environment.lookupWithScope(node.location.location.identifier)
+        self.environment.code.append(('lrv', scope, offset))
+
     def visit_Identifier(self, node):
         (scope, offset) = self.environment.lookupWithScope(node.identifier)
         if node.raw_type.type == "array":
@@ -231,9 +241,11 @@ class CodeGenerator(object) :
             self.generate(node.location)
             self.generate(node.expression)
             self.environment.code.append(('smv', 1))
-        elif node.raw_type.type == "ref":
+        elif node.raw_type.type == "ref" and type(node.location.location) == DereferencedLocation:
             # TODO: assignment de ref
-            pass
+            self.generate(node.expression)
+            (scope, offset) = self.environment.lookupWithScope(node.location.location.location.location.identifier)
+            self.environment.code.append(('srv', scope, offset))
         elif node.raw_type.true_type == "const_string":
             self.generate(node.expression)
             self.environment.code.append(('sts', node.expression.index))

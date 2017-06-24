@@ -113,14 +113,14 @@ class LVM():
         self.check_parameters(2, parameters)
         i = int(parameters[0])
         j = int(parameters[1])
-        self.M.push(self.M[self.M[self.D[i]+j]])
+        self.M.push(self.M.items[self.M.items[self.D[i]+j]])
 
     def run_srv(self,parameters):
         # Store reference value M[M[D[i]+j]]=M[sp]; sp=sp-1
         self.check_parameters(2, parameters)
         i = int(parameters[0])
         j = int(parameters[1])
-        self.M.items[self.M[self.D[i]+j]] = self.M.peek()
+        self.M.items[self.M.items[self.D[i]+j]] = self.M.peek()
         self.M.pop()                
 
     def run_add(self,parameters):

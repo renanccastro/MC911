@@ -184,8 +184,12 @@ class NodeVisitor(object) :
                     error(node.lineno, "Cannot assign '{}' ref type to '{}' ref type"
                         .format(node.initialization.array_type.type, node.mode.array_type.type))                        
         if node.initialization is not None and (node.mode.raw_type.type != node.initialization.raw_type.type) :
-            error(node.lineno, "Cannot assign '{}' expression to '{}' type"
-                .format(node.initialization.raw_type.type, node.mode.raw_type.type))
+            if node.mode.raw_type.true_type == node.initialization.raw_type.type or\
+                            node.initialization.raw_type.true_type == node.mode.raw_type.type:
+                return
+            else:
+                error(node.lineno, "Cannot assign '{}' expression to '{}' type"
+                    .format(node.initialization.raw_type.type, node.mode.raw_type.type))
 
     def visit_IntegerMode(self, node):
         node.size = 1
@@ -230,7 +234,8 @@ class NodeVisitor(object) :
         self.visit(node.location)
         if hasattr(node.location, "_node"):
             node._node = node.location._node
-        node.raw_type = node._node.array_type
+        node.raw_type = node._node.raw_type
+        node.array_type = node._node.array_type
 
     def visit_ReferencedLocation(self, node):
         self.visit(node.location)
@@ -419,8 +424,6 @@ class NodeVisitor(object) :
         node.raw_type = self.raw_type_binary(node, node.operation, node.operand0, node.operand1)
         if (node.operand0.raw_type.true_type == node.operand1.raw_type.true_type):
             node.raw_type.true_type = node.operand0.raw_type.true_type
-        else:
-            node.raw_type.true_type = None
 
     def visit_MonadicOperation(self, node):
         self.visit(node.operand)
