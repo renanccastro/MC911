@@ -27,6 +27,7 @@ class LVM():
         print("STACK:     P:  {}    M:  {}    D:  {}     H: {}     label: {}".format(self.P,self.M,self.D,self.H,self.label))
         print(":::::::::: :::::::::::::::: ::::::::::")
         print()
+        input()
 
     def check_parameters(self, number, array):
         if len(array) != number:
@@ -61,6 +62,7 @@ class LVM():
             print(e.args[0])
         except AttributeError:
             print("Not supported instruction: {}".format(tuple[0]))
+            self.pc = self.pc + 1
         except Exception as e:
             print(e)
             traceback.print_exc()
@@ -243,14 +245,17 @@ class LVM():
         # Call Function sp=sp+1; M[sp]=pc+1; pc=p
         self.check_parameters(1, parameters)
         self.M.push(self.pc+1)
-        self.pc = int(parameters[0])-1
+        self.pc = self.label[int(parameters[0])]
 
     def run_enf(self,parameters):
         # Enter Function sp=sp+1; M[sp]=D[k]; D[k]=sp+1
         self.check_parameters(1, parameters)
         k = int(parameters[0])
+        while len(self.D) < (k+1):
+            self.D.append(0)
+
         self.M.push(self.D[k])
-        self.D[k] = self.M.pointer()+1
+        self.D[k] = self.M.pointer() + 1
 
     def run_ret(self,parameters):
         # Return from Function D[k]=M[sp]; pc=M[sp-1]; sp=sp-(n+2)
