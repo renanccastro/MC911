@@ -95,9 +95,11 @@ class CodeGenerator(object) :
 
         self.environment.code.append(('jmp', self.environment.label_index("jumpafter_" + node.name)))
         self.environment.code.append(('lbl', self.environment.label_index(node.name)))
+        self.environment.code.append(('enf', node.staticLevel))
         self.environment.code.append(('alc', node.symboltable.lastNumber))
         self.generate(node.definition)
         self.environment.code.append(('dlc', node.symboltable.lastNumber))
+        self.environment.code.append(('ret', node.staticLevel, 0))
         self.environment.code.append(('lbl', self.environment.label_index("jumpafter_" + node.name)))
 
     def visit_Operation(self, node):
@@ -198,6 +200,10 @@ class CodeGenerator(object) :
             else:
                 self.generate(expression.value)
                 self.environment.code.append(('prv', 0))
+
+
+    def visit_ProcedureCall(self, node):
+        self.environment.code.append(('cfu', self.environment.label_index(node.name)))
 
     def visit_BuiltinCall(self, node):
         result = {

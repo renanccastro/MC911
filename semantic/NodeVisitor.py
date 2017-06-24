@@ -255,6 +255,7 @@ class NodeVisitor(object) :
         self.environment.push(node)
         self.visit(node.definition)
         node.symboltable = self.environment.peek()
+        node.staticLevel = len(self.environment.stack) - 2
         self.environment.pop()
 
     def visit_ProcedureDefinition(self, node):
