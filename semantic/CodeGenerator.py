@@ -322,4 +322,21 @@ class CodeGenerator(object) :
             self.environment.code.append(('lbl', self.environment.label_index(action_label)))
         self.generate(node.action)            
 
+    #TODO in Parser or NodeVisitor: check if while expression in a boolean expression
+
+    def visit_DoAction(self, node):
+
+        if node.control.first_control.__class__.__name__ == "WhileControl":
+            loop_label = "loop_label_{}".format(len(self.environment.labels))
+            self.environment.add_label(loop_label)
+            end_label = "end_label_{}".format(len(self.environment.labels))
+            self.environment.add_label(end_label)
+
+            self.environment.code.append(('lbl', self.environment.label_index(loop_label)))     
+            self.generate(node.control)
+            self.environment.code.append(('jof', self.environment.label_index(end_label)))
+            self.generate(node.action)
+            self.environment.code.append(('jmp', self.environment.label_index(loop_label)))
+            self.environment.code.append(('lbl', self.environment.label_index(endaction_label)))     
+
 

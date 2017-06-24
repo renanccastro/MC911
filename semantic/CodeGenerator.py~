@@ -99,7 +99,7 @@ class CodeGenerator(object) :
         self.environment.code.append(('alc', node.symboltable.lastNumber))
         self.generate(node.definition)
         self.environment.code.append(('dlc', node.symboltable.lastNumber))
-        self.environment.code.append(('ret', node.staticLevel, 0))
+        self.environment.code.append(('ret', node.staticLevel, node.parametersNumber))
         self.environment.code.append(('lbl', self.environment.label_index("jumpafter_" + node.name)))
 
     def visit_Operation(self, node):
@@ -134,12 +134,17 @@ class CodeGenerator(object) :
             self.environment.code.append(('sub',))
             self.environment.code.append(('idx', node._node.mode.sizeArray[i]))
 
+    def visit_NewModeStatement(self, mode):
+        pass
     def visit_Identifier(self, node):
         (scope, offset) = self.environment.lookupWithScope(node.identifier)
         if node.raw_type.type == "array":
             self.environment.code.append(('ldr', scope, offset))
         else:
             self.environment.code.append(('ldv', scope, offset))
+
+    def visit_ProcedureParameter(self, node):
+        pass
 
     def visit_IntegerLiteral(self, node):
         self.environment.code.append(('ldc', node.value))
@@ -197,13 +202,19 @@ class CodeGenerator(object) :
             elif expression.raw_type.true_type == "string":
                 self.generate(expression.value)
                 self.environment.code.append(('prs',))
+            elif expression.raw_type.type == "char":
+                self.generate(expression.value)
+                self.environment.code.append(('prv', 1))
             else:
                 self.generate(expression.value)
                 self.environment.code.append(('prv', 0))
 
 
     def visit_ProcedureCall(self, node):
+        for expression in reversed(node.parameters):
+            self.generate(expression)
         self.environment.code.append(('cfu', self.environment.label_index(node.name)))
+
 
     def visit_BuiltinCall(self, node):
         result = {
@@ -303,12 +314,29 @@ class CodeGenerator(object) :
         self.generate(node.else_expression)
         self.environment.code.append(('lbl', self.environment.label_index(endif_label)))
         
-    def visit_ActionStatement(sef, node): 
+    def visit_ActionStatement(self, node): 
         if node.identifier is not None:
             self.generate(node.identifier)
             action_label = "action_label_{}".format(len(self.environment.labels))
             self.environment.add_label(action_label)
             self.environment.code.append(('lbl', self.environment.label_index(action_label)))
         self.generate(node.action)            
+
+    #TODO in Parser or NodeVisitor: check if while expression in a boolean expression
+
+    def visit_DoAction(self, node):
+
+        if node.control.first_control.__class__.__name__ == "WhileControl":
+            loop_label = "loop_label_{}".format(len(self.environment.labels))
+            self.environment.add_label(loop_label)
+            end_label = "end_label_{}".format(len(self.environment.labels))
+            self.environment.add_label(end_label)
+
+            self.environment.code.append(('lbl', self.environment.label_index(loop_label)))     
+            self.generate(node.control)
+            self.environment.code.append(('jof', self.environment.label_index(end_label)))
+            self.generate(node.action)
+            self.environment.code.append(('jmp', self.environment.label_index(loop_label)))
+            self.environment.code.append(('lbl', self.environment.label_index(endaction_label)))     
 
 
