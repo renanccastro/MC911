@@ -303,7 +303,7 @@ class CodeGenerator(object) :
         self.generate(node.else_expression)
         self.environment.code.append(('lbl', self.environment.label_index(endif_label)))
         
-    def visit_ActionStatement(sef, node): 
+    def visit_ActionStatement(self, node): 
         if node.identifier is not None:
             self.generate(node.identifier)
             action_label = "action_label_{}".format(len(self.environment.labels))
