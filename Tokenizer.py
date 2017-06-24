@@ -146,11 +146,19 @@ class Tokenizer:
 
     def t_SCONST(self, t):
         r'\"(\\.|[^"])*\"'
+        value = t.value[1:-1]
+        value = value.replace('\\n', '\n')
+        value = value.replace('\\t', '\t')
+        t.value = value
         return t
 
     # C character literal 'char'
     def t_CCONST(self, t):
         r'\'(\\.|[^\'])*\''
+        value = t.value[1:-1]
+        value = value.replace('\\n', '\n')
+        value = value.replace('\\t', '\t')
+        t.value = ord(value)
         return t
 
     # Errors

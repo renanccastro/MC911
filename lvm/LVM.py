@@ -334,7 +334,7 @@ class LVM():
         # Print Value (char or int) if ischar: print(chr(M[sp]) else: print(M[sp]); sp=sp-1        
         self.check_parameters(1, parameters)
         if bool(parameters[0]) :
-            print(repr(chr(self.M.pop())), end="")
+            print(chr(self.M.pop()), end="")
         else :
             print(repr(int(self.M.pop())), end="")
 
