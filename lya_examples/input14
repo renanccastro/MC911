@@ -1,7 +1,18 @@
+
+p1:proc (t int);
+    print(t);
+    if t != 2 then
+        p1(t+1);
+    fi;
+
+end;
+p1(0);
+
+/*
 dcl name chars[15] = "OU HAHAHA";
 read(name);
 print("NAME: ", name);
-
+*/
 /*
 dcl a array[2:3] int;
 dcl i int;

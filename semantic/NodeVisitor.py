@@ -259,7 +259,7 @@ class NodeVisitor(object) :
         for parameter in node.definition.parameters:
             for identifierObj in parameter.identifier_list:
                 self.environment.functionsParameters.get(node.name).append(identifierObj)
-
+        node.parametersNumber = len(self.environment.functionsParameters.get(node.name))
         if node.definition.returns is not None:
             self.visit(node.definition.returns)
             node.definition.raw_type = node.definition.returns.raw_type
@@ -346,6 +346,10 @@ class NodeVisitor(object) :
     def visit_ModeName(self, node):
         self.visit(node.type)
         node.size = node.type._node.size
+        mode = self.environment.lookup(node.type.identifier)
+        if( hasattr(mode, "mode") ):
+            mode = mode.mode
+        node.mode = mode
         node.raw_type = node.type.raw_type
         if node.type._node is not None:
             if hasattr(node.type._node, "array_type"):

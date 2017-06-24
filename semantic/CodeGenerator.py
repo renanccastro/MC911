@@ -99,7 +99,7 @@ class CodeGenerator(object) :
         self.environment.code.append(('alc', node.symboltable.lastNumber))
         self.generate(node.definition)
         self.environment.code.append(('dlc', node.symboltable.lastNumber))
-        self.environment.code.append(('ret', node.staticLevel, 0))
+        self.environment.code.append(('ret', node.staticLevel, node.parametersNumber))
         self.environment.code.append(('lbl', self.environment.label_index("jumpafter_" + node.name)))
 
     def visit_Operation(self, node):
@@ -134,6 +134,8 @@ class CodeGenerator(object) :
             self.environment.code.append(('sub',))
             self.environment.code.append(('idx', node._node.mode.sizeArray[i]))
 
+    def visit_NewModeStatement(self, mode):
+        pass
     def visit_Identifier(self, node):
         (scope, offset) = self.environment.lookupWithScope(node.identifier)
         if node.raw_type.type == "array":
