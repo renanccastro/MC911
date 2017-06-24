@@ -286,10 +286,10 @@ class CodeGenerator(object) :
 
         self.generate(node.boolean_expression)
         self.environment.code.append(('jof', self.environment.label_index(else_label)))
-        self.generate(node.then_expression)
+        self.generate(node.then_clause)
         self.environment.code.append(('jmp', self.environment.label_index(endif_label)))
         self.environment.code.append(('lbl', self.environment.label_index(else_label)))
-        self.generate(node.else_expression)
+        self.generate(node.else_clause)
         self.environment.code.append(('lbl', self.environment.label_index(endif_label)))
 
     def visit_ConditionalExpression(self, node):
