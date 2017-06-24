@@ -334,7 +334,7 @@ class CodeGenerator(object) :
             self.environment.code.append(('lbl', self.environment.label_index(action_label)))
         self.generate(node.action)            
 
-    #TODO in Parser or NodeVisitor: check if while expression in a boolean expression
+    #TODO in Parser or NodeVisitor: check if while expression is a boolean expression
 
     def visit_DoAction(self, node):
 
@@ -343,12 +343,46 @@ class CodeGenerator(object) :
             self.environment.add_label(loop_label)
             end_label = "end_label_{}".format(len(self.environment.labels))
             self.environment.add_label(end_label)
-
             self.environment.code.append(('lbl', self.environment.label_index(loop_label)))     
             self.generate(node.control)
             self.environment.code.append(('jof', self.environment.label_index(end_label)))
             self.generate(node.action)
             self.environment.code.append(('jmp', self.environment.label_index(loop_label)))
             self.environment.code.append(('lbl', self.environment.label_index(end_label)))     
+
+        if node.control.first_control.__class__.__name__ == "ForControl":
+            if node.control.first_control.expression.__class__.__name__ == "StepEnumeration":
+                step_enum = node.control.first_control.expression
+                loop_label = "loop_label_{}".format(len(self.environment.labels))
+                self.environment.add_label(loop_label)
+                end_label = "end_label_{}".format(len(self.environment.labels))
+                self.environment.add_label(end_label)
+
+                self.generate(step_enum.start_value)
+                (scope, offset) = self.environment.lookupWithScope(step_enum.loop_counter.identifier)
+                self.environment.code.append(('stv', scope, offset))
+                self.environment.code.append(('lbl', self.environment.label_index(loop_label)))     
+                # self.environment.code.append(('ldv', scope, offset))
+                self.generate(step_enum.end_value)
+                if step_enum.down is None:
+                    self.environment.code.append(('leq',))
+                else:
+                    self.environment.code.append(('gre',))
+                self.environment.code.append(('jof', self.environment.label_index(end_label)))
+                self.generate(node.action)
+                self.environment.code.append(('ldv', scope, offset))
+                if step_enum.step_value is not None:
+                    self.generate(step_enum.step_value)
+                else:
+                    self.code.append(('ldc', 1))                    
+                if step_enum.down is None:
+                    self.code.append(('add',))
+                else:
+                    self.code.append(('sub',))
+                # self.environment.code.append(('stv', scope, offset))
+                self.environment.code.append(('jmp', self.environment.label_index(loop_label)))
+                self.environment.code.append(('lbl', self.environment.label_index(end_label)))     
+                                                                            
+
 
 
