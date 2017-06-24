@@ -235,6 +235,10 @@ class NodeVisitor(object) :
         if hasattr(node.location, "_node"):
             node._node = node.location._node
         node.raw_type = node._node.raw_type
+        if node.raw_type.type != "ref":
+            error(node.lineno, "Cannot dereference variable of type {}".format(node._node.raw_type.type))
+            sys.exit(1)
+
         node.array_type = node._node.array_type
 
     def visit_ReferencedLocation(self, node):
@@ -301,9 +305,14 @@ class NodeVisitor(object) :
     def visit_ProcedureParameter(self, node):
         self.visit(node.mode)
         for identifierObj in node.identifier_list:
+            if node.loc:
+                node.mode.array_type = node.mode.raw_type
+                node.mode.raw_type = self.environment.root["ref"]
+
             identifierObj.raw_type = node.mode.raw_type
             if hasattr(node.mode, "array_type"):
                 identifierObj.array_type = node.mode.array_type
+
             self.environment.add_local(identifierObj.identifier,node.mode)
         node.raw_type = node.mode.raw_type
 
