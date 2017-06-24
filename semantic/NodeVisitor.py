@@ -85,6 +85,7 @@ class NodeVisitor(object) :
                 left_type = left.array_type
             if hasattr(right, "array_type"):
                 right_type = right.array_type
+
             if left_type.type != right_type.type:
                 error(node.lineno,
                       "Binary operator '{}' does not have matching types".format(op))
@@ -213,6 +214,8 @@ class NodeVisitor(object) :
         node.raw_type = node.location.raw_type
         if hasattr(node.location, "_node"):
             node._node = node.location._node
+        if hasattr(node.location, "array_type"):
+            node.array_type = node.location.array_type
         if node.raw_type.type == 'ref' :
             node.array_type = node.location._node.array_type
 
@@ -325,6 +328,8 @@ class NodeVisitor(object) :
         self.visit(node.location)
         self.visit(node.expression)
         loct_type = node.location.raw_type
+        if hasattr(node.location, "array_type"):
+                loct_type = node.location.array_type
         expr_type = node.expression.raw_type
         node.raw_type = node.location.raw_type
         if 'const' in repr(loct_type.true_type) :
@@ -384,7 +389,7 @@ class NodeVisitor(object) :
         if (node.operand0.raw_type.true_type == node.operand1.raw_type.true_type):
             node.raw_type.true_type = node.operand0.raw_type.true_type
         else:
-            node.raw_type.true_type = None 
+            node.raw_type.true_type = None
 
     def visit_MonadicOperation(self, node):
         self.visit(node.operand)
@@ -394,7 +399,7 @@ class NodeVisitor(object) :
         self.visit(node.value)
         node.raw_type = node.value.raw_type
         if hasattr(node.value, "array_type"):
-                node.array_type = node.value.array_type
+            node.array_type = node.value.array_type
 
     def visit_CallAction(self, node):
         self.visit(node.call)

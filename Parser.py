@@ -650,6 +650,8 @@ class Parser:
     
     def p_assignment_action(self,p):
         '''assignment_action : array_location assigning_operator expression'''
+        if p[2].operator is not None:
+            p[3].value = Operation(Operand(p[1], lineno=p.lineno(1)), p[2].operator, p[3].value, lineno=p.lineno(1))
         p[0] = AssigmentAction(p[1],p[2],p[3], lineno=p.lineno(1))
 
     def p_assigning_operator(self,p):

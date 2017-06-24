@@ -1,8 +1,10 @@
 import sys
 
 from nodes.AST import AST
+from nodes.ArrayElement import ArrayElement
 from nodes.DiscreteMode import *
 from nodes.Literal import StringLiteral
+from nodes.Operation import Operation
 from semantic.Environment import Environment
 from semantic.ExprType import *
 from semantic.SymbolTable import SymbolTable
@@ -147,7 +149,7 @@ class CodeGenerator(object) :
             self.environment.code.append(('ldc', False)) 
 
     def visit_CharacterLiteral(self, node):
-        self.enviroment.code.append(('ldc', node.value))
+        self.environment.code.append(('ldc', node.value))
 
     def visit_StringLiteral(self, node):
         index = -1
@@ -206,40 +208,22 @@ class CodeGenerator(object) :
     def visit_AssigmentAction(self, node):
         self.generate(node.assigning_operator)
        
-        if node.assigning_operator.operator == None:
-            if node.raw_type.type == "array":
-                # TODO: POR ENQUANTO SO FAZ ASSIGNMENT DE 1 VALOR NO ARRAY
-                # VER SE HA POSSIBILIDADE DE FAZER COM MAIS
-                self.generate(node.location)
-                self.generate(node.expression)
-                self.environment.code.append(('smv', 1))
-            elif node.raw_type.type == "ref":
-                # TODO: assignment de ref
-                pass
-            elif node.raw_type.true_type == "const_string":
-                self.generate(node.expression)
-                self.environment.code.append(('sts', node.expression.index))
-            else:
-                self.generate(node.expression)
-                (scope, offset) = self.environment.lookupWithScope(node.location.location.identifier)
-                self.environment.code.append(('stv', scope, offset))
-       
-        else : # assign operators: +=, -=, *=, /=, %=, &=
-            (scope, offset) = self.environment.lookupWithScope(node.location.location.identifier)
-            self.environment.code.append(('ldv', scope, offset))    
+        if node.raw_type.type == "array":
+            # TODO: POR ENQUANTO SO FAZ ASSIGNMENT DE 1 VALOR NO ARRAY
+            # VER SE HA POSSIBILIDADE DE FAZER COM MAIS
+            self.generate(node.location)
             self.generate(node.expression)
-            if node.assigning_operator.operator == '+' :
-                self.environment.code.append(('add',))
-            if node.assigning_operator.operator == '-' :
-                self.environment.code.append(('sub',))
-            if node.assigning_operator.operator == '*' :
-                self.environment.code.append(('mul',))
-            if node.assigning_operator.operator == '/' :
-                self.environment.code.append(('div',))
-            if node.assigning_operator.operator == '%' :
-                self.environment.code.append(('mod',))
-            #TODO if node.assigning_operator.operator == '&' :               
-            self.environment.code.append(('stv', scope, offset))                        
+            self.environment.code.append(('smv', 1))
+        elif node.raw_type.type == "ref":
+            # TODO: assignment de ref
+            pass
+        elif node.raw_type.true_type == "const_string":
+            self.generate(node.expression)
+            self.environment.code.append(('sts', node.expression.index))
+        else:
+            self.generate(node.expression)
+            (scope, offset) = self.environment.lookupWithScope(node.location.location.identifier)
+            self.environment.code.append(('stv', scope, offset))
 
     def visit_BooleanExpression(self, node):
         self.generate(node.left)
