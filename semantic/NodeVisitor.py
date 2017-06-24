@@ -252,22 +252,38 @@ class NodeVisitor(object) :
         # SETA AS COISAS AQUI POR CAUSA DAS CHAMADAS RECURSIVAS
         if self.environment.find(node.name):
             error(node.lineno, "Duplicate definition of function '{}'".format(node.name))
+
         self.environment.add_local(node.name, node.definition)
-        self.environment.functionsParameters.add(node.name, node.definition.parameters)
+
+        self.environment.functionsParameters.add(node.name, [])
+        for parameter in node.definition.parameters:
+            for identifierObj in parameter.identifier_list:
+                self.environment.functionsParameters.get(node.name).append(identifierObj)
+
         if node.definition.returns is not None:
             self.visit(node.definition.returns)
             node.definition.raw_type = node.definition.returns.raw_type
         else:
             node.definition.raw_type = self.environment.root["void"]
         self.environment.push(node)
+        node.staticLevel = len(self.environment.stack) - 2
+        node.definition.staticLevel = node.staticLevel
         self.visit(node.definition)
         node.symboltable = self.environment.peek()
-        node.staticLevel = len(self.environment.stack) - 2
         self.environment.pop()
 
     def visit_ProcedureDefinition(self, node):
         for parameter in node.parameters:
             self.visit(parameter)
+
+        while len(self.environment.variablesScope) < (node.staticLevel + 1):
+                self.environment.variablesScope.append({})
+        i = -2
+        for parameter in node.parameters:
+            for identifierObj in parameter.identifier_list:
+                i = i - parameter.mode.size
+                self.environment.variablesScope[node.staticLevel][identifierObj.identifier] = (node.staticLevel, i)
+
         if node.body is None or len(node.body) == 0:
             error(node.lineno, "No function body")
         for stmt in node.body:
@@ -280,6 +296,9 @@ class NodeVisitor(object) :
     def visit_ProcedureParameter(self, node):
         self.visit(node.mode)
         for identifierObj in node.identifier_list:
+            identifierObj.raw_type = node.mode.raw_type
+            if hasattr(node.mode, "array_type"):
+                identifierObj.array_type = node.mode.array_type
             self.environment.add_local(identifierObj.identifier,node.mode)
         node.raw_type = node.mode.raw_type
 

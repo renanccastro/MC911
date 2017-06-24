@@ -141,6 +141,9 @@ class CodeGenerator(object) :
         else:
             self.environment.code.append(('ldv', scope, offset))
 
+    def visit_ProcedureParameter(self, node):
+        pass
+
     def visit_IntegerLiteral(self, node):
         self.environment.code.append(('ldc', node.value))
         
@@ -197,13 +200,19 @@ class CodeGenerator(object) :
             elif expression.raw_type.true_type == "string":
                 self.generate(expression.value)
                 self.environment.code.append(('prs',))
+            elif expression.raw_type.type == "char":
+                self.generate(expression.value)
+                self.environment.code.append(('prv', 1))
             else:
                 self.generate(expression.value)
                 self.environment.code.append(('prv', 0))
 
 
     def visit_ProcedureCall(self, node):
+        for expression in reversed(node.parameters):
+            self.generate(expression)
         self.environment.code.append(('cfu', self.environment.label_index(node.name)))
+
 
     def visit_BuiltinCall(self, node):
         result = {
