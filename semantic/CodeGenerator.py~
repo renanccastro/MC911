@@ -1,8 +1,10 @@
 import sys
 
 from nodes.AST import AST
+from nodes.ArrayElement import ArrayElement
 from nodes.DiscreteMode import *
 from nodes.Literal import StringLiteral
+from nodes.Operation import Operation
 from semantic.Environment import Environment
 from semantic.ExprType import *
 from semantic.SymbolTable import SymbolTable
@@ -93,9 +95,11 @@ class CodeGenerator(object) :
 
         self.environment.code.append(('jmp', self.environment.label_index("jumpafter_" + node.name)))
         self.environment.code.append(('lbl', self.environment.label_index(node.name)))
+        self.environment.code.append(('enf', node.staticLevel))
         self.environment.code.append(('alc', node.symboltable.lastNumber))
         self.generate(node.definition)
         self.environment.code.append(('dlc', node.symboltable.lastNumber))
+        self.environment.code.append(('ret', node.staticLevel, 0))
         self.environment.code.append(('lbl', self.environment.label_index("jumpafter_" + node.name)))
 
     def visit_Operation(self, node):
@@ -147,7 +151,7 @@ class CodeGenerator(object) :
             self.environment.code.append(('ldc', False)) 
 
     def visit_CharacterLiteral(self, node):
-        self.enviroment.code.append(('ldc', node.value))
+        self.environment.code.append(('ldc', node.value))
 
     def visit_StringLiteral(self, node):
         index = -1
@@ -197,6 +201,10 @@ class CodeGenerator(object) :
                 self.generate(expression.value)
                 self.environment.code.append(('prv', 0))
 
+
+    def visit_ProcedureCall(self, node):
+        self.environment.code.append(('cfu', self.environment.label_index(node.name)))
+
     def visit_BuiltinCall(self, node):
         result = {
             'read': self.read,
@@ -206,107 +214,101 @@ class CodeGenerator(object) :
     def visit_AssigmentAction(self, node):
         self.generate(node.assigning_operator)
        
-        if node.assigning_operator.operator == None:
-            if node.raw_type.type == "array":
-                # TODO: POR ENQUANTO SO FAZ ASSIGNMENT DE 1 VALOR NO ARRAY
-                # VER SE HA POSSIBILIDADE DE FAZER COM MAIS
-                self.generate(node.location)
-                self.generate(node.expression)
-                self.environment.code.append(('smv', 1))
-            elif node.raw_type.type == "ref":
-                # TODO: assignment de ref
-                pass
-            elif node.raw_type.true_type == "const_string":
-                self.generate(node.expression)
-                self.environment.code.append(('sts', node.expression.index))
-            else:
-                self.generate(node.expression)
-                (scope, offset) = self.environment.lookupWithScope(node.location.location.identifier)
-                self.environment.code.append(('stv', scope, offset))
-       
-        else : # assign operators: +=, -=, *=, /=, %=, &=
-            (scope, offset) = self.environment.lookupWithScope(node.location.location.identifier)
-            self.environment.code.append(('ldv', scope, offset))    
+        if node.raw_type.type == "array":
+            # TODO: POR ENQUANTO SO FAZ ASSIGNMENT DE 1 VALOR NO ARRAY
+            # VER SE HA POSSIBILIDADE DE FAZER COM MAIS
+            self.generate(node.location)
             self.generate(node.expression)
-            if node.assigning_operator.operator == '+' :
-                self.environment.code.append(('add',))
-            if node.assigning_operator.operator == '-' :
-                self.environment.code.append(('sub',))
-            if node.assigning_operator.operator == '*' :
-                self.environment.code.append(('mul',))
-            if node.assigning_operator.operator == '/' :
-                self.environment.code.append(('div',))
-            if node.assigning_operator.operator == '%' :
-                self.environment.code.append(('mod',))
-            #TODO if node.assigning_operator.operator == '&' :               
-            self.environment.code.append(('stv', scope, offset))                        
+            self.environment.code.append(('smv', 1))
+        elif node.raw_type.type == "ref":
+            # TODO: assignment de ref
+            pass
+        elif node.raw_type.true_type == "const_string":
+            self.generate(node.expression)
+            self.environment.code.append(('sts', node.expression.index))
+        else:
+            self.generate(node.expression)
+            (scope, offset) = self.environment.lookupWithScope(node.location.location.identifier)
+            self.environment.code.append(('stv', scope, offset))
 
     def visit_BooleanExpression(self, node):
         self.generate(node.left)
         self.generate(node.right)
-        if self.operator == '&&':
+        if node.operator == '&&':
             self.environment.code.append(('and',))
-        elif self.operator == '||':
+        elif node.operator == '||':
             self.environment.code.append(('lor',))
-        elif self.operator == '==':
+        elif node.operator == '==':
             self.environment.code.append(('equ',))
-        elif self.operator == '!=':
+        elif node.operator == '!=':
             self.environment.code.append(('neq',))
-        elif self.operator == '>':
+        elif node.operator == '>':
             self.environment.code.append(('grt',))
-        elif self.operator == '>=':
+        elif node.operator == '>=':
             self.environment.code.append(('gre',))
-        elif self.operator == '<':
+        elif node.operator == '<':
             self.environment.code.append(('les',))
-        elif self.operator == '<=':
+        elif node.operator == '<=':
             self.environment.code.append(('leq',))
             
             
     def visit_ElsifExpression(self, node):
-        else_label = "else_label_" + len(self.labels) 
-        self.environment.add_label(else_label)        
-        endif_label = "endif_label_" + len(self.labels) 
+        else_label = "else_label_{}".format((self.environment.labels))
+
+        self.environment.add_label(else_label)
+        endif_label = "endif_label_{}".format((self.environment.labels))
         self.environment.add_label(endif_label)        
 
         self.generate(node.boolean_expression)
         self.environment.code.append(('jof', self.environment.label_index(else_label)))
         self.generate(node.then_expression)
         self.environment.code.append(('ldc', False))
-        self.environment.code.append(('jmp', self.environment.label_index(endif_label)))         
+        self.environment.code.append(('jmp', self.environment.label_index(endif_label)))
         self.environment.code.append(('lbl', self.environment.label_index(else_label)))
-        self.environment.code.append(('ldc', True)) 
-        self.environment.code.append(('lbl', self.environment.label_index(endif_label)))            
-            
+        self.environment.code.append(('ldc', True))
+        self.environment.code.append(('lbl', self.environment.label_index(endif_label)))
+
     def visit_ConditionalClause(self, node):
-        else_label = "else_label_" + len(self.labels) 
+        else_label = "else_label_{}".format(len(self.environment.labels))
         self.environment.add_label(else_label)        
-        endif_label = "endif_label_" + len(self.labels) 
+        endif_label = "endif_label_{}".format(len(self.environment.labels))
         self.environment.add_label(endif_label)        
 
         self.generate(node.boolean_expression)
-        self.environment.code.append(('jof', else_label))
-        self.generate(node.then_expression)
-        self.environment.code.append(('jmp', endif_label))
+        self.environment.code.append(('jof', self.environment.label_index(else_label)))
+        self.generate(node.then_clause)
+        self.environment.code.append(('jmp', self.environment.label_index(endif_label)))
         self.environment.code.append(('lbl', self.environment.label_index(else_label)))
-        self.generate(node.else_expression)
+        self.generate(node.else_clause)
         self.environment.code.append(('lbl', self.environment.label_index(endif_label)))
 
     def visit_ConditionalExpression(self, node):
-        elsif_label = "elsif_label_" + len(self.labels) 
+        elsif_label = "elsif_label_{}".format(len(self.environment.labels))
         self.environment.add_label(elsif_label)
-        # else_label = "else_label_" + len(self.labels) 
+        # else_label = "else_label_" + len(self.labels)
         # self.environment.add_label(else_label)
-        endif_label = "endif_label_" + len(self.labels) 
+        endif_label = "endif_label_{}".format((self.environment.labels))
         self.environment.add_label(endif_label)
         
         self.generate(node.boolean_expression)
-        self.environment.code.append(('jof', elsif_label))
+        self.environment.code.append(('jof', self.environment.label_index(elsif_label)))
         self.generate(node.then_expression)
-        self.environment.code.append(('jmp', endif_label))
+        self.environment.code.append(('jmp', self.environment.label_index(endif_label)))
+
         self.environment.code.append(('lbl', self.environment.label_index(elsif_label)))
         self.generate(node.elsif_expression)
-        self.environment.code.append(('jof', endif_label))
+        if(node.elsif_expression is not None):
+            self.environment.code.append(('jof', self.environment.label_index(endif_label)))
         # self.environment.code.append(('lbl', self.environment.label_index(else_label)))
         self.generate(node.else_expression)
         self.environment.code.append(('lbl', self.environment.label_index(endif_label)))
+        
+    def visit_ActionStatement(sef, node): 
+        if node.identifier is not None:
+            self.generate(node.identifier)
+            action_label = "action_label_{}".format(len(self.environment.labels))
+            self.environment.add_label(action_label)
+            self.environment.code.append(('lbl', self.environment.label_index(action_label)))
+        self.generate(node.action)            
+
 
