@@ -72,7 +72,14 @@ class NodeVisitor(object) :
 
     def raw_type_boolean(self, node, op, left, right):
         if hasattr(left, "raw_type") and hasattr(right, "raw_type"):
-            if left.raw_type.type != right.raw_type.type:
+            left_type = left.raw_type
+            right_type = right.raw_type
+            if hasattr(left,"array_type"):
+                left_type = left.array_type
+            if hasattr(right, "array_type"):
+                right_type = right.array_type
+
+            if left_type.type != right_type.type:
                 error(node.lineno,
                       "Binary operator '{}' does not have matching types".format(op))
             return self.environment.root["bool"]
