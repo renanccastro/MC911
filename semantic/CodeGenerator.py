@@ -334,7 +334,6 @@ class CodeGenerator(object) :
             self.environment.code.append(('lbl', self.environment.label_index(action_label)))
         self.generate(node.action)            
 
-    #TODO in Parser or NodeVisitor: check if while expression is a boolean expression
 
     def visit_DoAction(self, node):
 
