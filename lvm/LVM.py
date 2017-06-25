@@ -151,7 +151,7 @@ class LVM():
         # Modulus M[sp-1]=M[sp-1]%M[sp]; sp=sp-1
         self.check_parameters(0, parameters)
         m = self.M.pop()
-        self.M.changeTop(self.M.peek() % k)
+        self.M.changeTop(self.M.peek() % m)
 
     def run_neg(self,parameters):
         # Negate M[sp]=-M[sp]
@@ -285,7 +285,7 @@ class LVM():
         k = int(parameters[0])
         m = self.M.pop()
         for a in range(0,k):
-            self.M.push(self.M[m+a])
+            self.M.push(self.M.items[m+a])
 
     def run_smv(self,parameters):
         # Store multiple Values t=M[sp-k]; M[t:t+k]=M[sp-k+1:sp+1]; sp-=(k+1)
