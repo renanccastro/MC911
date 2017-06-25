@@ -402,6 +402,7 @@ class CodeGenerator(object) :
         end_label = "end_label_{}".format(len(self.environment.labels))
         self.environment.add_label(end_label)
         self.control.loop_label = loop_label
+        node.control.end_label = end_label
         self.generate(node.control)
         self.environment.code.append(('jof', self.environment.label_index(end_label)))
         self.generate(node.action)
@@ -411,11 +412,13 @@ class CodeGenerator(object) :
     def visit_ControlPart(self, node):
         node.first_control.loop_label = node.loop_label
         self.generate(node.first_control)
-#        if node.second_control is not None:
-#            self.generate(node.second_control)
+        if node.second_control is not None:
+            self.environment.code.append(('jof', self.environment.label_index(end_label)))        
+            self.generate(node.second_control)
         
     def visit_WhileControl(self, node):
-        self.environment.code.append(('lbl', self.environment.label_index(node.loop_label)))     
+        if hasattr(node, "loop_label"):
+            self.environment.code.append(('lbl', self.environment.label_index(node.loop_label)))     
         self.generate(node.expression)        
 
     def visit_ForControl(self, node):
