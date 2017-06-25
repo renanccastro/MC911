@@ -283,7 +283,10 @@ class NodeVisitor(object) :
             for identifierObj in parameter.identifier_list:
                 self.visit(parameter.mode)
                 self.environment.functionsParameters.get(node.name).append(identifierObj)
-                size = size + parameter.mode.size
+                if parameter.loc == True:
+                    size = size + 1
+                else:
+                    size = size + parameter.mode.size
         node.parametersSize = size
         node.parametersNumber = len(self.environment.functionsParameters.get(node.name))
         if node.definition.returns is not None:
@@ -310,7 +313,10 @@ class NodeVisitor(object) :
         i = -2
         for parameter in node.parameters:
             for identifierObj in parameter.identifier_list:
-                    i = i - parameter.mode.size
+                    if parameter.loc == True:
+                        i= i - 1
+                    else:
+                        i = i - parameter.mode.size
                     self.environment.variablesScope[node.staticLevel][identifierObj.identifier] = (node.staticLevel, i)
         node.returnLocation = (node.staticLevel , (i-1))
 
@@ -372,6 +378,7 @@ class NodeVisitor(object) :
             #     node.mode.raw_type = self.environment.root["ref"]
 
             identifierObj.raw_type = node.mode.raw_type
+            identifierObj.mode = node.mode
             if hasattr(node.mode, "array_type"):
                 identifierObj.array_type = node.mode.array_type
 

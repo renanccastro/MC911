@@ -169,7 +169,9 @@ class CodeGenerator(object) :
             self.environment.code.append(('ldc', node.calculatedValue))
             return
         (scope, offset) = self.environment.lookupWithScope(node.identifier)
-        if hasattr(node, "array_type"):
+        if hasattr(node, "array_type") and hasattr(node, "loc"):
+            self.environment.code.append(('ldv', scope, offset))
+        elif hasattr(node, "array_type"):
             self.environment.code.append(('ldr', scope, offset))
         elif hasattr(node, "loc"):
             self.environment.code.append(('lrv', scope, offset))
@@ -267,7 +269,6 @@ class CodeGenerator(object) :
                 (scope, offset) = self.environment.lookupWithScope(expression.value.value.location.identifier)
                 self.environment.code.append(('ldr', scope, offset))
                 self.environment.code.append(('lmv', expression.funcParameter.mode.size))
-                self.environment.code.append(('cfu', self.environment.label_index(node.name)))
             else:
                 self.generate(expression)
         self.environment.code.append(('cfu', self.environment.label_index(node.name)))

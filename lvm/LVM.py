@@ -303,7 +303,7 @@ class LVM():
         m2 = self.M.pop()
         m1 = self.M.peek()
         for a in range(0,k):
-            self.M[m1+k] = self.M[m2+k]
+            self.M.items[m1+k] = self.M.items[m2+k]
     
     def run_sts(self,parameters):
         # Store string constant on reference adr=M[sp]; M[adr]=len(H[k]); for c in H[k]: adr=adr+1 M[adr]=c; sp=sp-1
