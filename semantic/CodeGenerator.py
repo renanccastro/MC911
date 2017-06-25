@@ -93,15 +93,28 @@ class CodeGenerator(object) :
     def visit_ProcedureStatement(self, node):
         self.environment.add_label(node.name)
         self.environment.add_label("jumpafter_" + node.name)
+        self.environment.add_label("return_function_lya_compiler_" + node.name)
 
         self.environment.code.append(('jmp', self.environment.label_index("jumpafter_" + node.name)))
         self.environment.code.append(('lbl', self.environment.label_index(node.name)))
         self.environment.code.append(('enf', node.staticLevel))
         self.environment.code.append(('alc', node.symboltable.lastNumber))
         self.generate(node.definition)
+        self.environment.code.append(('lbl', self.environment.label_index("return_function_lya_compiler_" + node.name)))
         self.environment.code.append(('dlc', node.symboltable.lastNumber))
         self.environment.code.append(('ret', node.staticLevel, node.parametersNumber))
         self.environment.code.append(('lbl', self.environment.label_index("jumpafter_" + node.name)))
+
+    def visit_ReturnAction(self, node):
+        (scope, offset) = node.returnLocation
+        self.generate(node.return_expression)
+        self.environment.code.append(('stv', scope, offset))
+        self.environment.code.append(('jmp', self.environment.label_index("return_function_lya_compiler_" + node.functionName)))
+    def visit_ResultAction(self, node):
+        (scope, offset) = node.returnLocation
+        self.generate(node.return_expression)
+        self.environment.code.append(('stv', scope, offset))
+
 
     def visit_Operation(self, node):
         self.generate(node.operand0)
@@ -221,6 +234,8 @@ class CodeGenerator(object) :
 
 
     def visit_ProcedureCall(self, node):
+        if node._node.returns is not None:
+            self.environment.code.append(('alc', node._node.returns.mode.size))
         for expression in reversed(node.parameters):
             self.generate(expression)
         self.environment.code.append(('cfu', self.environment.label_index(node.name)))

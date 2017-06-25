@@ -228,7 +228,10 @@ class NodeVisitor(object) :
         if hasattr(node.location, "array_type"):
             node.array_type = node.location.array_type
         if node.raw_type.type == 'ref' :
-            node.array_type = node.location._node.array_type
+            if hasattr(node.location, "_node"):
+                node.array_type = node.location._node.array_type
+            elif hasattr(node.location, "array_type"):
+                node.array_type = node.location.array_type
 
     def visit_DereferencedLocation(self, node):
         self.visit(node.location)
@@ -265,9 +268,13 @@ class NodeVisitor(object) :
         self.environment.add_local(node.name, node.definition)
 
         self.environment.functionsParameters.add(node.name, [])
+        size = 0
         for parameter in node.definition.parameters:
             for identifierObj in parameter.identifier_list:
+                self.visit(parameter.mode)
                 self.environment.functionsParameters.get(node.name).append(identifierObj)
+                size = size + parameter.mode.size
+        node.parametersSize = size
         node.parametersNumber = len(self.environment.functionsParameters.get(node.name))
         if node.definition.returns is not None:
             self.visit(node.definition.returns)
@@ -277,6 +284,7 @@ class NodeVisitor(object) :
         self.environment.push(node)
         node.staticLevel = len(self.environment.stack) - 2
         node.definition.staticLevel = node.staticLevel
+        node.definition.functionName = node.name
         self.visit(node.definition)
         node.symboltable = self.environment.peek()
         self.environment.pop()
@@ -292,15 +300,52 @@ class NodeVisitor(object) :
             for identifierObj in parameter.identifier_list:
                 i = i - parameter.mode.size
                 self.environment.variablesScope[node.staticLevel][identifierObj.identifier] = (node.staticLevel, i)
+        node.returnLocation = (node.staticLevel , (i-1))
 
         if node.body is None or len(node.body) == 0:
             error(node.lineno, "No function body")
+
+        node.returns.functionName = node.functionName
         for stmt in node.body:
+            stmt.functionName = node.functionName
+            stmt.returnLocation = node.returnLocation
+            stmt.returnNode = node.returns
             self.visit(stmt)
 
     def visit_ProcedureReturn(self, node):
         self.visit(node.mode)
-        node.raw_type = node.mode.raw_type
+        if node.loc == True:
+            node.raw_type = self.environment.root['ref']
+            node.array_type = node.mode.raw_type
+        else:
+            node.raw_type = node.mode.raw_type
+
+    def visit_ReturnAction(self, node):
+        if not hasattr(node, "returnNode"):
+            error(node.lineno, "Calling return outside function")
+            sys.exit(1)
+        functionReturnNode = node.returnNode
+        self.visit(node.return_expression)
+        if functionReturnNode.raw_type.type != node.return_expression.raw_type.type:
+            error(node.lineno, "Returning different types")
+        elif functionReturnNode.raw_type.type == node.return_expression.raw_type.type and \
+             functionReturnNode.raw_type.type == 'ref' and \
+             functionReturnNode.array_type.type != node.return_expression.array_type.type:
+            error(node.lineno, "Returning different ref types")
+
+    def visit_ResultAction(self, node):
+        if not hasattr(node, "returnNode"):
+            error(node.lineno, "Calling result outside function")
+            sys.exit(1)
+        functionReturnNode = node.returnNode
+        self.visit(node.result_expression)
+        if functionReturnNode.raw_type.type != node.result_expression.raw_type.type:
+            error(node.lineno, "Resulting different types")
+        elif functionReturnNode.raw_type.type == node.result_expression.raw_type.type and \
+             functionReturnNode.raw_type.type == 'ref' and \
+             functionReturnNode.array_type.type != node.result_expression.array_type.type:
+            error(node.lineno, "Resulting different ref types")
+        pass
 
     def visit_ProcedureParameter(self, node):
         self.visit(node.mode)
@@ -373,17 +418,17 @@ class NodeVisitor(object) :
         self.visit(node.location)
         self.visit(node.expression)
         loct_type = node.location.raw_type
-        if hasattr(node.location, "array_type"):
+        if hasattr(node.location, "array_type") and loct_type.type != "ref":
                 loct_type = node.location.array_type
         expr_type = node.expression.raw_type
         node.raw_type = node.location.raw_type
         if 'const' in repr(loct_type.true_type) :
             error(node.lineno, "Cannot assign '{}' expression to '{}' type".format(expr_type.type,loct_type.true_type))
-        if loct_type.type != expr_type.type :         
-            error(node.lineno, "Cannot assign '{}' expression to '{}' type".format(expr_type.type,loct_type.type))
-        if loct_type.type == 'ref' and (node.location.array_type.type != node.expression.array_type.type) :
+        if loct_type.type == 'ref' and (node.location.array_type.type != node.expression.array_type.type):
             error(node.lineno, "Cannot assign '{}' ref type to '{}' ref type"
-                .format(node.location.array_type.type,node.expression.array_type.type))
+                  .format(node.location.array_type.type, node.expression.array_type.type))
+        elif loct_type.type != 'ref' and loct_type.type != expr_type.type:
+            error(node.lineno, "Cannot assign '{}' expression to '{}' type".format(expr_type.type,loct_type.type))
         if node.assigning_operator.operator is not None:
             self.raw_type_binary(node, node.assigning_operator.operator, node.location, node.expression)
                                 
@@ -447,6 +492,8 @@ class NodeVisitor(object) :
     def visit_CallAction(self, node):
         self.visit(node.call)
         node.raw_type = node.call.raw_type
+        if hasattr(node, "_node"):
+            node._node = node.call._node
 
     def visit_ProcedureCall(self, node):
         node._node = self.environment.lookup(node.name)
@@ -534,7 +581,13 @@ class NodeVisitor(object) :
                 error(node.lineno, "Duplicate definition of label '{}' on same scope".format(node.identifier.identifier))
             node.raw_type = self.environment.root["void"]
             self.environment.add_local(node.identifier.identifier, node)
+
+
         self.visit(node.identifier)
+        if hasattr(node, "returnLocation"):
+            node.action.returnLocation = node.returnLocation
+            node.action.returnNode = node.returnNode
+            node.action.functionName = node.functionName
         self.visit(node.action)              
 
     def visit_StringSlice(self, node):
