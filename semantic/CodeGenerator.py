@@ -401,7 +401,7 @@ class CodeGenerator(object) :
         self.environment.add_label(loop_label)
         end_label = "end_label_{}".format(len(self.environment.labels))
         self.environment.add_label(end_label)
-        self.control.loop_label = loop_label
+        node.control.loop_label = loop_label
         node.control.end_label = end_label
         self.generate(node.control)
         self.environment.code.append(('jof', self.environment.label_index(end_label)))
