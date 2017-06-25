@@ -111,8 +111,9 @@ class CodeGenerator(object) :
         self.environment.stack.pop()
     def visit_ReturnAction(self, node):
         (scope, offset) = node.returnLocation
-        self.generate(node.return_expression)
-        self.environment.code.append(('stv', scope, offset))
+        if node.return_expression is not None:
+            self.generate(node.return_expression)
+            self.environment.code.append(('stv', scope, offset))
         self.environment.code.append(('jmp', self.environment.label_index("return_function_lya_compiler_" + node.functionName)))
     def visit_ResultAction(self, node):
         (scope, offset) = node.returnLocation
@@ -206,7 +207,7 @@ class CodeGenerator(object) :
 
     def visit_Operand(self, node):
         self.generate(node.value)
-        if hasattr(node, "array_type"):
+        if hasattr(node, "array_type") or hasattr(node, "loc"):
             self.environment.code.append(('grc',))
         elif node.raw_type.true_type == "const_string":
             node.index = node.value.index
@@ -258,7 +259,11 @@ class CodeGenerator(object) :
         for expression in reversed(node.parameters):
             if hasattr(expression.funcParameter, "loc"):
                 (scope, offset) = self.environment.lookupWithScope(expression.value.value.location.identifier)
-                self.environment.code.append(('ldr', scope, offset))
+                if hasattr(expression.value.value.location, "loc"):
+                    self.environment.code.append(('ldv', scope, offset))
+                else:
+                    self.environment.code.append(('ldr', scope, offset))
+
             elif expression.funcParameter.raw_type.type == "array":
                 (scope, offset) = self.environment.lookupWithScope(expression.value.value.location.identifier)
                 self.environment.code.append(('ldr', scope, offset))

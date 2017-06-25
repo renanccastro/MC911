@@ -265,6 +265,8 @@ class NodeVisitor(object) :
             node.raw_type = node._node.raw_type
             if hasattr(node._node, "array_type"):
                 node.array_type = node._node.array_type
+            if hasattr(node._node, "loc"):
+                node.loc= node._node.loc
             if node.raw_type.true_type == "const_int":
                 node.calculatedValue = node._node.calculatedValue
 
@@ -524,6 +526,8 @@ class NodeVisitor(object) :
     def visit_MonadicOperation(self, node):
         self.visit(node.operand)
         node.raw_type = self.raw_type_unary(node, node.operation, node.operand)
+        if node.raw_type.true_type == 'const_int':
+            node.calculatedValue = eval("{}{}".format(node.operation,node.operand.calculatedValue))
 
     def visit_Operand(self, node):
         self.visit(node.value)
@@ -572,8 +576,6 @@ class NodeVisitor(object) :
                    parameter.value.value.__class__.__name__ != "Location" or \
                    parameter.value.value.location.__class__.__name__ != "Identifier":
                     error(node.lineno, "Wrong call to '{}'. Expected variable, because of loc.".format(node.name))
-                else:
-                    parameter.value.value.location.loc = True
 
     def visit_BuiltinCall(self, node):
         node.raw_type = self.environment.root[node.name]
