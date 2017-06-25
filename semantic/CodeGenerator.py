@@ -206,7 +206,7 @@ class CodeGenerator(object) :
 
     def visit_Operand(self, node):
         self.generate(node.value)
-        if node.raw_type.true_type == "array":
+        if hasattr(node, "array_type"):
             self.environment.code.append(('grc',))
         elif node.raw_type.true_type == "const_string":
             node.index = node.value.index
