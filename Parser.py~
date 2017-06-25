@@ -833,7 +833,7 @@ class Parser:
             p[0] = RangeEnumeration(p[1], None, p[3], lineno=p.lineno(1))
     
     def p_while_control(self,p):
-        '''while_control : WHILE boolean_expression'''    
+        '''while_control : WHILE expression'''    
         p[0] = WhileControl(p[2], lineno=p.lineno(1))
 
 

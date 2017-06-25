@@ -382,7 +382,36 @@ class CodeGenerator(object) :
                 # self.environment.code.append(('stv', scope, offset))
                 self.environment.code.append(('jmp', self.environment.label_index(loop_label)))
                 self.environment.code.append(('lbl', self.environment.label_index(end_label)))     
-                                                                            
 
+            if node.control.first_control.expression.__class__.__name__ == "RangeEnumeration":
+                rang_enum = node.control.first_control.expression
+                loop_label = "loop_label_{}".format(len(self.environment.labels))
+                self.environment.add_label(loop_label)
+                end_label = "end_label_{}".format(len(self.environment.labels))
+                self.environment.add_label(end_label)
+                
+                if rang_enum.down is None:
+                    self.environment.code.append(('ldc', self.generate(rang_enum.mode.mode.range.lower)))
+                else:
+                    self.environment.code.append(('ldc', self.generate(rang_enum.mode.mode.range.upper)))
+                (scope, offset) = self.environment.lookupWithScope(rang_enum.loop_counter.identifier)
+                self.environment.code.append(('stv', scope, offset))
+                self.environment.code.append(('lbl', self.environment.label_index(loop_label)))     
+                if rang_enum.down is None:
+                    self.environment.code.append(('ldc', self.generate(rang_enum.mode.mode.range.upper)))
+                    self.environment.code.append(('les',))
+                else:
+                    self.environment.code.append(('ldc', self.generate(rang_enum.mode.mode.range.lower)))
+                    self.environment.code.append(('grt',))
+                self.environment.code.append(('jof', self.environment.label_index(end_label)))
+                self.generate(node.action)
+                self.code.append(('ldc', 1))                    
+                if rang_enum.down is None:
+                    self.code.append(('add',))
+                else:
+                    self.code.append(('sub',))
+                self.environment.code.append(('jmp', self.environment.label_index(loop_label)))
+                self.environment.code.append(('lbl', self.environment.label_index(end_label)))     
+                
 
 
