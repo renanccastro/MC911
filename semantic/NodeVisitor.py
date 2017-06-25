@@ -455,6 +455,13 @@ class NodeVisitor(object) :
         else:
             error(node.lineno, "Cannot assign '{}' expression to '{}' type".format(expr_type.type,loct_type.type))
 
+
+        if type(node.location._node).__name__ == "ProcedureDefinition" and \
+                not hasattr(node.location._node.returns.mode, "loc"):
+            error(node.lineno, "Cannot use non loc value as a variable.")
+            sys.exit(1)
+            return
+
         if node.assigning_operator.operator is not None:
             self.raw_type_binary(node, node.assigning_operator.operator, node.location, node.expression)
                                 
@@ -496,12 +503,14 @@ class NodeVisitor(object) :
                 stmt.returnNode = node.returnNode
                 stmt.functionName = node.functionName
             self.visit(stmt)
-        for stmt in node.else_clause:
-            if hasattr(node, "returnLocation"):
-                stmt.returnLocation = node.returnLocation
-                stmt.returnNode = node.returnNode
-                stmt.functionName = node.functionName
-            self.visit(stmt)
+
+        if node.else_clause is not None:
+            for stmt in node.else_clause:
+                if hasattr(node, "returnLocation"):
+                    stmt.returnLocation = node.returnLocation
+                    stmt.returnNode = node.returnNode
+                    stmt.functionName = node.functionName
+                self.visit(stmt)
 
         if node.boolean_expression.raw_type.true_type != self.environment.root["bool"].true_type:
             error(node.lineno, "Should have a boolean clausule on if")
@@ -641,13 +650,14 @@ class NodeVisitor(object) :
             node.raw_type = self.environment.root["void"]
             self.environment.add_local(node.identifier.identifier, node)
 
-
-        self.visit(node.identifier)
         if hasattr(node, "returnLocation"):
             node.action.returnLocation = node.returnLocation
             node.action.returnNode = node.returnNode
             node.action.functionName = node.functionName
         self.visit(node.action)              
+    def visit_ExitAction(self, node):
+        if (self.environment.find(node.call.identifier) == None):
+            error(node.lineno, "Unkown label '{}'".format(node.call.identifier))
 
     def visit_StringSlice(self, node):
         self.visit(node.location)

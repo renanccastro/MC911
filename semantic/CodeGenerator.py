@@ -176,7 +176,6 @@ class CodeGenerator(object) :
         else:
             self.environment.code.append(('ldv', scope, offset))
 
-
     def visit_ProcedureParameter(self, node):
         pass
     def visit_ModeName(self, node):
@@ -282,10 +281,17 @@ class CodeGenerator(object) :
 
     def visit_AssigmentAction(self, node):
         self.generate(node.assigning_operator)
-        if hasattr(node.location._node, "loc"):
+        if hasattr(node.location, "loc"):
             self.generate(node.expression)
             (scope, offset) = self.environment.lookupWithScope(node.location.location.identifier)
             self.environment.code.append(('srv', scope, offset))
+            return
+
+        if type(node.location._node).__name__ == "ProcedureDefinition" and \
+                hasattr(node.location._node.returns.mode, "loc"):
+            self.generate(node.location.location)
+            self.generate(node.expression)
+            self.environment.code.append(('smv', node.location._node.returns.mode.size))
             return
 
         if hasattr(node.location, "array_type"):
@@ -381,12 +387,14 @@ class CodeGenerator(object) :
         
     def visit_ActionStatement(self, node): 
         if node.identifier is not None:
-            self.generate(node.identifier)
-            action_label = "action_label_{}".format(len(self.environment.labels))
+            action_label = "action_label_{}".format(node.identifier.identifier)
             self.environment.add_label(action_label)
             self.environment.code.append(('lbl', self.environment.label_index(action_label)))
-        self.generate(node.action)            
+        self.generate(node.action)
 
+    def visit_ExitAction(self, node):
+        action_label = "action_label_{}".format(node.call.identifier)
+        self.environment.code.append(('jmp', self.environment.label_index(action_label)))
 
     def visit_DoAction(self, node):
 
@@ -426,11 +434,11 @@ class CodeGenerator(object) :
                 if step_enum.step_value is not None:
                     self.generate(step_enum.step_value)
                 else:
-                    self.code.append(('ldc', 1))                    
+                    self.environment.code.append(('ldc', 1))
                 if step_enum.down is None:
-                    self.code.append(('add',))
+                    self.environment.code.append(('add',))
                 else:
-                    self.code.append(('sub',))
+                    self.environment.code.append(('sub',))
                 # self.environment.code.append(('stv', scope, offset))
                 self.environment.code.append(('jmp', self.environment.label_index(loop_label)))
                 self.environment.code.append(('lbl', self.environment.label_index(end_label)))     
