@@ -279,6 +279,8 @@ class NodeVisitor(object) :
         if node.definition.returns is not None:
             self.visit(node.definition.returns)
             node.definition.raw_type = node.definition.returns.raw_type
+            if hasattr(node.definition.returns, "array_type"):
+                node.definition.array_type = node.definition.returns.array_type
         else:
             node.definition.raw_type = self.environment.root["void"]
         self.environment.push(node)
@@ -305,7 +307,8 @@ class NodeVisitor(object) :
         if node.body is None or len(node.body) == 0:
             error(node.lineno, "No function body")
 
-        node.returns.functionName = node.functionName
+        if node.returns is not None:
+            node.returns.functionName = node.functionName
         for stmt in node.body:
             stmt.functionName = node.functionName
             stmt.returnLocation = node.returnLocation
@@ -424,11 +427,14 @@ class NodeVisitor(object) :
         node.raw_type = node.location.raw_type
         if 'const' in repr(loct_type.true_type) :
             error(node.lineno, "Cannot assign '{}' expression to '{}' type".format(expr_type.type,loct_type.true_type))
-        if loct_type.type == 'ref' and (node.location.array_type.type != node.expression.array_type.type):
-            error(node.lineno, "Cannot assign '{}' ref type to '{}' ref type"
-                  .format(node.location.array_type.type, node.expression.array_type.type))
-        elif loct_type.type != 'ref' and loct_type.type != expr_type.type:
+
+        if loct_type.type == expr_type.type:
+            if loct_type.type == 'ref' and (node.location.array_type.type != node.expression.array_type.type):
+                error(node.lineno, "Cannot assign '{}' ref type to '{}' ref type"
+                      .format(node.location.array_type.type, node.expression.array_type.type))
+        else:
             error(node.lineno, "Cannot assign '{}' expression to '{}' type".format(expr_type.type,loct_type.type))
+
         if node.assigning_operator.operator is not None:
             self.raw_type_binary(node, node.assigning_operator.operator, node.location, node.expression)
                                 
@@ -494,6 +500,8 @@ class NodeVisitor(object) :
         node.raw_type = node.call.raw_type
         if hasattr(node, "_node"):
             node._node = node.call._node
+        if hasattr(node.call, "array_type"):
+            node.array_type = node.call.array_type
 
     def visit_ProcedureCall(self, node):
         node._node = self.environment.lookup(node.name)
@@ -503,6 +511,8 @@ class NodeVisitor(object) :
             return
         else:
             node.raw_type = node._node.raw_type
+            if hasattr(node._node, "array_type"):
+                node.array_type = node._node.array_type
         funcParameters = self.environment.functionsParameters[node.name]
         # VERIFICA QUANTIDADE DE PARAMETROS
         if node.parameters is None:
