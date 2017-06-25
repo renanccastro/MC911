@@ -598,5 +598,9 @@ class NodeVisitor(object) :
             error(node.lineno, "Index value is not a integer expression")
         if node.right.raw_type.type != 'int' :
             error(node.lineno, "Index value is not a integer expression")
-
+            
+    def visit_WhileControl(self, node):
+        self.visit(node.expression)
+        if node.expression.raw_type.true_type != self.environment.root["bool"].true_type:
+            error(node.lineno, "Should have a boolean clausule on while")
 
