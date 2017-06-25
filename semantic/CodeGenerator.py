@@ -19,7 +19,8 @@ def error(lineno, param):
 class GeneratorEnvironment(Environment):
     def __init__(self, variablesScope):
         super()
-        self.stack = variablesScope
+        self.variablesScopeTotal = variablesScope
+        self.stack = [variablesScope[0]]
         self.H = []
         self.labels = []
         self.code = []
@@ -70,6 +71,7 @@ class CodeGenerator(object) :
 
     def visit_Program(self, node):
         self.environment = GeneratorEnvironment(node.environment.variablesScope)
+        print(self.environment.variablesScopeTotal)
         print(self.environment.stack)
         self.environment.code.append(('stp',))
         self.environment.code.append(('alc', node.symboltable.lastNumber))
@@ -91,6 +93,8 @@ class CodeGenerator(object) :
 
 
     def visit_ProcedureStatement(self, node):
+        self.environment.stack.append(self.environment.variablesScopeTotal[node.staticLevel])
+        print(self.environment.stack)
         self.environment.add_label(node.name)
         self.environment.add_label("jumpafter_" + node.name)
         self.environment.add_label("return_function_lya_compiler_" + node.name)
@@ -104,7 +108,7 @@ class CodeGenerator(object) :
         self.environment.code.append(('dlc', node.symboltable.lastNumber))
         self.environment.code.append(('ret', node.staticLevel, node.parametersNumber))
         self.environment.code.append(('lbl', self.environment.label_index("jumpafter_" + node.name)))
-
+        self.environment.stack.pop()
     def visit_ReturnAction(self, node):
         (scope, offset) = node.returnLocation
         self.generate(node.return_expression)
@@ -112,7 +116,7 @@ class CodeGenerator(object) :
         self.environment.code.append(('jmp', self.environment.label_index("return_function_lya_compiler_" + node.functionName)))
     def visit_ResultAction(self, node):
         (scope, offset) = node.returnLocation
-        self.generate(node.return_expression)
+        self.generate(node.result_expression)
         self.environment.code.append(('stv', scope, offset))
 
 
@@ -160,13 +164,23 @@ class CodeGenerator(object) :
         self.environment.code.append(('lrv', scope, offset))
 
     def visit_Identifier(self, node):
+        if node.raw_type.true_type == "const_int":
+            self.environment.code.append(('ldc', node.calculatedValue))
+            return
         (scope, offset) = self.environment.lookupWithScope(node.identifier)
-        if node.raw_type.type == "array":
+        if hasattr(node, "array_type"):
             self.environment.code.append(('ldr', scope, offset))
+        elif hasattr(node, "loc"):
+            self.environment.code.append(('lrv', scope, offset))
         else:
             self.environment.code.append(('ldv', scope, offset))
 
+
     def visit_ProcedureParameter(self, node):
+        pass
+    def visit_ModeName(self, node):
+        pass
+    def visit_SynonymStatement(self, node):
         pass
 
     def visit_IntegerLiteral(self, node):
@@ -228,6 +242,11 @@ class CodeGenerator(object) :
             elif expression.raw_type.type == "char":
                 self.generate(expression.value)
                 self.environment.code.append(('prv', 1))
+            elif expression.raw_type.type == "array":
+                self.generate(expression.value)
+                self.environment.code.pop()
+                self.environment.code.append(('lmv', expression.value.value._node.size))
+                self.environment.code.append(('prt', expression.value.value._node.size))
             else:
                 self.generate(expression.value)
                 self.environment.code.append(('prv', 0))
@@ -237,7 +256,16 @@ class CodeGenerator(object) :
         if node._node.returns is not None:
             self.environment.code.append(('alc', node._node.returns.mode.size))
         for expression in reversed(node.parameters):
-            self.generate(expression)
+            if hasattr(expression.funcParameter, "loc"):
+                (scope, offset) = self.environment.lookupWithScope(expression.value.value.location.identifier)
+                self.environment.code.append(('ldr', scope, offset))
+            elif expression.funcParameter.raw_type.type == "array":
+                (scope, offset) = self.environment.lookupWithScope(expression.value.value.location.identifier)
+                self.environment.code.append(('ldr', scope, offset))
+                self.environment.code.append(('lmv', expression.funcParameter.mode.size))
+                self.environment.code.append(('cfu', self.environment.label_index(node.name)))
+            else:
+                self.generate(expression)
         self.environment.code.append(('cfu', self.environment.label_index(node.name)))
 
 
@@ -249,8 +277,13 @@ class CodeGenerator(object) :
 
     def visit_AssigmentAction(self, node):
         self.generate(node.assigning_operator)
-       
-        if node.raw_type.type == "array":
+        if hasattr(node.location._node, "loc"):
+            self.generate(node.expression)
+            (scope, offset) = self.environment.lookupWithScope(node.location.location.identifier)
+            self.environment.code.append(('srv', scope, offset))
+            return
+
+        if hasattr(node.location, "array_type"):
             # TODO: POR ENQUANTO SO FAZ ASSIGNMENT DE 1 VALOR NO ARRAY
             # VER SE HA POSSIBILIDADE DE FAZER COM MAIS
             self.generate(node.location)

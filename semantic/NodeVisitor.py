@@ -206,6 +206,7 @@ class NodeVisitor(object) :
 
     def visit_IntegerLiteral(self, node):
         node.size = 1
+        node.calculatedValue = node.value
         node.raw_type = self.environment.root['const_int']
     def visit_CharacterLiteral(self, node):
         node.size = 1
@@ -232,6 +233,9 @@ class NodeVisitor(object) :
                 node.array_type = node.location._node.array_type
             elif hasattr(node.location, "array_type"):
                 node.array_type = node.location.array_type
+        if node.raw_type.true_type == 'const_int':
+            node.calculatedValue = node.location.calculatedValue
+
 
     def visit_DereferencedLocation(self, node):
         self.visit(node.location)
@@ -259,6 +263,10 @@ class NodeVisitor(object) :
         else:
             node._node = self.environment.lookup(node.identifier)
             node.raw_type = node._node.raw_type
+            if hasattr(node._node, "array_type"):
+                node.array_type = node._node.array_type
+            if node.raw_type.true_type == "const_int":
+                node.calculatedValue = node._node.calculatedValue
 
     def visit_ProcedureStatement(self, node):
         # SETA AS COISAS AQUI POR CAUSA DAS CHAMADAS RECURSIVAS
@@ -300,8 +308,8 @@ class NodeVisitor(object) :
         i = -2
         for parameter in node.parameters:
             for identifierObj in parameter.identifier_list:
-                i = i - parameter.mode.size
-                self.environment.variablesScope[node.staticLevel][identifierObj.identifier] = (node.staticLevel, i)
+                    i = i - parameter.mode.size
+                    self.environment.variablesScope[node.staticLevel][identifierObj.identifier] = (node.staticLevel, i)
         node.returnLocation = (node.staticLevel , (i-1))
 
         if node.body is None or len(node.body) == 0:
@@ -309,32 +317,34 @@ class NodeVisitor(object) :
 
         if node.returns is not None:
             node.returns.functionName = node.functionName
-        for stmt in node.body:
-            stmt.functionName = node.functionName
-            stmt.returnLocation = node.returnLocation
-            stmt.returnNode = node.returns
-            self.visit(stmt)
+        if node.body is not None:
+            for stmt in node.body:
+                stmt.functionName = node.functionName
+                stmt.returnLocation = node.returnLocation
+                stmt.returnNode = node.returns
+                self.visit(stmt)
 
     def visit_ProcedureReturn(self, node):
         self.visit(node.mode)
         if node.loc == True:
-            node.raw_type = self.environment.root['ref']
-            node.array_type = node.mode.raw_type
-        else:
-            node.raw_type = node.mode.raw_type
+            node.mode.loc = True
+        if hasattr(node.mode, "array_type"):
+            node.array_type = node.mode.array_type
+        node.raw_type = node.mode.raw_type
 
     def visit_ReturnAction(self, node):
         if not hasattr(node, "returnNode"):
             error(node.lineno, "Calling return outside function")
             sys.exit(1)
         functionReturnNode = node.returnNode
-        self.visit(node.return_expression)
-        if functionReturnNode.raw_type.type != node.return_expression.raw_type.type:
-            error(node.lineno, "Returning different types")
-        elif functionReturnNode.raw_type.type == node.return_expression.raw_type.type and \
-             functionReturnNode.raw_type.type == 'ref' and \
-             functionReturnNode.array_type.type != node.return_expression.array_type.type:
-            error(node.lineno, "Returning different ref types")
+        if node.return_expression is not None:
+            self.visit(node.return_expression)
+            if functionReturnNode.raw_type.type != node.return_expression.raw_type.type:
+                error(node.lineno, "Returning different types")
+            elif functionReturnNode.raw_type.type == node.return_expression.raw_type.type and \
+                 functionReturnNode.raw_type.type == 'ref' and \
+                 functionReturnNode.array_type.type != node.return_expression.array_type.type:
+                error(node.lineno, "Returning different ref types")
 
     def visit_ResultAction(self, node):
         if not hasattr(node, "returnNode"):
@@ -354,8 +364,10 @@ class NodeVisitor(object) :
         self.visit(node.mode)
         for identifierObj in node.identifier_list:
             if node.loc:
-                node.mode.array_type = node.mode.raw_type
-                node.mode.raw_type = self.environment.root["ref"]
+                node.mode.loc = node.loc
+                identifierObj.loc = node.loc
+            #     node.mode.array_type = node.mode.raw_type
+            #     node.mode.raw_type = self.environment.root["ref"]
 
             identifierObj.raw_type = node.mode.raw_type
             if hasattr(node.mode, "array_type"):
@@ -396,7 +408,7 @@ class NodeVisitor(object) :
 
     def visit_ArrayElement(self, node):
         self.visit(node.location)
-        node.raw_type = node.location._node.raw_type
+        node.raw_type = node.location._node.array_type
         node.array_type = node.location._node.array_type
         if hasattr(node.location, "_node"):
             node._node = node.location._node
@@ -405,17 +417,23 @@ class NodeVisitor(object) :
             if expression.raw_type.type != 'int':
                 error(node.lineno, "Index value is not a integer expression")
 
+
     def visit_ModeName(self, node):
         self.visit(node.type)
-        node.size = node.type._node.size
         mode = self.environment.lookup(node.type.identifier)
         if( hasattr(mode, "mode") ):
             mode = mode.mode
+
+        if mode is None:
+            error(node.lineno, "Mode '{}' not defined".format(node.type.identifier))
+            node.size = 1
+        else:
+            node.size = mode.size
+            if hasattr(mode, "array_type"):
+                node.array_type = mode.array_type
+
         node.mode = mode
         node.raw_type = node.type.raw_type
-        if node.type._node is not None:
-            if hasattr(node.type._node, "array_type"):
-                node.array_type = node.type._node.array_type
 
     def visit_AssigmentAction(self, node):
         self.visit(node.location)
@@ -443,6 +461,8 @@ class NodeVisitor(object) :
         node.raw_type = node.value.raw_type
         if hasattr(node.value, "array_type"):
             node.array_type = node.value.array_type
+        if node.raw_type.true_type == "const_int":
+            node.calculatedValue = node.value.calculatedValue
 
     def visit_ConditionalExpression(self, node):
         self.visit(node.boolean_expression)
@@ -468,8 +488,19 @@ class NodeVisitor(object) :
 
     def visit_ConditionalClause(self, node):
         self.visit(node.boolean_expression)
-        self.visit(node.then_clause)
-        self.visit(node.else_clause)
+        for stmt in node.then_clause:
+            if hasattr(node, "returnLocation"):
+                stmt.returnLocation = node.returnLocation
+                stmt.returnNode = node.returnNode
+                stmt.functionName = node.functionName
+            self.visit(stmt)
+        for stmt in node.else_clause:
+            if hasattr(node, "returnLocation"):
+                stmt.returnLocation = node.returnLocation
+                stmt.returnNode = node.returnNode
+                stmt.functionName = node.functionName
+            self.visit(stmt)
+
         if node.boolean_expression.raw_type.true_type != self.environment.root["bool"].true_type:
             error(node.lineno, "Should have a boolean clausule on if")
 
@@ -484,6 +515,11 @@ class NodeVisitor(object) :
         node.raw_type = self.raw_type_binary(node, node.operation, node.operand0, node.operand1)
         if (node.operand0.raw_type.true_type == node.operand1.raw_type.true_type):
             node.raw_type.true_type = node.operand0.raw_type.true_type
+            if node.operand0.raw_type.true_type == "const_int":
+                node.calculatedValue = eval("{} {} {} ".format(node.operand0.calculatedValue,
+                                                               node.operation,
+                                                               node.operand1.calculatedValue ))
+
 
     def visit_MonadicOperation(self, node):
         self.visit(node.operand)
@@ -492,13 +528,15 @@ class NodeVisitor(object) :
     def visit_Operand(self, node):
         self.visit(node.value)
         node.raw_type = node.value.raw_type
+        if node.raw_type.true_type == 'const_int':
+            node.calculatedValue = node.value.calculatedValue
         if hasattr(node.value, "array_type"):
             node.array_type = node.value.array_type
 
     def visit_CallAction(self, node):
         self.visit(node.call)
         node.raw_type = node.call.raw_type
-        if hasattr(node, "_node"):
+        if hasattr(node.call, "_node"):
             node._node = node.call._node
         if hasattr(node.call, "array_type"):
             node.array_type = node.call.array_type
@@ -527,6 +565,15 @@ class NodeVisitor(object) :
                 error(node.lineno,
                       "Wrong call to '{}'. Expected '{}' parameter, got '{}' on parameter number {}"
                       .format(node.name, funcParameters[index].raw_type.type, parameter.raw_type.type, index))
+            # Verifica se passou uma variavel, e nao uma expressao inteira
+            parameter.funcParameter = funcParameters[index]
+            if hasattr(funcParameters[index], "loc"):
+                if parameter.value.__class__.__name__ != "Operand" or \
+                   parameter.value.value.__class__.__name__ != "Location" or \
+                   parameter.value.value.location.__class__.__name__ != "Identifier":
+                    error(node.lineno, "Wrong call to '{}'. Expected variable, because of loc.".format(node.name))
+                else:
+                    parameter.value.value.location.loc = True
 
     def visit_BuiltinCall(self, node):
         node.raw_type = self.environment.root[node.name]
@@ -583,7 +630,7 @@ class NodeVisitor(object) :
         if ('const' not in repr(node.lower.raw_type.true_type)) or ('const' not in repr(node.lower.raw_type.true_type)) :
             error(node.lineno, "Range bounds must be constant value expressions")
         node.raw_type = node.lower.raw_type
-        node.size = (node.upper.value.value.value - node.lower.value.value.value) + 1
+        node.size = (node.upper.calculatedValue - node.lower.calculatedValue) + 1
         
     def visit_ActionStatement(self, node):
         if (node.identifier is not None):
