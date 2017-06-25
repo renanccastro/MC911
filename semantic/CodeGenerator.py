@@ -397,82 +397,96 @@ class CodeGenerator(object) :
         action_label = "action_label_{}".format(node.call.identifier)
         self.environment.code.append(('jmp', self.environment.label_index(action_label)))
 
-    def visit_DoAction(self, node):
+   def visit_DoAction(self, node):
+        loop_label = "loop_label_{}".format(len(self.environment.labels))
+        self.environment.add_label(loop_label)
+        end_label = "end_label_{}".format(len(self.environment.labels))
+        self.environment.add_label(end_label)
+        node.control.loop_label = loop_label
+        node.control.end_label = end_label
+        self.generate(node.control)
+        self.environment.code.append(('jof', self.environment.label_index(end_label)))
+        self.generate(node.action)
+        self.environment.code.append(('jmp', self.environment.label_index(loop_label)))
+        self.environment.code.append(('lbl', self.environment.label_index(end_label)))     
 
-        if node.control.first_control.__class__.__name__ == "WhileControl":
-            loop_label = "loop_label_{}".format(len(self.environment.labels))
-            self.environment.add_label(loop_label)
-            end_label = "end_label_{}".format(len(self.environment.labels))
-            self.environment.add_label(end_label)
-            self.environment.code.append(('lbl', self.environment.label_index(loop_label)))     
-            self.generate(node.control)
-            self.environment.code.append(('jof', self.environment.label_index(end_label)))
-            self.generate(node.action)
-            self.environment.code.append(('jmp', self.environment.label_index(loop_label)))
-            self.environment.code.append(('lbl', self.environment.label_index(end_label)))     
+    def visit_ControlPart(self, node):
+        node.first_control.loop_label = node.loop_label
+        self.generate(node.first_control)
+        if node.second_control is not None:
+            self.environment.code.append(('jof', self.environment.label_index(end_label)))        
+            self.generate(node.second_control)
+        
+    def visit_WhileControl(self, node):
+        if hasattr(node, "loop_label"):
+            self.environment.code.append(('lbl', self.environment.label_index(node.loop_label)))     
+        self.generate(node.expression)        
 
-        if node.control.first_control.__class__.__name__ == "ForControl":
-            if node.control.first_control.expression.__class__.__name__ == "StepEnumeration":
-                step_enum = node.control.first_control.expression
-                loop_label = "loop_label_{}".format(len(self.environment.labels))
-                self.environment.add_label(loop_label)
-                end_label = "end_label_{}".format(len(self.environment.labels))
-                self.environment.add_label(end_label)
-
-                self.generate(step_enum.start_value)
-                (scope, offset) = self.environment.lookupWithScope(step_enum.loop_counter.identifier)
-                self.environment.code.append(('stv', scope, offset))
-                self.environment.code.append(('lbl', self.environment.label_index(loop_label)))     
-                # self.environment.code.append(('ldv', scope, offset))
-                self.generate(step_enum.end_value)
-                if step_enum.down is None:
-                    self.environment.code.append(('leq',))
-                else:
-                    self.environment.code.append(('gre',))
-                self.environment.code.append(('jof', self.environment.label_index(end_label)))
-                self.generate(node.action)
-                self.environment.code.append(('ldv', scope, offset))
-                if step_enum.step_value is not None:
-                    self.generate(step_enum.step_value)
-                else:
-                    self.environment.code.append(('ldc', 1))
-                if step_enum.down is None:
-                    self.environment.code.append(('add',))
-                else:
-                    self.environment.code.append(('sub',))
-                # self.environment.code.append(('stv', scope, offset))
-                self.environment.code.append(('jmp', self.environment.label_index(loop_label)))
-                self.environment.code.append(('lbl', self.environment.label_index(end_label)))     
-
-            if node.control.first_control.expression.__class__.__name__ == "RangeEnumeration":
-                rang_enum = node.control.first_control.expression
-                loop_label = "loop_label_{}".format(len(self.environment.labels))
-                self.environment.add_label(loop_label)
-                end_label = "end_label_{}".format(len(self.environment.labels))
-                self.environment.add_label(end_label)
-                
-                if rang_enum.down is None:
-                    self.environment.code.append(('ldc', self.generate(rang_enum.mode.mode.range.lower)))
-                else:
-                    self.environment.code.append(('ldc', self.generate(rang_enum.mode.mode.range.upper)))
-                (scope, offset) = self.environment.lookupWithScope(rang_enum.loop_counter.identifier)
-                self.environment.code.append(('stv', scope, offset))
-                self.environment.code.append(('lbl', self.environment.label_index(loop_label)))     
-                if rang_enum.down is None:
-                    self.environment.code.append(('ldc', self.generate(rang_enum.mode.mode.range.upper)))
-                    self.environment.code.append(('les',))
-                else:
-                    self.environment.code.append(('ldc', self.generate(rang_enum.mode.mode.range.lower)))
-                    self.environment.code.append(('grt',))
-                self.environment.code.append(('jof', self.environment.label_index(end_label)))
-                self.generate(node.action)
-                self.code.append(('ldc', 1))                    
-                if rang_enum.down is None:
-                    self.code.append(('add',))
-                else:
-                    self.code.append(('sub',))
-                self.environment.code.append(('jmp', self.environment.label_index(loop_label)))
-                self.environment.code.append(('lbl', self.environment.label_index(end_label)))     
-                
-
+    def visit_ForControl(self, node):
+        self.expression.loop_label = node.loop_label
+        self.generate(node.expression)
+        
+    def visit_StepEnumeration(self, node):
+        (scope, offset) = self.environment.lookupWithScope(node.loop_counter.identifier)
+        self.generate(node.start_value)
+        # VOLTA UM STEP ANTES DE COMEÇAR
+        if node.step_value is not None:
+            self.generate(node.step_value)
+        else:
+            self.environment.code.append(('ldc', 1))                    
+        if node.down is None:
+            self.environment.code.append(('sub',))
+        else:
+            self.environment.code.append(('add',))
+        self.environment.code.append(('stv', scope, offset))
+        # LOOP LABEL
+        self.environment.code.append(('lbl', self.environment.label_index(node.loop_label)))     
+        self.environment.code.append(('ldv', scope, offset))
+        # AVANÇA UM STEP 
+        if node.step_value is not None:
+            self.generate(node.step_value)
+        else:
+            self.environment.code.append(('ldc', 1))                    
+        if node.down is None:
+            self.environment.code.append(('add',))
+        else:
+            self.environment.code.append(('sub',))
+        self.environment.code.append(('stv', scope, offset))
+        # COMPARA
+        self.generate(node.end_value)
+        if node.down is None:
+            self.environment.code.append(('leq',))
+        else:
+            self.environment.code.append(('gre',))
+        
+    def visit_RangeEnumeration(self, node):
+        (scope, offset) = self.environment.lookupWithScope(node.loop_counter.identifier)
+        # VALOR INICIAL
+        if node.down is None:
+            self.environment.code.append(('ldc', node.mode.mode.range.lower))
+        else:
+            self.environment.code.append(('ldc', node.mode.mode.range.upper))
+        # VOLTA UM STEP ANTES DE COMEÇAR
+        self.environment.code.append(('ldc', 1))                    
+        if node.down is None:
+            self.environment.code.append(('sub',))
+        else:
+            self.environment.code.append(('add',))
+        self.environment.code.append(('stv', scope, offset))
+        # LOOP LABEL
+        self.environment.code.append(('lbl', self.environment.label_index(node.loop_label)))     
+        self.environment.code.append(('ldv', scope, offset))
+        # AVAÇA UM STEP
+        self.environment.code.append(('ldc', 1))                    
+        if node.down is None:
+            self.environment.code.append(('add',))
+        else:
+            self.environment.code.append(('sub',))
+        # COMPARA
+        if node.down is None:
+            self.environment.code.append(('ldc', node.mode.mode.range.upper))
+            self.environment.code.append(('les',))
+        else:
+            self.environment.code.append(('ldc', node.mode.mode.range.lower))
+            self.environment.code.append(('grt',))
 
