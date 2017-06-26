@@ -454,11 +454,12 @@ class CodeGenerator(object):
             self.environment.code.append(('sub',))
         self.environment.code.append(('stv', scope, offset))
         # COMPARA
+        self.environment.code.append(('ldv', scope, offset))
         self.generate(node.end_value)
         if node.down is None:
-            self.environment.code.append(('leq',))
+            self.environment.code.append(('les',))
         else:
-            self.environment.code.append(('gre',))
+            self.environment.code.append(('grt',))
 
 
     def visit_RangeEnumeration(self, node):
@@ -484,7 +485,9 @@ class CodeGenerator(object):
             self.environment.code.append(('add',))
         else:
             self.environment.code.append(('sub',))
+        self.environment.code.append(('stv', scope, offset))
         # COMPARA
+        self.environment.code.append(('ldv', scope, offset))
         if node.down is None:
             self.environment.code.append(('ldc', node.mode.mode.range.upper))
             self.environment.code.append(('les',))
