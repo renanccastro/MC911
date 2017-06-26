@@ -180,6 +180,10 @@ class NodeVisitor(object) :
                                        offset=node.offset,
                                        scope=node.scope)
             if node.initialization is not None and (node.mode.raw_type.type == 'ref') :
+                if not hasattr(node.mode, "array_type") or not hasattr(node.initialization, "array_type") :
+                    error(node.lineno, "Cannot assign '{}' type to '{}'"
+                          .format(node.initialization.raw_type.type, node.mode.raw_type.type))
+                    return
                 if node.mode.array_type.type != node.initialization.array_type.type :
                     error(node.lineno, "Cannot assign '{}' ref type to '{}' ref type"
                         .format(node.initialization.array_type.type, node.mode.array_type.type))                        
@@ -438,8 +442,8 @@ class NodeVisitor(object) :
             node.size = 1
         else:
             node.size = mode.size
-            if hasattr(mode, "array_type"):
-                node.array_type = mode.array_type
+            if hasattr(node.type._node, "array_type"):
+                node.array_type = node.type._node.array_type
 
         node.mode = mode
         node.raw_type = node.type.raw_type
