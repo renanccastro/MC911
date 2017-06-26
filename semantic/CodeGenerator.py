@@ -172,6 +172,8 @@ class CodeGenerator(object):
             self.environment.code.append(('ldr', scope, offset))
         elif hasattr(node, "loc"):
             self.environment.code.append(('lrv', scope, offset))
+        elif node.raw_type.true_type == "string":
+            self.environment.code.append(('ldr', scope, offset))
         else:
             self.environment.code.append(('ldv', scope, offset))
 
@@ -306,6 +308,11 @@ class CodeGenerator(object):
         elif node.raw_type.true_type == "const_string":
             self.generate(node.expression)
             self.environment.code.append(('sts', node.expression.index))
+        elif node.raw_type.true_type == "string":
+            if node.expression.raw_type.true_type == "const_string":
+                self.generate(node.location)
+                self.generate(node.expression)
+                self.environment.code.append(('sts', node.expression.value.index))
         else:
             self.generate(node.expression)
             (scope, offset) = self.environment.lookupWithScope(node.location.location.identifier)
