@@ -537,6 +537,10 @@ class NodeVisitor(object) :
                 node.calculatedValue = eval("{} {} {} ".format(node.operand0.calculatedValue,
                                                                node.operation,
                                                                node.operand1.calculatedValue ))
+        elif 'const' in node.operand0.raw_type.true_type:
+            node.raw_type = node.operand1.raw_type
+        elif 'const' in node.operand1.raw_type.true_type:
+            node.raw_type = node.operand0.raw_type
 
 
     def visit_MonadicOperation(self, node):
