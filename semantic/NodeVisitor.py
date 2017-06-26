@@ -399,7 +399,7 @@ class NodeVisitor(object) :
             error(node.lineno, "String length '{}' value is not a constant integer expression".format(node.length))
         node.raw_type = self.environment.root["string"]
         node.size = node.length.value
-        node.array_type = self.environment.root["char"]
+        # node.array_type = self.environment.root["char"]
 
     def visit_ArrayMode(self, node):
         node.raw_type = self.environment.root["array"]
@@ -448,8 +448,11 @@ class NodeVisitor(object) :
         self.visit(node.location)
         self.visit(node.expression)
         loct_type = node.location.raw_type
-        if hasattr(node.location, "array_type") and loct_type.type != "ref":
-                loct_type = node.location.array_type
+        # if hasattr(node.location, "array_type") and loct_type.type != "ref":
+        #         loct_type = node.location.array_type
+        if loct_type.true_type == 'array' and node.location.array_type.type == "char":
+                loct_type = self.environment.root["string"]
+
         expr_type = node.expression.raw_type
         node.raw_type = node.location.raw_type
         if 'const' in repr(loct_type.true_type) :
