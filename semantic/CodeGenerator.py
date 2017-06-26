@@ -430,7 +430,7 @@ class CodeGenerator(object):
 
 
     def visit_ForControl(self, node):
-        self.expression.loop_label = node.loop_label
+        node.expression.loop_label = node.loop_label
         self.generate(node.expression)
 
 
