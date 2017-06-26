@@ -12,6 +12,7 @@ from semantic.SymbolTable import SymbolTable
 
 k = 1
 
+
 def error(lineno, param):
     print("{}, on line {}.".format(param, lineno))
 
@@ -31,9 +32,9 @@ class GeneratorEnvironment(Environment):
     def label_index(self, label):
         return self.labels.index(label)
 
-class CodeGenerator(object) :
 
-    def generate(self,node):
+class CodeGenerator(object):
+    def generate(self, node):
         """
         Execute a method of the form visit_NodeName(node) where
         NodeName is the name of the class of a particular node.
@@ -44,7 +45,6 @@ class CodeGenerator(object) :
             return visitor(node)
         else:
             return None
-
 
     def generic_visit(self, node):
         # print("Node of class {} has no method visit", node.__class__.__name__)
@@ -67,8 +67,6 @@ class CodeGenerator(object) :
             elif isinstance(value, AST):
                 self.generate(value)
 
-
-
     def visit_Program(self, node):
         self.environment = GeneratorEnvironment(node.environment.variablesScope)
         print(self.environment.variablesScopeTotal)
@@ -78,7 +76,6 @@ class CodeGenerator(object) :
         for statement in node.statements: self.generate(statement)
         self.environment.code.append(('dlc', node.symboltable.lastNumber))
         self.environment.code.append(('end',))
-
 
     def visit_Declaration(self, node):
         for idObj in node.identifier:
@@ -90,7 +87,6 @@ class CodeGenerator(object) :
                     self.environment.code.append(('sts', node.initialization.value.index))
                 else:
                     self.environment.code.append(('stv', scope, offset))
-
 
     def visit_ProcedureStatement(self, node):
         self.environment.stack.append(self.environment.variablesScopeTotal[node.staticLevel])
@@ -109,17 +105,19 @@ class CodeGenerator(object) :
         self.environment.code.append(('ret', node.staticLevel, node.parametersNumber))
         self.environment.code.append(('lbl', self.environment.label_index("jumpafter_" + node.name)))
         self.environment.stack.pop()
+
     def visit_ReturnAction(self, node):
         (scope, offset) = node.returnLocation
         if node.return_expression is not None:
             self.generate(node.return_expression)
             self.environment.code.append(('stv', scope, offset))
-        self.environment.code.append(('jmp', self.environment.label_index("return_function_lya_compiler_" + node.functionName)))
+        self.environment.code.append(
+            ('jmp', self.environment.label_index("return_function_lya_compiler_" + node.functionName)))
+
     def visit_ResultAction(self, node):
         (scope, offset) = node.returnLocation
         self.generate(node.result_expression)
         self.environment.code.append(('stv', scope, offset))
-
 
     def visit_Operation(self, node):
         self.generate(node.operand0)
@@ -135,9 +133,8 @@ class CodeGenerator(object) :
                 self.environment.code.append(('div',))
             elif node.operation == "%":
                 self.environment.code.append(('mod',))
-        #TODO concat operation   
-          
-        
+                # TODO concat operation
+
     def visit_MonadicOperation(self, node):
         self.generate(node.operand)
         if node.operation == "-":
@@ -180,19 +177,21 @@ class CodeGenerator(object) :
 
     def visit_ProcedureParameter(self, node):
         pass
+
     def visit_ModeName(self, node):
         pass
+
     def visit_SynonymStatement(self, node):
         pass
 
     def visit_IntegerLiteral(self, node):
         self.environment.code.append(('ldc', node.value))
-        
+
     def visit_BooleanLiteral(self, node):
-        if node.value == "TRUE" :
-            self.environment.code.append(('ldc', True)) 
-        elif node.value == "FALSE" :
-            self.environment.code.append(('ldc', False)) 
+        if node.value == "TRUE":
+            self.environment.code.append(('ldc', True))
+        elif node.value == "FALSE":
+            self.environment.code.append(('ldc', False))
 
     def visit_CharacterLiteral(self, node):
         self.environment.code.append(('ldc', node.value))
@@ -253,7 +252,6 @@ class CodeGenerator(object) :
                 self.generate(expression.value)
                 self.environment.code.append(('prv', 0))
 
-
     def visit_ProcedureCall(self, node):
         if node._node.returns is not None:
             self.environment.code.append(('alc', node._node.returns.mode.size))
@@ -272,7 +270,6 @@ class CodeGenerator(object) :
             else:
                 self.generate(expression)
         self.environment.code.append(('cfu', self.environment.label_index(node.name)))
-
 
     def visit_BuiltinCall(self, node):
         result = {
@@ -333,14 +330,13 @@ class CodeGenerator(object) :
             self.environment.code.append(('les',))
         elif node.operator == '<=':
             self.environment.code.append(('leq',))
-            
-            
+
     def visit_ElsifExpression(self, node):
         else_label = "else_label_{}".format((self.environment.labels))
 
         self.environment.add_label(else_label)
         endif_label = "endif_label_{}".format((self.environment.labels))
-        self.environment.add_label(endif_label)        
+        self.environment.add_label(endif_label)
 
         self.generate(node.boolean_expression)
         self.environment.code.append(('jof', self.environment.label_index(else_label)))
@@ -353,9 +349,9 @@ class CodeGenerator(object) :
 
     def visit_ConditionalClause(self, node):
         else_label = "else_label_{}".format(len(self.environment.labels))
-        self.environment.add_label(else_label)        
+        self.environment.add_label(else_label)
         endif_label = "endif_label_{}".format(len(self.environment.labels))
-        self.environment.add_label(endif_label)        
+        self.environment.add_label(endif_label)
 
         self.generate(node.boolean_expression)
         self.environment.code.append(('jof', self.environment.label_index(else_label)))
@@ -372,7 +368,7 @@ class CodeGenerator(object) :
         # self.environment.add_label(else_label)
         endif_label = "endif_label_{}".format((self.environment.labels))
         self.environment.add_label(endif_label)
-        
+
         self.generate(node.boolean_expression)
         self.environment.code.append(('jof', self.environment.label_index(elsif_label)))
         self.generate(node.then_expression)
@@ -380,13 +376,13 @@ class CodeGenerator(object) :
 
         self.environment.code.append(('lbl', self.environment.label_index(elsif_label)))
         self.generate(node.elsif_expression)
-        if(node.elsif_expression is not None):
+        if (node.elsif_expression is not None):
             self.environment.code.append(('jof', self.environment.label_index(endif_label)))
         # self.environment.code.append(('lbl', self.environment.label_index(else_label)))
         self.generate(node.else_expression)
         self.environment.code.append(('lbl', self.environment.label_index(endif_label)))
-        
-    def visit_ActionStatement(self, node): 
+
+    def visit_ActionStatement(self, node):
         if node.identifier is not None:
             action_label = "action_label_{}".format(node.identifier.identifier)
             self.environment.add_label(action_label)
@@ -397,7 +393,8 @@ class CodeGenerator(object) :
         action_label = "action_label_{}".format(node.call.identifier)
         self.environment.code.append(('jmp', self.environment.label_index(action_label)))
 
-   def visit_DoAction(self, node):
+
+    def visit_DoAction(self, node):
         loop_label = "loop_label_{}".format(len(self.environment.labels))
         self.environment.add_label(loop_label)
         end_label = "end_label_{}".format(len(self.environment.labels))
@@ -408,24 +405,28 @@ class CodeGenerator(object) :
         self.environment.code.append(('jof', self.environment.label_index(end_label)))
         self.generate(node.action)
         self.environment.code.append(('jmp', self.environment.label_index(loop_label)))
-        self.environment.code.append(('lbl', self.environment.label_index(end_label)))     
+        self.environment.code.append(('lbl', self.environment.label_index(end_label)))
+
 
     def visit_ControlPart(self, node):
         node.first_control.loop_label = node.loop_label
         self.generate(node.first_control)
         if node.second_control is not None:
-            self.environment.code.append(('jof', self.environment.label_index(end_label)))        
+            self.environment.code.append(('jof', self.environment.label_index(end_label)))
             self.generate(node.second_control)
-        
+
+
     def visit_WhileControl(self, node):
         if hasattr(node, "loop_label"):
-            self.environment.code.append(('lbl', self.environment.label_index(node.loop_label)))     
-        self.generate(node.expression)        
+            self.environment.code.append(('lbl', self.environment.label_index(node.loop_label)))
+        self.generate(node.expression)
+
 
     def visit_ForControl(self, node):
         self.expression.loop_label = node.loop_label
         self.generate(node.expression)
-        
+
+
     def visit_StepEnumeration(self, node):
         (scope, offset) = self.environment.lookupWithScope(node.loop_counter.identifier)
         self.generate(node.start_value)
@@ -433,20 +434,20 @@ class CodeGenerator(object) :
         if node.step_value is not None:
             self.generate(node.step_value)
         else:
-            self.environment.code.append(('ldc', 1))                    
+            self.environment.code.append(('ldc', 1))
         if node.down is None:
             self.environment.code.append(('sub',))
         else:
             self.environment.code.append(('add',))
         self.environment.code.append(('stv', scope, offset))
         # LOOP LABEL
-        self.environment.code.append(('lbl', self.environment.label_index(node.loop_label)))     
+        self.environment.code.append(('lbl', self.environment.label_index(node.loop_label)))
         self.environment.code.append(('ldv', scope, offset))
-        # AVANÇA UM STEP 
+        # AVANÇA UM STEP
         if node.step_value is not None:
             self.generate(node.step_value)
         else:
-            self.environment.code.append(('ldc', 1))                    
+            self.environment.code.append(('ldc', 1))
         if node.down is None:
             self.environment.code.append(('add',))
         else:
@@ -458,7 +459,8 @@ class CodeGenerator(object) :
             self.environment.code.append(('leq',))
         else:
             self.environment.code.append(('gre',))
-        
+
+
     def visit_RangeEnumeration(self, node):
         (scope, offset) = self.environment.lookupWithScope(node.loop_counter.identifier)
         # VALOR INICIAL
@@ -467,17 +469,17 @@ class CodeGenerator(object) :
         else:
             self.environment.code.append(('ldc', node.mode.mode.range.upper))
         # VOLTA UM STEP ANTES DE COMEÇAR
-        self.environment.code.append(('ldc', 1))                    
+        self.environment.code.append(('ldc', 1))
         if node.down is None:
             self.environment.code.append(('sub',))
         else:
             self.environment.code.append(('add',))
         self.environment.code.append(('stv', scope, offset))
         # LOOP LABEL
-        self.environment.code.append(('lbl', self.environment.label_index(node.loop_label)))     
+        self.environment.code.append(('lbl', self.environment.label_index(node.loop_label)))
         self.environment.code.append(('ldv', scope, offset))
         # AVAÇA UM STEP
-        self.environment.code.append(('ldc', 1))                    
+        self.environment.code.append(('ldc', 1))
         if node.down is None:
             self.environment.code.append(('add',))
         else:
@@ -489,4 +491,3 @@ class CodeGenerator(object) :
         else:
             self.environment.code.append(('ldc', node.mode.mode.range.lower))
             self.environment.code.append(('grt',))
-
