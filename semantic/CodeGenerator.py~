@@ -497,7 +497,7 @@ class CodeGenerator(object):
         self.environment.code.append(('ldv', scope, offset))
         if node.down is None:
             self.environment.code.append(('ldc', node.mode.mode.range.upper))
-            self.environment.code.append(('les',))
+            self.environment.code.append(('leq',))
         else:
             self.environment.code.append(('ldc', node.mode.mode.range.lower))
-            self.environment.code.append(('grt',))
+            self.environment.code.append(('gre',))
