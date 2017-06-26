@@ -145,7 +145,7 @@ class LVM():
         # Division M[sp-1]=M[sp-1]/M[sp]; sp=sp-1
         self.check_parameters(0, parameters)
         m = self.M.pop()
-        self.M.changeTop(self.M.peek() / m)
+        self.M.changeTop(self.M.peek() // m)
 
     def run_mod(self,parameters):
         # Modulus M[sp-1]=M[sp-1]%M[sp]; sp=sp-1
