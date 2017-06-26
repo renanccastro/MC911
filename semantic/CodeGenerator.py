@@ -216,7 +216,7 @@ class CodeGenerator(object):
 
     def read(self, node):
         for expression in node.parameters:
-            if expression.raw_type.true_type == "array":
+            if expression.raw_type.true_type == "array" or hasattr(expression, "array_type"):
                 self.generate(expression)
                 # AQUI, EU TIRO O GRC que veio do load da expressao
                 self.environment.code.pop()
