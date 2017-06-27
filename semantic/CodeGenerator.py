@@ -393,8 +393,10 @@ class CodeGenerator(object):
         if node.identifier is not None:
             action_label = "action_label_{}".format(node.identifier.identifier)
             self.environment.add_label(action_label)
-            self.environment.code.append(('lbl', self.environment.label_index(action_label)))
+
         self.generate(node.action)
+        if node.identifier is not None:
+            self.environment.code.append(('lbl', self.environment.label_index(action_label)))
 
     def visit_ExitAction(self, node):
         action_label = "action_label_{}".format(node.call.identifier)
