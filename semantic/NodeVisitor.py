@@ -232,6 +232,9 @@ class NodeVisitor(object) :
             node._node = node.location._node
         if hasattr(node.location, "array_type"):
             node.array_type = node.location.array_type
+        if hasattr(node.location, "loc"):
+            node.loc = node.location.loc
+
         if node.raw_type.type == 'ref' :
             if hasattr(node.location, "_node"):
                 node.array_type = node.location._node.array_type

@@ -229,7 +229,6 @@ class CodeGenerator(object):
         if hasattr(node.location, "index"):
             node.index = node.location.index
 
-
     def read(self, node):
         for expression in node.parameters:
             if expression.raw_type.true_type == "array" or hasattr(expression, "array_type"):
