@@ -22,6 +22,7 @@ class GeneratorEnvironment(Environment):
         super()
         self.variablesScopeTotal = variablesScope
         self.stack = [variablesScope[0]]
+        self.assignedStrings = {}
         self.H = []
         self.labels = []
         self.code = []
@@ -85,6 +86,10 @@ class CodeGenerator(object):
                 if node.initialization.raw_type.true_type == "const_string":
                     self.environment.code.append(('ldr', scope, offset))
                     self.environment.code.append(('sts', node.initialization.value.index))
+                    self.environment.assignedStrings[idObj.identifier] = node.initialization.value.index
+                elif node.initialization.raw_type.type == "string":
+                    self.environment.code.append(('ldr', scope, offset))
+                    self.environment.code.append(('sts', node.initialization.value.index))
                 else:
                     self.environment.code.append(('stv', scope, offset))
 
@@ -146,8 +151,12 @@ class CodeGenerator(object):
         self.generate(node.location)
         for i in reversed(range(len(node.expression_list))):
             self.generate(node.expression_list[i])
-            self.generate(node._node.mode.index_mode_list[i].lower)
-            self.environment.code.append(('sub',))
+            if node._node.mode.raw_type.type == "string" :
+                self.environment.code.append(('ldc',1))
+                self.environment.code.append(('add',))
+            else:
+                self.generate(node._node.mode.index_mode_list[i].lower)
+                self.environment.code.append(('sub',))
             self.environment.code.append(('idx', node._node.mode.sizeArray[i]))
 
     def visit_NewModeStatement(self, mode):
@@ -173,6 +182,7 @@ class CodeGenerator(object):
         elif hasattr(node, "loc"):
             self.environment.code.append(('lrv', scope, offset))
         elif node.raw_type.true_type == "string":
+            node.index = self.environment.assignedStrings.get(node.identifier, None)
             self.environment.code.append(('ldr', scope, offset))
         else:
             self.environment.code.append(('ldv', scope, offset))
@@ -211,8 +221,14 @@ class CodeGenerator(object):
         self.generate(node.value)
         if hasattr(node, "array_type") or hasattr(node, "loc"):
             self.environment.code.append(('grc',))
-        elif node.raw_type.true_type == "const_string":
+        if hasattr(node.value, "index"):
             node.index = node.value.index
+
+    def visit_Location(self, node):
+        self.generate(node.location)
+        if hasattr(node.location, "index"):
+            node.index = node.location.index
+
 
     def read(self, node):
         for expression in node.parameters:
@@ -312,6 +328,11 @@ class CodeGenerator(object):
             if node.expression.raw_type.true_type == "const_string":
                 self.generate(node.location)
                 self.generate(node.expression)
+                self.environment.code.append(('sts', node.expression.value.index))
+            elif node.expression.raw_type.true_type == "string":
+                self.generate(node.location)
+                self.generate(node.expression)
+                self.environment.code.pop()
                 self.environment.code.append(('sts', node.expression.value.index))
         else:
             self.generate(node.expression)
