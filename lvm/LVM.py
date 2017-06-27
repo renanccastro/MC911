@@ -336,7 +336,7 @@ class LVM():
         if bool(parameters[0]) :
             print(chr(self.M.pop()), end="")
         else :
-            print(repr(int(self.M.pop())), end="")
+            print(self.M.pop(), end="")
 
     def run_prt(self,parameters):
         # Print Multiple Values print(M[sp-k+1:sp+1]); sp-=(k-1)
