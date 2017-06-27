@@ -6,14 +6,33 @@ from lvm.LVM import LVM
 from semantic.CodeGenerator import CodeGenerator
 from semantic.NodeVisitor import NodeVisitor
 from pprint import pprint
+import argparse
+
+
+parser = argparse.ArgumentParser(description='Compiler and LVM for LYA, developed by Renan and Wendrey.')
+parser.add_argument('filename', metavar='filename', type=str, nargs=1,
+                    help='file to be compiled and executed')
+parser.add_argument('--debuglvm', dest='debuglvm', action='store_const',
+                    const=True, default=False,
+                    help='run lvm in debug mode (default: no)')
+parser.add_argument('--print-tree', dest='printtree', action='store_const',
+                    const=True, default=False,
+                    help='print decorated tree (default: no)')
+parser.add_argument('--hide-code', dest='hidecode', action='store_const',
+                    const=True, default=False,
+                    help='dont show generated code, only run program (default: no)')
+
+
+args = parser.parse_args()
+
 
 if __name__ == "__main__" :
-    filename = sys.argv[-1]
+    filename = args.filename[0]
     tokenizer = Tokenizer()
     parser = Parser()
     visitor = NodeVisitor()
     generator = CodeGenerator()
-    lvm = LVM(False)
+    lvm = LVM(args.debuglvm)
     if filename != 'main.py' :
 
         with open(filename, 'r') as content_file:
@@ -32,17 +51,23 @@ if __name__ == "__main__" :
             print(":::::::::: ::::::::::::::::::::::::::: ::::::::::")
             print()
             visitor.visit(result)
-            visitor.visit_print(result)
+            if args.printtree:
+                visitor.visit_print(result)
             print()
             print(":::::::::: ::::::::::: ::::::::::")
             print(":::::::::: MAKING CODE ::::::::::")
             print(":::::::::: ::::::::::: ::::::::::")
             print()
 
-            generator.generate(result)
-            pprint(generator.environment.stack)
-            pprint(generator.environment.H)
-            pprint(generator.environment.code)
+            try:
+                generator.generate(result)
+                if not args.hidecode:
+                    pprint(generator.environment.stack)
+                    pprint(generator.environment.H)
+                    pprint(generator.environment.code)
+            except Exception:
+                print("Sorry, you program has unrecoverable errors. Fix them and try again.")
+                sys.exit(1)
 
             print()
             print(":::::::::: ::::::::::: ::::::::::")
@@ -54,7 +79,7 @@ if __name__ == "__main__" :
                             generator.environment.H)
 
     else :
-    
+
         while True:
             try:
                 s = input('calc > ')

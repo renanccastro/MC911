@@ -71,7 +71,7 @@ class CodeGenerator(object):
     def visit_Program(self, node):
         self.environment = GeneratorEnvironment(node.environment.variablesScope)
         print(self.environment.variablesScopeTotal)
-        print(self.environment.stack)
+        # print(self.environment.stack)
         self.environment.code.append(('stp',))
         self.environment.code.append(('alc', node.symboltable.lastNumber))
         for statement in node.statements: self.generate(statement)
@@ -95,7 +95,7 @@ class CodeGenerator(object):
 
     def visit_ProcedureStatement(self, node):
         self.environment.stack.append(self.environment.variablesScopeTotal[node.staticLevel])
-        print(self.environment.stack)
+        # print(self.environment.stack)
         self.environment.add_label(node.name)
         self.environment.add_label("jumpafter_" + node.name)
         self.environment.add_label("return_function_lya_compiler_" + node.name)
