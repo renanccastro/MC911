@@ -1,7 +1,0 @@
-/* some tests for syntax analysis */
-
-
-dcl s chars[20] = "aaa"&"bbb";
-print(s);
-
-
