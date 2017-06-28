@@ -141,7 +141,11 @@ class CodeGenerator(object):
                 self.environment.code.append(('div',))
             elif node.operation == "%":
                 self.environment.code.append(('mod',))
-                # TODO concat operation
+        elif node.operation == '&':
+            str0 = self.environment.H[node.operand0.index]
+            str1 = self.environment.H[node.operand1.index]
+            self.environment.H.append(str0+str1)
+            node.index = len(self.environment.H) - 1
 
     def visit_MonadicOperation(self, node):
         self.generate(node.operand)

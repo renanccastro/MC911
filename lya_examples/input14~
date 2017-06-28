@@ -1,0 +1,5 @@
+
+dcl name chars[15] = "hahaha";
+dcl a chars[15] = name;
+
+print(a,"\n");
