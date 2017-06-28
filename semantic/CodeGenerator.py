@@ -280,7 +280,7 @@ class CodeGenerator(object):
                 self.environment.code.append(('prs',))
             elif expression.raw_type.type == "char":
                 self.generate(expression.value)
-                self.environment.code.append(('prv', 0))
+                self.environment.code.append(('prv', 1))
             elif expression.raw_type.type == "array":
                 self.generate(expression.value)
                 self.environment.code.pop()
@@ -300,7 +300,6 @@ class CodeGenerator(object):
                     self.environment.code.append(('ldv', scope, offset))
                 else:
                     self.environment.code.append(('ldr', scope, offset))
-
             elif expression.funcParameter.raw_type.type == "array":
                 (scope, offset) = self.environment.lookupWithScope(expression.value.value.location.identifier)
                 self.environment.code.append(('ldr', scope, offset))
@@ -322,12 +321,40 @@ class CodeGenerator(object):
             self.generate(expression)
             self.environment.code.append(('abs',))
 
+    def lower(self, node):
+        for expression in node.parameters:
+            self.generate(expression)
+            self.environment.code.append(('ldc', 32))
+            self.environment.code.append(('add',))
+
+    def upper(self, node):
+        for expression in node.parameters:
+            self.generate(expression)
+            self.environment.code.append(('ldc', 32))
+            self.environment.code.append(('sub',))
+
+    def num(self, node):
+        for expression in node.parameters:
+            self.generate(expression)
+            self.environment.code.append(('ldc', 48))
+            self.environment.code.append(('sub',))
+
+    def asc(self, node):
+        for expression in node.parameters:
+            self.generate(expression)
+            # self.environment.code.append(('ldc', 48))
+            # self.environment.code.append(('sub',))
+
     def visit_BuiltinCall(self, node):
         result = {
             'read': self.read,
             'print': self.print,
             'length' : self.length,
-            'abs'  : self.abs
+            'abs'  : self.abs,
+            'lower': self.lower,
+            'upper': self.upper,
+            'num': self.num,
+            'asc': self.asc
         }[node.name](node)
 
     def visit_AssigmentAction(self, node):

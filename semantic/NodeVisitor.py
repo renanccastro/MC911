@@ -635,6 +635,11 @@ class NodeVisitor(object) :
 
     def visit_BuiltinCall(self, node):
         node.raw_type = self.environment.root[node.name]
+        if node.name == 'num' or node.name == 'abs' or node.name == 'asc':
+            node.raw_type = self.environment.root["int"]
+        elif node.name == 'lower' or node.name == 'upper' :
+            node.raw_type = self.environment.root["char"]
+
         for parameter in node.parameters:
             self.visit(parameter)
             if node.name == "length":

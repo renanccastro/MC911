@@ -155,12 +155,13 @@ class Tokenizer:
     # C character literal 'char'
     def t_CCONST(self, t):
         r'\'(\\.|[^\'])*\'|\^\(\d*\)'
-        if t.value[1] == "'":
+        if t.value[0] == "'":
             value = t.value[1:-1]
             value = value.replace('\\n', '\n')
             value = value.replace('\\t', '\t')
+            value = ord(value)
         else:
-            value = chr(int(t.value[2:-1]))
+            value = int(t.value[2:-1])
         t.value = value
         return t
 
