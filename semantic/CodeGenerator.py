@@ -278,6 +278,9 @@ class CodeGenerator(object):
             elif expression.raw_type.true_type == "string":
                 self.generate(expression.value)
                 self.environment.code.append(('prs',))
+            elif expression.raw_type.type == "char" and hasattr(expression, "array_type"):
+                self.generate(expression.value)
+                self.environment.code.append(('prv', 0))
             elif expression.raw_type.type == "char":
                 self.generate(expression.value)
                 self.environment.code.append(('prv', 1))
