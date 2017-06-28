@@ -154,6 +154,17 @@ class CodeGenerator(object):
         elif node.operation == "!":
             self.environment.code.append(('not',))
 
+    def visit_ArraySlice(self, node):
+        self.generate(node.location)
+        self.generate(node.range.lower)
+        if node._node.mode.raw_type.type == "string":
+            self.environment.code.append(('ldc', 1))
+            self.environment.code.append(('add',))
+        else:
+            self.generate(node._node.mode.index_mode_list[0].lower)
+            self.environment.code.append(('sub',))
+        self.environment.code.append(('idx', node._node.mode.sizeArray[0]))
+
     def visit_ArrayElement(self, node):
         self.generate(node.location)
         for i in reversed(range(len(node.expression_list))):
@@ -235,6 +246,9 @@ class CodeGenerator(object):
         self.generate(node.location)
         if hasattr(node.location, "index"):
             node.index = node.location.index
+        if hasattr(node.location, "size"):
+            node.size = node.location.size
+
 
     def read(self, node):
         for expression in node.parameters:
@@ -306,8 +320,8 @@ class CodeGenerator(object):
     def abs(self, node):
         for expression in node.parameters:
             self.generate(expression)
-            self.environment.code.append(('abs'))
-            
+            self.environment.code.append(('abs',))
+
     def visit_BuiltinCall(self, node):
         result = {
             'read': self.read,
@@ -332,11 +346,15 @@ class CodeGenerator(object):
             return
 
         if hasattr(node.location, "array_type"):
-            # TODO: POR ENQUANTO SO FAZ ASSIGNMENT DE 1 VALOR NO ARRAY
-            # VER SE HA POSSIBILIDADE DE FAZER COM MAIS
-            self.generate(node.location)
-            self.generate(node.expression)
-            self.environment.code.append(('smv', 1))
+            if hasattr(node.location, "location") and type(node.location.location).__name__ == "ArraySlice":
+                self.generate(node.location)
+                for i in range(0, node.location.size):
+                    self.generate(node.expression)
+                self.environment.code.append(('smv', node.location.size))
+            else:
+                self.generate(node.location)
+                self.generate(node.expression)
+                self.environment.code.append(('smv', 1))
         elif node.raw_type.type == "ref" and type(node.location.location) == DereferencedLocation:
             # TODO: assignment de ref
             self.generate(node.expression)

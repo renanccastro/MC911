@@ -409,8 +409,8 @@ class Parser:
             p[0].append(p[1])
 
     def p_array_slice(self, p):
-        '''array_slice : array_location LBRACKET lower_bound COLON upper_bound RBRACKET'''
-        p[0] = ArraySlice(p[1], p[3], p[5], lineno=p.lineno(1))
+        '''array_slice : array_location LBRACKET literal_range RBRACKET'''
+        p[0] = ArraySlice(p[1], p[3], lineno=p.lineno(1))
 
     def p_array_location(self, p):
         '''array_location : location'''

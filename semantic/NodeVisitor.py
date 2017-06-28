@@ -226,6 +226,25 @@ class NodeVisitor(object) :
     def visit_StringLiteral(self, node):
         node.raw_type = self.environment.root['const_string']
 
+
+    def visit_ArraySlice(self, node):
+        self.visit(node.location)
+        self.visit(node.range)
+        node.size = node.range.size
+
+        if node.location._node.raw_type.type == "string":
+            node.raw_type = self.environment.root["array"]
+            node.array_type = self.environment.root["char"]
+        else:
+            node.raw_type = self.environment.root["array"]
+            node.array_type = node.location._node.array_type
+
+        if hasattr(node.location, "_node"):
+            node._node = node.location._node
+
+
+
+
     def visit_Location(self, node):
         self.visit(node.location)
         node.raw_type = node.location.raw_type
