@@ -303,14 +303,29 @@ class CodeGenerator(object):
                 self.environment.code.append(('grc',))
             elif expression.raw_type.type == "array":
                 self.environment.code.append(('ldc', expression.value.value.location._node.size))
-
-
-
+    def abs(self, node):
+        for expression in node.parameters:
+            else_label = "else_label_abs_func_lya_{}".format(len(self.environment.labels))
+            end_if = "end_label_abs_func_lya_{}".format(len(self.environment.labels))
+            self.environment.add_label(else_label)
+            self.environment.add_label(end_if)
+            self.generate(expression)
+            self.environment.code.append(('ldc', 0))
+            self.environment.code.append(('les',))
+            self.environment.code.append(('jof', self.environment.label_index(else_label)))
+            self.generate(expression)
+            self.environment.code.append(('ldc', -1))
+            self.environment.code.append(('mul',))
+            self.environment.code.append(('jmp', self.environment.label_index(end_if)))
+            self.environment.code.append(('lbl', self.environment.label_index(else_label)))
+            self.generate(expression)
+            self.environment.code.append(('lbl', self.environment.label_index(end_if)))
     def visit_BuiltinCall(self, node):
         result = {
             'read': self.read,
             'print': self.print,
             'length' : self.length,
+            'abs'  : self.abs
         }[node.name](node)
 
     def visit_AssigmentAction(self, node):
