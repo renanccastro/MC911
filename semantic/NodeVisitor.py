@@ -666,7 +666,7 @@ class NodeVisitor(object) :
         upper_type = node.upper.raw_type.type 
         if  lower_type != upper_type :
             error(node.lineno, "Range bounds do not have matching types. Bound types are '{}' and '{}'".format(lower_type, upper_type))
-        if ('const' not in repr(node.lower.raw_type.true_type)) or ('const' not in repr(node.lower.raw_type.true_type)) :
+        if ('const' not in repr(node.lower.raw_type.true_type)) or ('const' not in repr(node.upper.raw_type.true_type)) :
             error(node.lineno, "Range bounds must be constant value expressions")
         node.raw_type = node.lower.raw_type
         node.size = (node.upper.calculatedValue - node.lower.calculatedValue) + 1
