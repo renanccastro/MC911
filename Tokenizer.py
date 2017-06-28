@@ -154,11 +154,14 @@ class Tokenizer:
 
     # C character literal 'char'
     def t_CCONST(self, t):
-        r'\'(\\.|[^\'])*\''
-        value = t.value[1:-1]
-        value = value.replace('\\n', '\n')
-        value = value.replace('\\t', '\t')
-        t.value = ord(value)
+        r'\'(\\.|[^\'])*\'|\^\(\d*\)'
+        if t.value[1] == "'":
+            value = t.value[1:-1]
+            value = value.replace('\\n', '\n')
+            value = value.replace('\\t', '\t')
+        else:
+            value = chr(int(t.value[2:-1]))
+        t.value = value
         return t
 
     # Errors

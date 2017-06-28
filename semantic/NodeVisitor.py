@@ -130,8 +130,9 @@ class NodeVisitor(object) :
     def visit_Program(self, node):
         self.environment.push(node)
         node.environment = self.environment
-        node.symboltable = self.environment.peek()
         for statement in node.statements: self.visit(statement)
+        node.symboltable = self.environment.peek()
+        node.variablesScope = self.environment.variablesScope[-1]
 
     def visit_NewModeStatement(self, node):
         mode_definition_list = node.mode_definition_list
@@ -309,6 +310,7 @@ class NodeVisitor(object) :
         node.definition.functionName = node.name
         self.visit(node.definition)
         node.symboltable = self.environment.peek()
+        node.variablesScope = self.environment.variablesScope[-1]
         self.environment.pop()
 
     def visit_ProcedureDefinition(self, node):
@@ -428,7 +430,6 @@ class NodeVisitor(object) :
         if node.location._node.raw_type.type == "string":
             node.raw_type = self.environment.root["char"]
             node.array_type = self.environment.root["char"]
-            error(node.lineno, "Cannot access string ")
         else:
             node.raw_type = node.location._node.array_type
             node.array_type = node.location._node.array_type

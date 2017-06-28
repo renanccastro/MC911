@@ -21,7 +21,7 @@ class GeneratorEnvironment(Environment):
     def __init__(self, variablesScope):
         super()
         self.variablesScopeTotal = variablesScope
-        self.stack = [variablesScope[0]]
+        self.stack = []
         self.assignedStrings = {}
         self.H = []
         self.labels = []
@@ -69,14 +69,17 @@ class CodeGenerator(object):
                 self.generate(value)
 
     def visit_Program(self, node):
-        self.environment = GeneratorEnvironment(node.environment.variablesScope)
+        self.environment = GeneratorEnvironment([])
+
         print(self.environment.variablesScopeTotal)
+        self.environment.stack.append(node.variablesScope)
         # print(self.environment.stack)
         self.environment.code.append(('stp',))
         self.environment.code.append(('alc', node.symboltable.lastNumber))
         for statement in node.statements: self.generate(statement)
         self.environment.code.append(('dlc', node.symboltable.lastNumber))
         self.environment.code.append(('end',))
+        self.environment.stack.pop()
 
     def visit_Declaration(self, node):
         for idObj in node.identifier:
@@ -94,8 +97,8 @@ class CodeGenerator(object):
                     self.environment.code.append(('stv', scope, offset))
 
     def visit_ProcedureStatement(self, node):
-        self.environment.stack.append(self.environment.variablesScopeTotal[node.staticLevel])
-        # print(self.environment.stack)
+        self.environment.stack.append(node.variablesScope)
+        print(self.environment.stack)
         self.environment.add_label(node.name)
         self.environment.add_label("jumpafter_" + node.name)
         self.environment.add_label("return_function_lya_compiler_" + node.name)
@@ -259,7 +262,7 @@ class CodeGenerator(object):
                 self.environment.code.append(('prs',))
             elif expression.raw_type.type == "char":
                 self.generate(expression.value)
-                self.environment.code.append(('prv', 1))
+                self.environment.code.append(('prv', 0))
             elif expression.raw_type.type == "array":
                 self.generate(expression.value)
                 self.environment.code.pop()

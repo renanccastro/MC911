@@ -37,8 +37,10 @@ class Environment(object):
         
     def push(self, enclosure):
         self.stack.append(SymbolTable(decl=enclosure))
+        self.variablesScope.append({})
     def pop(self):
         self.stack.pop()
+        self.variablesScope.pop()
     def peek(self):
         return self.stack[-1]
     def scope_level(self):
@@ -50,8 +52,6 @@ class Environment(object):
             self.peek().add(name, value)
         if ('scope' in keyword_parameters and 'offset' in keyword_parameters):
             scope = keyword_parameters["scope"]
-            while len(self.variablesScope) <  (scope + 1):
-                self.variablesScope.append({})
             self.variablesScope[scope][name] = (scope , keyword_parameters["offset"])
 
     def add_root(self, name, value):
