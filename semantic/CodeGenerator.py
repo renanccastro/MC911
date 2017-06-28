@@ -295,10 +295,22 @@ class CodeGenerator(object):
                 self.generate(expression)
         self.environment.code.append(('cfu', self.environment.label_index(node.name)))
 
+    def length(self, node):
+        for expression in node.parameters:
+            if expression.raw_type.type == "string":
+                (scope, offset) = self.environment.lookupWithScope(expression.value.value.location.identifier)
+                self.environment.code.append(('ldr', scope, offset))
+                self.environment.code.append(('grc',))
+            elif expression.raw_type.type == "array":
+                self.environment.code.append(('ldc', expression.value.value.location._node.size))
+
+
+
     def visit_BuiltinCall(self, node):
         result = {
             'read': self.read,
             'print': self.print,
+            'length' : self.length,
         }[node.name](node)
 
     def visit_AssigmentAction(self, node):

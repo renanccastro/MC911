@@ -618,6 +618,13 @@ class NodeVisitor(object) :
         node.raw_type = self.environment.root[node.name]
         for parameter in node.parameters:
             self.visit(parameter)
+            if node.name == "length":
+                if parameter.value.__class__.__name__ != "Operand" or \
+                   parameter.value.value.__class__.__name__ != "Location" or \
+                   parameter.value.value.location.__class__.__name__ != "Identifier":
+                    error(node.lineno, "Wrong call to length. Expected variable.")
+                if len(node.parameters) > 1:
+                    error(node.lineno, "Wrong call to length. Expected 1 expression.")
 
     def visit_StepEnumeration(self, node):
         self.visit(node.loop_counter)
