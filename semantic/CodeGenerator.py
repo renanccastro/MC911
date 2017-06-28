@@ -562,9 +562,9 @@ class CodeGenerator(object):
         (scope, offset) = self.environment.lookupWithScope(node.loop_counter.identifier)
         # VALOR INICIAL
         if node.down is None:
-            self.environment.code.append(('ldc', node.mode.mode.range.lower))
+            self.environment.code.append(('ldc', node.mode.range.lower.calculatedValue))
         else:
-            self.environment.code.append(('ldc', node.mode.mode.range.upper))
+            self.environment.code.append(('ldc', node.mode.range.upper.calculatedValue))
         # VOLTA UM STEP ANTES DE COMEÇAR
         self.environment.code.append(('ldc', 1))
         if node.down is None:
@@ -585,8 +585,8 @@ class CodeGenerator(object):
         # COMPARA
         self.environment.code.append(('ldv', scope, offset))
         if node.down is None:
-            self.environment.code.append(('ldc', node.mode.mode.range.upper))
+            self.environment.code.append(('ldc', node.mode.range.upper.calculatedValue))
             self.environment.code.append(('leq',))
         else:
-            self.environment.code.append(('ldc', node.mode.mode.range.lower))
+            self.environment.code.append(('ldc', node.mode.range.lower.calculatedValue))
             self.environment.code.append(('gre',))
