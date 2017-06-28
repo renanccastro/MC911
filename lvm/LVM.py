@@ -84,7 +84,7 @@ class LVM():
     def run_ldc(self, parameters):
         # Load constant sp=sp+1; M[sp]=k
         self.check_parameters(1,parameters)
-        self.M.push(int(parameters[0]))
+        self.M.push(parameters[0])
 
     def run_ldv(self, parameters):
         # Load value sp=sp+1; M[sp]=M[D[i]+j]
