@@ -50,9 +50,13 @@ if __name__ == "__main__" :
             print(":::::::::: Visiting and Decorating AST ::::::::::")
             print(":::::::::: ::::::::::::::::::::::::::: ::::::::::")
             print()
-            visitor.visit(result)
-            if args.printtree:
-                visitor.visit_print(result)
+            try:
+                visitor.visit(result)
+                if args.printtree:
+                    visitor.visit_print(result)
+            except Exception:
+                print("Sorry, you program has unrecoverable errors. Fix them and try again.")
+                sys.exit(1)
             print()
             print(":::::::::: ::::::::::: ::::::::::")
             print(":::::::::: MAKING CODE ::::::::::")
